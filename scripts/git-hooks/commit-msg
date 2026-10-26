@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# lean-sdd commit-msg hook
 # Normalize the Claude trailers.
 # If <git-common-dir>/claude-trailer exists, drop any other
 # "Co-Authored-By: Claude ..." and "Claude-Session: ..." lines and append

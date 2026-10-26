@@ -7,6 +7,7 @@ Prints model, context % and 5h/7d usage. Writes the usage numbers to
 import json
 import os
 import sys
+import tempfile
 import time
 
 CONFIG = os.environ.get("CLAUDE_CONFIG_DIR") or os.path.join(os.path.expanduser("~"), ".claude")
@@ -50,18 +51,22 @@ def main():
     if five is not None or seven is not None:
         try:
             os.makedirs(STATE, exist_ok=True)
-            tmp = os.path.join(STATE, "usage.json.tmp")
-            with open(tmp, "w") as f:
-                json.dump(
-                    {
-                        "five_hour": five,
-                        "five_hour_resets_at": (rl.get("five_hour") or {}).get("resets_at"),
-                        "seven_day": seven,
-                        "updated_at": int(time.time()),
-                    },
-                    f,
-                )
-            os.replace(tmp, os.path.join(STATE, "usage.json"))
+            fd, tmp = tempfile.mkstemp(dir=STATE, prefix="usage.json.")
+            try:
+                with os.fdopen(fd, "w") as f:
+                    json.dump(
+                        {
+                            "five_hour": five,
+                            "five_hour_resets_at": (rl.get("five_hour") or {}).get("resets_at"),
+                            "seven_day": seven,
+                            "updated_at": int(time.time()),
+                        },
+                        f,
+                    )
+                os.replace(tmp, os.path.join(STATE, "usage.json"))
+            except BaseException:
+                os.unlink(tmp)
+                raise
         except Exception:
             pass
 

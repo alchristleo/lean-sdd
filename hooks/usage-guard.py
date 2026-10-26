@@ -15,7 +15,10 @@ import time
 CONFIG = os.environ.get("CLAUDE_CONFIG_DIR") or os.path.join(os.path.expanduser("~"), ".claude")
 STATE = os.path.join(CONFIG, "state")
 CACHE = os.path.join(STATE, "usage.json")
-PAUSE = float(os.environ.get("CLAUDE_USAGE_PAUSE_PCT", "95"))
+try:
+    PAUSE = float(os.environ.get("CLAUDE_USAGE_PAUSE_PCT", "95"))
+except ValueError:
+    PAUSE = 95.0
 WARN = PAUSE - 10
 REPEAT_SECS = 600
 
@@ -33,12 +36,13 @@ def main():
     except Exception:
         return
     now = time.time()
-    # Ignore stale data or a window that already reset.
+    # Ignore stale data. A 5h window that already reset drops only the 5h value.
     if now - u.get("updated_at", 0) > 900:
         return
+    five = u.get("five_hour") or 0
     if u.get("five_hour_resets_at") and now > u["five_hour_resets_at"]:
-        return
-    pct = max(u.get("five_hour") or 0, u.get("seven_day") or 0)
+        five = 0
+    pct = max(five, u.get("seven_day") or 0)
     level = "pause" if pct >= PAUSE else "warn" if pct >= WARN else None
     if level is None:
         return

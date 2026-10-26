@@ -117,10 +117,15 @@ Add this to `settings.json`. The command finds the newest installed version by i
 {
   "statusLine": {
     "type": "command",
-    "command": "sh -c 'exec python3 \"$(ls -d \"${CLAUDE_CONFIG_DIR:-$HOME/.claude}\"/plugins/cache/lean-sdd/lean-sdd/*/ | sort -V | tail -1)scripts/statusline-cache.py\"'"
+    "command": "sh -c 'd=$(ls -d \"${CLAUDE_CONFIG_DIR:-$HOME/.claude}\"/plugins/cache/lean-sdd/lean-sdd/*/ 2>/dev/null | sort -V | tail -1); [ -n \"$d\" ] || exit 0; exec python3 \"${d}scripts/statusline-cache.py\"'"
   }
 }
 ```
+
+## Releasing
+
+Maintainers: bump `version` in `.claude-plugin/plugin.json` on every user-visible change. Claude
+Code uses it to detect updates, and the status-line command picks the highest installed version.
 
 ## Removed
 
