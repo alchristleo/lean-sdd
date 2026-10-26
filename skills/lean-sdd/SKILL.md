@@ -178,7 +178,7 @@ Max one re-run per seat per milestone; a second fail → ask the owner.
   finishing menu counts as the gate only if the non-VERIFIED criteria and the dismissed
   findings are listed right above it; picking merge or PR is then the explicit yes.
 - After the PR opens, and again after every push to the PR branch: `"${CLAUDE_PLUGIN_ROOT}"/scripts/pr-checks-wait.sh <pr>`
-  (exit 1 = a check failed, 3 = gh error or no checks). The merge gate quotes the head sha it printed. CI red → fix before merge. ACs checked on PR
+  (exit 1 = a check failed, or the head moved during the wait: re-run it; 3 = gh error or no checks). The merge gate quotes the head sha it printed. CI red → fix before merge. ACs checked on PR
   CI get their spec edit committed to the branch before the merge, never after.
 - Merge with `"${CLAUDE_PLUGIN_ROOT}"/scripts/pr-merge.sh <pr> <head sha>`: it refuses a moved head, merges, and
   prints any branch commit missing from the base (exit 3 = lost work; land it on main).
