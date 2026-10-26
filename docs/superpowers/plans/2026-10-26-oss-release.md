@@ -120,6 +120,9 @@ spec), `~/.claude/scripts/{install-git-hooks,pr-checks-wait,pr-merge,review-pkg,
 - install-smoke: two cached versions, assert `sort -V` picks the higher; README wording "highest version number".
 - Plugin icon (validate ICON warning).
 - Sequence diagram: trim empty lane space under the last message.
+- Stubbed-gh tests for pr-checks-wait.sh head-moved path and pr-merge.sh re-read path.
+- Hero diagram: larger / coloured "gate" label (~7px now).
+- install-smoke: legacy-hook replace and foreign-hook refusal cases.
 - Upgrade archify 3.0.1 -> 3.2.0 and re-export (owner call).
 
 ## Ledger
@@ -173,3 +176,10 @@ SEAT cdo fail 82eb17f AC19 releases row phase 2 only
 TRIAGE fixed=19 dismissed=4 backlog=1
 DISMISSED lifecycle crossing, diagram cards, sequence lane space (backlog), statusline code-block scroll; owner approved
 COORD owner: rewrite author email to noreply before push; scrub /home/ paths in docs, AC3 extended
+FIX wave d8d3265 sdd-implementer 14 items, smoke 10/10, all checks green, diagrams narrowed (archify fixed font size)
+COORD df800f9 nan/inf fallback + legacy hook sha accept, red-first nan/inf cases
+PANEL cdo d8d3265 must=0 should=0 nit=3
+SEAT cdo pass d8d3265 AC14
+SEAT cdo pass d8d3265 AC19
+COORD fix-wave re-review d8d3265 sdd-reviewer-lite fix-needed: must nan/inf threshold, should legacy hook refused (both coord-fixed df800f9); should pr scripts no stubbed-gh test -> backlog
+COORD review approve df800f9 sdd-reviewer-lite coord fixes ok; nit legacy-hook test -> backlog
