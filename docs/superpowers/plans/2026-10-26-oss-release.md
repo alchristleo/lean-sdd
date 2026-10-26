@@ -144,3 +144,5 @@ T4 done 948ce56 sdd-implementer smoke 8/8, guard ok, AC3/4 clean; removed vendor
 T4 review approve 948ce56 sdd-reviewer nits: opt-in trigger, role-name note, -buildvcs Go example, notices README omitted
 T4 coord 7fe5edb opt-in trigger, role-name note, neutral build-flag example
 T4 review approve 5b5ce5a sdd-reviewer-lite coord fixes ok; nit: Decision 5 wording vs opt-in trigger
+T5 done 432f5cf sdd-implementer 4 diagrams finalize ok, 8 assets ~150KB, snake workflow layout, lifecycle/sequence not eyeballed
+T5 review approve 432f5cf sdd-reviewer nits: arch missing statusline writer node, lifecycle edge crossing, dead cards (to panel)

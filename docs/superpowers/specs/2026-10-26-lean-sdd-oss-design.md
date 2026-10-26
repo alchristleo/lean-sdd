@@ -50,7 +50,7 @@ Reader: a Claude Code power user who knows superpowers, wants fewer gates, and d
    partial"; "complete App.tsx" → "complete one existing file"; Go error convention → "the language's own
    error convention"; "CLAUDE.md coding rules" → "the project's coding rules". Model names in agent
    frontmatter stay (Claude Code needs them).
-5. **Commit trailer hook:** opt-in. Step 0 runs it only if the user turned it on; the README says how.
+5. **Commit trailer hook:** opt-in. Step 0 runs it only if the user asked for commit trailers, in the session or in the project's CLAUDE.md; the README says how.
 6. **Usage guard:** ships with a cache-only status line script (`statusline.py` minus the personal
    badge). The README says the guard does nothing without it.
 7. **asd-ste100 lint:** bundled with its MIT license; credited in `THIRD_PARTY_NOTICES.md`.
