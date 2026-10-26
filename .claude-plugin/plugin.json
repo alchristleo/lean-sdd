@@ -1,0 +1,10 @@
+{
+  "name": "lean-sdd",
+  "version": "0.1.0",
+  "description": "Two gates. Evidence for everything else. A lean spec-driven build workflow for Claude Code.",
+  "author": { "name": "alchristleo" },
+  "license": "MIT",
+  "homepage": "https://github.com/alchristleo/lean-sdd",
+  "repository": "https://github.com/alchristleo/lean-sdd",
+  "dependencies": ["superpowers@claude-plugins-official"]
+}
