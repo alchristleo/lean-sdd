@@ -1,6 +1,6 @@
 {
   "name": "lean-sdd",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Two gates. Evidence for everything else. A lean spec-driven build workflow for Claude Code.",
   "author": { "name": "alchristleo" },
   "license": "MIT",
