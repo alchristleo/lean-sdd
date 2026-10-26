@@ -1,23 +1,22 @@
 {
   "schema_version": 1,
   "diagram_type": "architecture",
-  "meta": { "title": "What the plugin installs", "quality_profile": "showcase", "output": "architecture.html" },
+  "meta": { "title": "What the plugin installs", "quality_profile": "showcase", "output": "architecture.html", "legend": { "mode": "hidden" } },
   "components": [
-    { "id": "you", "type": "external", "label": "You", "sublabel": "Claude Code", "pos": [40, 160], "size": [120, 60] },
-    { "id": "skill", "type": "frontend", "label": "lean-sdd skill", "sublabel": "the flow", "pos": [240, 160], "size": [140, 60] },
-    { "id": "agents", "type": "backend", "label": "10 agents", "sublabel": "lean-sdd:<name>", "pos": [460, 160], "size": [140, 60] },
-    { "id": "scripts", "type": "cloud", "label": "Scripts", "sublabel": "review, log, merge", "pos": [240, 310], "size": [140, 60] },
-    { "id": "hook", "type": "security", "label": "Usage-guard hook", "sublabel": "pauses at 95%", "pos": [460, 310], "size": [140, 60] },
-    { "id": "cache", "type": "database", "label": "Status-line cache", "sublabel": "usage.json", "pos": [680, 310], "size": [140, 60] }
+    { "id": "you", "type": "external", "label": "You", "sublabel": "Claude Code", "pos": [40, 40], "size": [150, 60] },
+    { "id": "skill", "type": "frontend", "label": "lean-sdd skill", "sublabel": "the flow", "pos": [270, 40], "size": [150, 60] },
+    { "id": "agents", "type": "backend", "label": "10 agents", "sublabel": "lean-sdd:<name>", "pos": [500, 40], "size": [150, 60] },
+    { "id": "scripts", "type": "cloud", "label": "Scripts", "sublabel": "review, log, merge", "pos": [270, 170], "size": [150, 60] },
+    { "id": "hook", "type": "security", "label": "Usage-guard hook", "sublabel": "pauses at 95%", "pos": [40, 300], "size": [150, 60] },
+    { "id": "cache", "type": "database", "label": "Usage cache", "sublabel": "usage.json", "pos": [270, 300], "size": [150, 60] },
+    { "id": "statusline", "type": "frontend", "label": "Status line", "sublabel": "statusline-cache.py", "pos": [500, 300], "size": [150, 60] }
   ],
   "connections": [
     { "id": "c1", "from": "you", "to": "skill", "label": "start" },
     { "id": "c2", "from": "skill", "to": "agents", "label": "dispatches", "variant": "emphasis" },
     { "id": "c3", "from": "skill", "to": "scripts", "label": "runs", "fromSide": "bottom", "toSide": "top" },
-    { "id": "c4", "from": "cache", "to": "hook", "label": "reads", "variant": "dashed" },
-    { "id": "c5", "from": "hook", "to": "you", "label": "pause message", "variant": "security", "fromSide": "bottom", "toSide": "bottom", "via": [[530, 420], [100, 420]] }
-  ],
-  "cards": [
-    { "dot": "cyan", "title": "Plugin parts", "items": ["One skill, ten agents", "Scripts, one hook, one status line"] }
+    { "id": "c4", "from": "statusline", "to": "cache", "label": "writes" },
+    { "id": "c5", "from": "cache", "to": "hook", "label": "reads", "variant": "dashed" },
+    { "id": "c6", "from": "hook", "to": "you", "label": "pause message", "variant": "security", "fromSide": "top", "toSide": "bottom" }
   ]
 }

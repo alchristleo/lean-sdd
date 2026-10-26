@@ -10,6 +10,7 @@ guard() {
   tmp=$(mktemp -d)
   trap 'rm -rf "$tmp"' RETURN
   export CLAUDE_CONFIG_DIR="$tmp"
+  unset CLAUDE_USAGE_PAUSE_PCT
   for pct in 96 10; do
     rm -rf "$tmp/state"
     printf '{"model":{"display_name":"M"},"rate_limits":{"five_hour":{"used_percentage":%s}}}' "$pct" |
@@ -22,6 +23,17 @@ guard() {
     else
       echo "FAIL 10% printed: $out"; fail=1
     fi
+  done
+  # Expired 5h window must not hide a 7d value over the threshold.
+  rm -rf "$tmp/state"
+  printf '{"rate_limits":{"five_hour":{"used_percentage":10,"resets_at":1},"seven_day":{"used_percentage":96}}}' |
+    "$ROOT/scripts/statusline-cache.py" >/dev/null
+  out=$(printf '{"hook_event_name":"UserPromptSubmit","session_id":"s"}' | "$ROOT/hooks/usage-guard.py")
+  case $out in *"USAGE GUARD"*) echo "ok   7d 96% with expired 5h window prints USAGE GUARD" ;; *) echo "FAIL 7d 96% with expired 5h printed: $out"; fail=1 ;; esac
+  # A malformed threshold falls back to 95 without a traceback.
+  for bad in abc nan inf; do
+    out=$(printf '{"hook_event_name":"UserPromptSubmit","session_id":"s2-%s"}' "$bad" | CLAUDE_USAGE_PAUSE_PCT=$bad "$ROOT/hooks/usage-guard.py" 2>&1)
+    case $out in *"USAGE GUARD"*"threshold 95%"*) echo "ok   CLAUDE_USAGE_PAUSE_PCT=$bad falls back to 95" ;; *) echo "FAIL threshold $bad printed: $out"; fail=1 ;; esac
   done
   return "$fail"
 }

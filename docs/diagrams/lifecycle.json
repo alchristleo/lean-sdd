@@ -1,29 +1,116 @@
 {
   "schema_version": 2,
   "diagram_type": "lifecycle",
-  "meta": { "title": "One task, start to finish", "quality_profile": "showcase", "output": "lifecycle.html" },
+  "meta": {
+    "title": "One task, start to finish",
+    "quality_profile": "showcase",
+    "output": "lifecycle.html",
+    "legend": {
+      "mode": "hidden"
+    }
+  },
   "lanes": [
-    { "id": "main", "label": "Task" },
-    { "id": "fixing", "label": "Fix rounds" },
-    { "id": "terminal", "label": "Outcome" }
+    {
+      "id": "main",
+      "label": "Task"
+    },
+    {
+      "id": "fixing",
+      "label": "Fix rounds"
+    },
+    {
+      "id": "terminal",
+      "label": "Outcome"
+    }
   ],
   "states": [
-    { "id": "planned", "type": "start", "label": "Planned", "sublabel": "in the plan", "lane": "main", "col": 0 },
-    { "id": "building", "type": "active", "label": "Building", "sublabel": "implementer agent", "lane": "main", "col": 1 },
-    { "id": "review", "type": "decision", "label": "Review", "sublabel": "reviewer agent", "lane": "main", "col": 2 },
-    { "id": "fix", "type": "waiting", "label": "Fix", "sublabel": "round 1 or 2", "lane": "fixing", "col": 2 },
-    { "id": "done", "type": "success", "label": "Done", "sublabel": "reviewer passes", "lane": "terminal", "col": 3 },
-    { "id": "blocked", "type": "failure", "label": "Blocked", "sublabel": "still failing", "lane": "terminal", "col": 4 }
+    {
+      "id": "planned",
+      "type": "start",
+      "label": "Planned",
+      "lane": "main",
+      "col": 0,
+      "width": 110,
+      "sublabel": "in the plan"
+    },
+    {
+      "id": "building",
+      "type": "active",
+      "label": "Building",
+      "lane": "main",
+      "col": 1,
+      "width": 110,
+      "sublabel": "implementer"
+    },
+    {
+      "id": "review",
+      "type": "decision",
+      "label": "Review",
+      "lane": "main",
+      "col": 2,
+      "width": 110,
+      "sublabel": "reviewer"
+    },
+    {
+      "id": "fix",
+      "type": "waiting",
+      "label": "Fix",
+      "lane": "fixing",
+      "col": 2,
+      "width": 110,
+      "sublabel": "round 1 or 2"
+    },
+    {
+      "id": "done",
+      "type": "success",
+      "label": "Done",
+      "lane": "terminal",
+      "col": 1,
+      "width": 110,
+      "sublabel": "approved"
+    },
+    {
+      "id": "blocked",
+      "type": "failure",
+      "label": "Blocked",
+      "lane": "terminal",
+      "col": 2,
+      "width": 110,
+      "sublabel": "still failing"
+    }
   ],
   "transitions": [
-    { "from": "planned", "to": "building" },
-    { "from": "building", "to": "review" },
-    { "from": "review", "to": "done", "variant": "emphasis", "label": "approve" },
-    { "from": "review", "to": "fix", "variant": "security", "label": "fix-needed" },
-    { "from": "fix", "to": "review", "variant": "dashed", "label": "re-review" },
-    { "from": "fix", "to": "blocked", "variant": "security", "label": "after 2 rounds" }
-  ],
-  "cards": [
-    { "dot": "amber", "title": "Fix-round cap", "items": ["Max 2 fix rounds per task", "A blocked task waits, others go on"] }
+    {
+      "from": "planned",
+      "to": "building"
+    },
+    {
+      "from": "building",
+      "to": "review"
+    },
+    {
+      "from": "review",
+      "to": "done",
+      "variant": "emphasis",
+      "label": "approve"
+    },
+    {
+      "from": "review",
+      "to": "fix",
+      "variant": "security",
+      "label": "fix-needed"
+    },
+    {
+      "from": "fix",
+      "to": "review",
+      "variant": "dashed",
+      "label": "re-review"
+    },
+    {
+      "from": "fix",
+      "to": "blocked",
+      "variant": "security",
+      "label": "after 2 rounds"
+    }
   ]
 }

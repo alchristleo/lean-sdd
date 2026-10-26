@@ -191,8 +191,10 @@ Max one re-run per seat per milestone; a second fail → ask the owner.
   test, agent rule or CLAUDE.md line. Mechanical lessons get a check, not prose. Keep a lesson
   only if it is high-signal, high-frequency or high-impact.
 - **Workflow lessons** (this skill, the plugin's `agents/` and `scripts/`): propose the edit
-  with its evidence, apply on the user's yes, then append
-  `YYYY-MM-DD <file>: <change> (evidence)` to `skills/lean-sdd/CHANGELOG.md` in the lean-sdd repo.
+  with its evidence, apply on the user's yes in your clone of the lean-sdd repo, then append
+  `YYYY-MM-DD <file>: <change> (evidence)` to `skills/lean-sdd/CHANGELOG.md` there. A marketplace
+  install has no clone, and the plugin cache is overwritten on update: record the lesson in the
+  project's `CLAUDE.md` or open an issue or PR against lean-sdd instead.
   Baseline = the real-session failure the edit targets, cited in the CHANGELOG line (plan or
   ledger ref). A rule with no real failure behind it runs a superpowers:writing-skills eval
   (baseline first) before it ships. Other lessons: Backlog, except a CI or post-merge escape:

@@ -14,8 +14,8 @@ not fake it: the substituted text is what the client sent.
 Variables used in all command blocks (set once per shell):
 
 ```
-W=/home/leo/AI_STUFF/lean-sdd/.claude/worktrees/agent-aa1d438dc978dc36c   # repo root
-SP=/tmp/t1-probe                                                         # scratch dir
+W=<repo>   # repo root
+SP=<scratch>                                                         # scratch dir
 mkdir -p $SP
 ```
 
@@ -69,8 +69,8 @@ Skill body `ROOT=${CLAUDE_PLUGIN_ROOT}` and `QUOTED="${CLAUDE_PLUGIN_ROOT}"/scri
 the `Skill` call (`lean-sdd:probe`):
 
 ```
-ROOT=/home/leo/AI_STUFF/lean-sdd/.claude/worktrees/agent-aa1d438dc978dc36c/test/fixtures/probe-plugin
-QUOTED="/home/leo/AI_STUFF/lean-sdd/.claude/worktrees/agent-aa1d438dc978dc36c/test/fixtures/probe-plugin"/scripts/probe.sh
+ROOT=<repo>/test/fixtures/probe-plugin
+QUOTED="<repo>/test/fixtures/probe-plugin"/scripts/probe.sh
 ```
 
 Command (mock sends an `Agent` call with `subagent_type: lean-sdd:probe-agent`):
@@ -84,7 +84,7 @@ Agent body `Reply exactly: PROBE-AGENT-OK ROOT=${CLAUDE_PLUGIN_ROOT}`, as seen i
 system prompt:
 
 ```
-Reply exactly: PROBE-AGENT-OK ROOT=/home/leo/AI_STUFF/lean-sdd/.claude/worktrees/agent-aa1d438dc978dc36c/test/fixtures/probe-plugin
+Reply exactly: PROBE-AGENT-OK ROOT=<repo>/test/fixtures/probe-plugin
 ```
 
 Hook command, run after the three `claude -p` runs above:
@@ -99,7 +99,7 @@ for 3 prompts. The 4th line is probably the sub-agent prompt. That is not verifi
 `UserPromptSubmit` ran on every prompt (log lines below):
 
 ```
-probe script ran; env CLAUDE_PLUGIN_ROOT=[/home/leo/AI_STUFF/lean-sdd/.claude/worktrees/agent-aa1d438dc978dc36c/test/fixtures/probe-plugin]
+probe script ran; env CLAUDE_PLUGIN_ROOT=[<repo>/test/fixtures/probe-plugin]
 ```
 
 Notes:
@@ -115,7 +115,7 @@ Notes:
 
 ```
 $ ls -l $CLAUDE_CONFIG_DIR/plugins/cache/lean-sdd/lean-sdd/0.0.1/scripts
--rwxr-xr-x 1 leo leo 82 Oct 26 23:51 probe.sh
+-rwxr-xr-x 1 user user 82 Oct 26 23:51 probe.sh
 ```
 
 Source mode was 755. A source file with mode 644 stays 644 in the install (`test/install-smoke.sh` on a

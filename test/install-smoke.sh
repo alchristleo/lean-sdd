@@ -49,13 +49,17 @@ check "scripts/ exists with at least 1 .sh ($total found)" test -d "$DIR/scripts
 check "every scripts/*.sh executable ($nonexec not)" test "$total" -ge 1 -a "$nonexec" -eq 0
 check "no .git/hooks/commit-msg after install" test ! -e "$TMP/scratch/.git/hooks/commit-msg"
 
+readme_cmd() {
+  python3 -I -c '
+import json, re, sys
+t = open(sys.argv[1]).read()
+print(json.loads(re.search(r"```json\n(.*?)\n```", t, re.S).group(1))["statusLine"]["command"])' "$ROOT/README.md"
+}
+
 # README status-line command: run it against the install, 96% sample -> cache -> guard.
 statusline_guard() {
   local cmd out
-  cmd=$(python3 -I -c '
-import json, re, sys
-t = open(sys.argv[1]).read()
-print(json.loads(re.search(r"```json\n(.*?)\n```", t, re.S).group(1))["statusLine"]["command"])' "$ROOT/README.md") || return 1
+  cmd=$(readme_cmd) || return 1
   printf '{"model":{"display_name":"M"},"rate_limits":{"five_hour":{"used_percentage":96}}}' |
     sh -c "$cmd" >/dev/null || return 1
   test -s "$CLAUDE_CONFIG_DIR/state/usage.json" || return 1
@@ -63,5 +67,17 @@ print(json.loads(re.search(r"```json\n(.*?)\n```", t, re.S).group(1))["statusLin
   case $out in *"USAGE GUARD"*) return 0 ;; *) return 1 ;; esac
 }
 check "README status-line command writes the cache and the guard fires" statusline_guard
+
+# Empty plugin cache: the command must exit 0 and must not run a planted relative script.
+statusline_no_fallback() {
+  local cmd cfg plant
+  cmd=$(readme_cmd) || return 1
+  cfg="$TMP/emptycfg"; plant="$TMP/plant"
+  mkdir -p "$cfg" "$plant/scripts"
+  printf 'import pathlib\npathlib.Path("ran").write_text("x")\n' >"$plant/scripts/statusline-cache.py"
+  (cd "$plant" && CLAUDE_CONFIG_DIR="$cfg" sh -c "$cmd" </dev/null >/dev/null 2>&1) || return 1
+  test ! -e "$plant/ran"
+}
+check "README status-line command with an empty cache exits 0 and runs no planted script" statusline_no_fallback
 
 exit "$fail"
