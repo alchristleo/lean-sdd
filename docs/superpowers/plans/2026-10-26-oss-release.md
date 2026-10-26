@@ -137,3 +137,6 @@ T1 review fail bd11d7c sdd-reviewer-lite findings doc not self-contained (env ex
 T3 review fail 29e2c9c sdd-reviewer-lite header line 3 scope vs Notes subset; past cap
 COORD retro: review-pkg diff incomplete twice (T1 4b319e2-bd11d7c, T1 38dc789 pkg stale)
 DISMISSED T1 bd11d7c + T3 29e2c9c remaining doc-polish findings, owner accepted as-is (internal prototype record; AC16 re-verifies comparison)
+T1 done bd11d7c sdd-implementer merged (owner accepted)
+T3 done 29e2c9c sdd-implementer merged (owner accepted)
+MERGE group1 aa0331d validate strict ok, install-smoke red as expected until T4
