@@ -142,3 +142,4 @@ T3 done 29e2c9c sdd-implementer merged (owner accepted)
 MERGE group1 aa0331d validate strict ok, install-smoke red as expected until T4
 T4 done 948ce56 sdd-implementer smoke 8/8, guard ok, AC3/4 clean; removed vendored asd-ste100 README; trailer opt-in mechanism undefined
 T4 review approve 948ce56 sdd-reviewer nits: opt-in trigger, role-name note, -buildvcs Go example, notices README omitted
+T4 coord 7fe5edb opt-in trigger, role-name note, neutral build-flag example
