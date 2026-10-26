@@ -37,7 +37,7 @@ Say the size you picked in one line. Trust boundary or size unclear → Large.
 
 ## 0. Setup (once per repo / branch)
 
-- Trailer hook, only if the user opted in (otherwise skip it; never install it unasked), so subagent commits never need rewriting:
+- Trailer hook, only if the user asked for commit trailers, in this session or in the project's CLAUDE.md (otherwise skip it; never install it unasked), so subagent commits never need rewriting:
   `"${CLAUDE_PLUGIN_ROOT}"/scripts/install-git-hooks.sh "<trailer lines from the system attribution reminder, one per line>"`
   Re-run at every session start and whenever the attribution reminder changes (it can change mid-session).
 - Usage: `cat "${CLAUDE_CONFIG_DIR:-$HOME/.claude}/state/usage.json"` (written by the status line). Pause threshold 95%
@@ -97,7 +97,7 @@ Each answer becomes a Decision, a Non-goal or a question at the gate. Then **GAT
 
 `docs/superpowers/plans/YYYY-MM-DD-<milestone>.md`. Per task:
 files, public interfaces/signatures, acceptance tests (name + what each asserts),
-constraints, **agent** (`sdd-implementer-lite` | `sdd-implementer`), **depends-on**.
+constraints, **agent** (`sdd-implementer-lite` | `sdd-implementer`; role names, dispatched as `lean-sdd:<name>`), **depends-on**.
 - No full implementation code; snippets ≤ 15 lines only for tricky contracts.
 - When tasks share a contract (outputs, API, file format), the consumer's test fixtures use the producer's real-shaped values, not simplified fakes.
 - A removal or rename task's acceptance test is a repo-wide grep (every dir: web, assets, examples, dotfiles) with an explicit allowlist.
