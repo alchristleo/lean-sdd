@@ -117,6 +117,9 @@ spec), `~/.claude/scripts/{install-git-hooks,pr-checks-wait,pr-merge,review-pkg,
 - Preflight script (superpowers, gh auth, fresh usage cache, hook registered).
 - Eval suite (`claude plugin eval`), CONTRIBUTING, launch posts (topics, superpowers community, blog, Discord).
 - Day-30 success thresholds (CEO paper).
+- install-smoke: two cached versions, assert `sort -V` picks the higher; README wording "highest version number".
+- Plugin icon (validate ICON warning).
+- Upgrade archify 3.0.1 -> 3.2.0 and re-export (owner call).
 
 ## Ledger
 USAGE start 12
@@ -149,3 +152,4 @@ T5 review approve 432f5cf sdd-reviewer nits: arch missing statusline writer node
 T6 done f651c8d sdd-implementer README + checks all green, 8 mutation proofs; statusline path pins version; archify upstream Apache-2.0 vs local MIT
 T6 fix f651c8d sdd-reviewer fix-needed statusline path pins version, archify license wording, plain=1 anchors
 COORD spec AC2 wording single-command install (T6 review nit)
+T6 done dcd76ea sdd-reviewer-lite approve fix round; nits to Backlog
