@@ -79,6 +79,10 @@ Reader: a Claude Code power user who knows superpowers, wants fewer gates, and d
     line, `claude plugin marketplace add alchristleo/lean-sdd && claude plugin install lean-sdd@lean-sdd`,
     plus the same two `/plugin` commands for use inside a session. T1 checks whether a single command does
     both, and whether it pulls superpowers. No `curl | bash`.
+15. **Field notes** (owner, after spec approval): Proof gets a `<details>` table from `docs/field-notes.md`
+    (6 agentic-warden milestones: tasks, fix rounds, blocked, triage where logged), each row linked to its
+    public plan, captioned "6 milestones, one maintainer, one repo, Oct 2026. Descriptive, not a benchmark."
+    No usage numbers, percentages, averages or comparisons.
 
 ## Design
 
@@ -138,6 +142,8 @@ Run from the repo root.
 
 18. Install is one line: the README's first fenced `bash` block is exactly one line, and it is the command
     `test/install-smoke.sh` runs (with the local path swapped for the repo slug). `test/check.sh install`.
+19. Field-notes table: 6 rows, each linked to an agentic-warden plan, values equal to `docs/field-notes.md`,
+    caption present, no `%` in the table. `test/check.sh fieldnotes`. Values match `sdd-metrics.sh` on each plan: `check: seat panel-cdo`.
 
 ## Security notes
 

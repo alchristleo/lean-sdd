@@ -99,15 +99,15 @@ spec), `~/.claude/scripts/{install-git-hooks,pr-checks-wait,pr-merge,review-pkg,
   found one), then `/plugin` in-session variant, then needed-when prerequisites table (superpowers, gh at
   merge only, status line for the guard, browser tool for panel-cdo only). Comparison table from
   `docs/comparison-research.md` with `unverified` rows dropped. Proof = 4 CHANGELOG lines with line refs.
-  Origin section links github.com/alchristleo/agentic-warden. Small task note: "nothing happens, by design".
+  Field-notes `<details>` in Proof from `docs/field-notes.md` (spec Decision 15). Origin section links github.com/alchristleo/agentic-warden. Small task note: "nothing happens, by design".
 - Constraint: every number or claim traces to the CHANGELOG, SKILL.md, or the research file (AC13).
   No badges, no emoji, ≤ 3 alerts, no cost claims (AC7, AC8).
-- Tests: AC5, AC6, AC7, AC8, AC9, AC16, AC18 commands exit 0.
+- Tests: AC5, AC6, AC7, AC8, AC9, AC16, AC18, AC19 commands exit 0.
 
 ## Step 7 panel briefs (for the coordinator)
 - panel-correctness (opus, trust boundary): AC15, plus hook/script behavior.
 - panel-security (opus): hook input handling, script quoting, trailer hook opt-in, `pr-merge.sh` head check.
-- panel-cdo: AC13, AC14, AC16 (cells vs sources). Reader + reference bar from spec AC14. GitHub rendering
+- panel-cdo: AC13, AC14, AC16 (cells vs sources), AC19 (values vs sdd-metrics). Reader + reference bar from spec AC14. GitHub rendering
   check: push to a private scratch repo only on owner's yes, else render locally and say so.
 - panel-design: skip unless new non-test code ≥ ~300 lines (mostly ported docs).
 
@@ -119,3 +119,5 @@ spec), `~/.claude/scripts/{install-git-hooks,pr-checks-wait,pr-merge,review-pkg,
 - Day-30 success thresholds (CEO paper).
 
 ## Ledger
+USAGE start 12
+PLAN 6 tasks, group1 T1 T2 T3 parallel
