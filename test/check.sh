@@ -31,8 +31,10 @@ guard() {
   out=$(printf '{"hook_event_name":"UserPromptSubmit","session_id":"s"}' | "$ROOT/hooks/usage-guard.py")
   case $out in *"USAGE GUARD"*) echo "ok   7d 96% with expired 5h window prints USAGE GUARD" ;; *) echo "FAIL 7d 96% with expired 5h printed: $out"; fail=1 ;; esac
   # A malformed threshold falls back to 95 without a traceback.
-  out=$(printf '{"hook_event_name":"UserPromptSubmit","session_id":"s2"}' | CLAUDE_USAGE_PAUSE_PCT=abc "$ROOT/hooks/usage-guard.py" 2>&1)
-  case $out in *"USAGE GUARD"*"threshold 95%"*) echo "ok   malformed CLAUDE_USAGE_PAUSE_PCT falls back to 95" ;; *) echo "FAIL malformed threshold printed: $out"; fail=1 ;; esac
+  for bad in abc nan inf; do
+    out=$(printf '{"hook_event_name":"UserPromptSubmit","session_id":"s2-%s"}' "$bad" | CLAUDE_USAGE_PAUSE_PCT=$bad "$ROOT/hooks/usage-guard.py" 2>&1)
+    case $out in *"USAGE GUARD"*"threshold 95%"*) echo "ok   CLAUDE_USAGE_PAUSE_PCT=$bad falls back to 95" ;; *) echo "FAIL threshold $bad printed: $out"; fail=1 ;; esac
+  done
   return "$fail"
 }
 

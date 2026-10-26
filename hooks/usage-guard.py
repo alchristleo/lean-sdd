@@ -9,6 +9,7 @@ Threshold: env CLAUDE_USAGE_PAUSE_PCT (default 95), warn at threshold-10.
 """
 import json
 import os
+import math
 import sys
 import time
 
@@ -18,6 +19,8 @@ CACHE = os.path.join(STATE, "usage.json")
 try:
     PAUSE = float(os.environ.get("CLAUDE_USAGE_PAUSE_PCT", "95"))
 except ValueError:
+    PAUSE = 95.0
+if not math.isfinite(PAUSE):
     PAUSE = 95.0
 WARN = PAUSE - 10
 REPEAT_SECS = 600
