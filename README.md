@@ -93,6 +93,31 @@ that still fails is marked blocked, and the build moves on.
 Claude also asks when a step is ambiguous and evidence cannot settle it. Source:
 [`SKILL.md`](skills/lean-sdd/SKILL.md), the paragraph under the workflow diagram.
 
+<details>
+<summary>Glossary: the short names you will see in chat, specs and plans</summary>
+
+| Term | Meaning |
+|---|---|
+| Size triage | The first step. Small work skips the flow; everything else is Large. |
+| Scope gate | Six lines before questions: smallest version, cuts, parked ideas, reuse, trust boundary, audience. |
+| Spec | The design doc you approve at the first gate: goal, non-goals, decisions, ACs. |
+| AC1, AC2, ... | Acceptance criteria in the spec. Each names the command or reviewer that checks it. |
+| Plan | The task list: files, interfaces and tests per task. No full code. |
+| T1, T2, ... | Tasks in the plan, in order. T1 often settles an open question with a prototype. |
+| Gate | A stop where Claude waits for your explicit yes. There are two: spec and merge. |
+| Implementer, reviewer | Subagents that build one task and check it. `-lite` ones use a cheaper model. |
+| Fix round | One "fix needed" verdict from a reviewer. A task gets at most two. |
+| Coord fix | A fix of 10 lines or fewer the main session makes itself, reviewed afterwards. |
+| Trust boundary | Auth, tokens, crypto, payments, personal data, untrusted input. Adds a security seat. |
+| Panel, seat | End-of-milestone review. Each seat is one lens: correctness, design, security, CDO (look). |
+| Fix wave | One batch of fixes for the panel's findings. |
+| Spec converge | The final check. Each AC gets VERIFIED, NOT VERIFIED or INCONCLUSIVE. |
+| Ledger | One line per event at the end of the plan, used for pause, resume and metrics. |
+| Backlog | Good ideas parked in the plan instead of built now. |
+| Retro | A short review after merge. Lessons become checks or rule edits, not notes. |
+
+</details>
+
 ## Optional
 
 - **Exec room.** CEO, CPO and CMO position papers before the spec. It runs only when you ask.
