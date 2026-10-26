@@ -5,6 +5,10 @@ description: Use when starting, resuming or continuing any multi-step build (new
 
 # Lean SDD
 
+Needs Claude Code. If the Agent tool or the `lean-sdd:` agents are missing (claude.ai chat
+loads plugin skills without agents or hooks), don't run this flow: say lean-sdd needs Claude
+Code, then help without it.
+
 Replaces superpowers brainstorming, writing-plans and subagent-driven-development
 (steps 1–6 below cover them; don't invoke them). Still used: TDD (inside the
 implementer agents), systematic-debugging (bugs) and
