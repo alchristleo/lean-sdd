@@ -1,0 +1,266 @@
+{
+  "schema_version": 2,
+  "diagram_type": "workflow",
+  "meta": {
+    "title": "The lean-sdd flow",
+    "quality_profile": "showcase",
+    "output": "workflow.html"
+  },
+  "lanes": [
+    {
+      "id": "opt",
+      "label": "Optional"
+    },
+    {
+      "id": "plan",
+      "label": "Plan"
+    },
+    {
+      "id": "build",
+      "label": "Build"
+    },
+    {
+      "id": "ship",
+      "label": "Ship"
+    }
+  ],
+  "mainPath": [
+    "triage",
+    "setup",
+    "scope",
+    "questions",
+    "spec"
+  ],
+  "nodes": [
+    {
+      "id": "triage",
+      "lane": "plan",
+      "col": 0,
+      "type": "frontend",
+      "label": "T Triage",
+      "sublabel": "small or large",
+      "width": 136
+    },
+    {
+      "id": "small",
+      "lane": "build",
+      "col": 0,
+      "type": "external",
+      "label": "Small task",
+      "sublabel": "do it directly",
+      "width": 136
+    },
+    {
+      "id": "setup",
+      "lane": "plan",
+      "col": 1,
+      "type": "backend",
+      "label": "0 Setup",
+      "sublabel": "usage check",
+      "width": 136
+    },
+    {
+      "id": "scope",
+      "lane": "plan",
+      "col": 2,
+      "type": "backend",
+      "label": "1 Scope gate",
+      "sublabel": "cut, defer, reuse",
+      "width": 136
+    },
+    {
+      "id": "exec",
+      "lane": "opt",
+      "col": 2,
+      "type": "messagebus",
+      "label": "2a Exec room",
+      "sublabel": "owner asks only",
+      "width": 136
+    },
+    {
+      "id": "questions",
+      "lane": "plan",
+      "col": 3,
+      "type": "backend",
+      "label": "2 Questions",
+      "sublabel": "one round",
+      "width": 136
+    },
+    {
+      "id": "spec",
+      "lane": "plan",
+      "col": 5,
+      "type": "security",
+      "label": "3 Spec",
+      "sublabel": "you approve",
+      "tag": "gate",
+      "width": 136
+    },
+    {
+      "id": "plan",
+      "lane": "build",
+      "col": 5,
+      "type": "backend",
+      "label": "4 Plan",
+      "sublabel": "interfaces + tests",
+      "width": 136
+    },
+    {
+      "id": "build",
+      "lane": "build",
+      "col": 4,
+      "type": "backend",
+      "label": "5 Build",
+      "sublabel": "implementer agents",
+      "width": 136
+    },
+    {
+      "id": "review",
+      "lane": "build",
+      "col": 3,
+      "type": "backend",
+      "label": "6 Task review",
+      "sublabel": "max 2 fix rounds",
+      "width": 136
+    },
+    {
+      "id": "panel",
+      "lane": "build",
+      "col": 2,
+      "type": "backend",
+      "label": "7 Panel",
+      "sublabel": "seats review branch",
+      "width": 136
+    },
+    {
+      "id": "converge",
+      "lane": "ship",
+      "col": 2,
+      "type": "backend",
+      "label": "8 Converge",
+      "sublabel": "check each AC",
+      "width": 136
+    },
+    {
+      "id": "merge",
+      "lane": "ship",
+      "col": 3,
+      "type": "security",
+      "label": "Merge",
+      "sublabel": "you approve",
+      "tag": "gate",
+      "width": 136
+    },
+    {
+      "id": "retro",
+      "lane": "ship",
+      "col": 4,
+      "type": "database",
+      "label": "9 Retro",
+      "sublabel": "lessons to checks",
+      "width": 136
+    }
+  ],
+  "edges": [
+    {
+      "id": "e1",
+      "from": "triage",
+      "to": "setup",
+      "label": "large",
+      "variant": "emphasis"
+    },
+    {
+      "id": "e1s",
+      "from": "triage",
+      "to": "small",
+      "label": "small",
+      "variant": "dashed",
+      "role": "branch"
+    },
+    {
+      "id": "e2",
+      "from": "setup",
+      "to": "scope"
+    },
+    {
+      "id": "e2a",
+      "from": "scope",
+      "to": "exec",
+      "label": "optional",
+      "variant": "dashed",
+      "role": "branch"
+    },
+    {
+      "id": "e2b",
+      "from": "exec",
+      "to": "questions",
+      "variant": "dashed",
+      "role": "branch"
+    },
+    {
+      "id": "e3",
+      "from": "scope",
+      "to": "questions"
+    },
+    {
+      "id": "e4",
+      "from": "questions",
+      "to": "spec"
+    },
+    {
+      "id": "e5",
+      "from": "spec",
+      "to": "plan",
+      "variant": "security"
+    },
+    {
+      "id": "e6",
+      "from": "plan",
+      "to": "build"
+    },
+    {
+      "id": "e7",
+      "from": "build",
+      "to": "review"
+    },
+    {
+      "id": "e8",
+      "from": "review",
+      "to": "panel"
+    },
+    {
+      "id": "e9",
+      "from": "panel",
+      "to": "converge"
+    },
+    {
+      "id": "e10",
+      "from": "converge",
+      "to": "merge"
+    },
+    {
+      "id": "e11",
+      "from": "merge",
+      "to": "retro",
+      "variant": "security"
+    }
+  ],
+  "cards": [
+    {
+      "dot": "rose",
+      "title": "Two gates",
+      "items": [
+        "You approve the spec",
+        "You approve the merge"
+      ]
+    },
+    {
+      "dot": "cyan",
+      "title": "Small tasks",
+      "items": [
+        "1 to 3 files, no trust boundary",
+        "Nothing happens, by design"
+      ]
+    }
+  ]
+}

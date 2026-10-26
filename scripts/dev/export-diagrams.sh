@@ -2,6 +2,7 @@
 # Dev only. Export one archify candidate as assets/<name>-light.svg and assets/<name>-dark.svg.
 # Usage: scripts/dev/export-diagrams.sh <candidate.json> <name> [type]
 # Needs: node, archify (ARCHIFY_BIN), playwright-core (PLAYWRIGHT_CORE), Chromium (CHROME).
+# This script passes CHROME to archify as ARCHIFY_CHROME, so set CHROME, not ARCHIFY_CHROME.
 set -euo pipefail
 
 cand=${1:?usage: export-diagrams.sh <candidate.json> <name> [type]}
@@ -10,7 +11,16 @@ type=${3:-workflow}
 root=$(cd "$(dirname "$0")/../.." && pwd)
 archify=${ARCHIFY_BIN:-$HOME/.claude/skills/archify/bin/archify.mjs}
 export PLAYWRIGHT_CORE=${PLAYWRIGHT_CORE:-$(npm root -g)/playwright-core}
-export CHROME=${CHROME:-$(ls -d "$HOME"/.cache/ms-playwright/chromium-*/chrome-linux64/chrome | tail -n 1)}
+export CHROME=${CHROME:-$(ls -d "$HOME"/.cache/ms-playwright/chromium-*/chrome-linux64/chrome 2>/dev/null | tail -n 1)}
+
+[ -f "$PLAYWRIGHT_CORE/package.json" ] || {
+  echo "export-diagrams: playwright-core not found at '$PLAYWRIGHT_CORE'. Set PLAYWRIGHT_CORE to its directory." >&2
+  exit 1
+}
+[ -x "$CHROME" ] || {
+  echo "export-diagrams: Chromium not found at '$CHROME'. Set CHROME to a Chromium executable." >&2
+  exit 1
+}
 
 tmp=$(mktemp -d)
 trap 'rm -rf "$tmp"' EXIT
