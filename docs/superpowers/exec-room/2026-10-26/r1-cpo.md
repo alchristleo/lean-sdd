@@ -1,6 +1,6 @@
 # CPO r1: first-run experience of lean-sdd (reader: superpowers power user, wants fewer gates, lower token cost, skeptical)
 
-No `.agents/product-marketing.md` or `.claude/product-marketing.md` exists in the repo (checked); sources are the brief's files. Paths below are under `/home/leo/.claude/`. Install commands are not in any source: marked "verify".
+No `.agents/product-marketing.md` or `.claude/product-marketing.md` exists in the repo (checked); sources are the brief's files. Paths below are under `~/.claude/`. Install commands are not in any source: marked "verify".
 
 ## Position
 1. The value moment inside 10 minutes is the spec gate: one prompt, one size line, a 6-line scope gate, one question round, a spec with checkable criteria, then a yes from the user. No code is written before it (SKILL.md:13-20, 48-94).
@@ -32,7 +32,7 @@ No `.agents/product-marketing.md` or `.claude/product-marketing.md` exists in th
 1. Pitch, 3 lines: what it replaces, two gates, small tasks skipped. 2. Install plus the needed-when prerequisites table. 3. First prompt and "what you will see", with diagram 1 (workflow T to 9) right under it. 4. "What the two gates ask of you", with diagram 2 (task lifecycle: build, review, max 2 fix rounds, blocked; SKILL.md:134-136). 5. "How it works" for the curious: diagram 3 (coordinator to agents sequence) and diagram 4 (architecture map: skill, agents, scripts, hook, statusline cache). 6. Optional: usage guard, exec room, metrics. 7. Evidence (CHANGELOG link). 8. Third party: asd-ste100 lint, MIT, with license.
 
 **Personal or confusing to an outsider (each with a source).**
-- Hardcoded `~/.claude/scripts/...` throughout SKILL.md (lines 41, 43, 124-125, 130, 179, 182, 187, 194) and `/home/leo/...` in the hook command (settings.json:9,21, outside the plugin). A plugin needs `${CLAUDE_PLUGIN_ROOT}`-style paths (verify).
+- Hardcoded `~/.claude/scripts/...` throughout SKILL.md (lines 41, 43, 124-125, 130, 179, 182, 187, 194) and `~/...` in the hook command (settings.json:9,21, outside the plugin). A plugin needs `${CLAUDE_PLUGIN_ROOT}`-style paths (verify).
 - Statusline: `statusline.py` pulls a caveman plugin badge by glob (statusline.py:12-13). Ship only the cache-writing part.
 - The commit-msg trailer hook and "attribution reminder" (SKILL.md:40-42) exist for one owner's commit conventions (CHANGELOG.md:63, :83).
 - Jargon with no definition in the skill: AC, SEAT, PANEL, coord, converge, "act as CTO" (SKILL.md:66), "owner" (the reader is the user).
