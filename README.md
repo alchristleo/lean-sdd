@@ -10,6 +10,15 @@ You approve the spec and the merge. Claude asks about the rest in one batched ro
 - Small tasks skip it: 1 to 3 files, no spec, no plan, no subagents.
 - The plan lists interfaces and tests, not code.
 - Each rule cites the failure behind it, or says it has none.
+- Replaces superpowers brainstorming, writing-plans and subagent-driven-development. It still
+  uses TDD, systematic-debugging and finishing-a-development-branch.
+
+```bash
+claude plugin install --marketplace alchristleo/lean-sdd lean-sdd
+```
+
+Inside a session, run `/plugin marketplace add alchristleo/lean-sdd`, then
+`/plugin install lean-sdd@lean-sdd`. [Install superpowers first](#requirements).
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="assets/workflow-dark.svg">
@@ -18,14 +27,7 @@ You approve the spec and the merge. Claude asks about the rest in one batched ro
        alt="The workflow runs from triage to retro with only two human gates, spec and merge.">
 </picture>
 
-## Install
-
-```bash
-claude plugin install --marketplace alchristleo/lean-sdd lean-sdd
-```
-
-Inside a session, run `/plugin marketplace add alchristleo/lean-sdd`, then
-`/plugin install lean-sdd@lean-sdd`.
+## Requirements
 
 Install superpowers first. lean-sdd does not pull it in.
 
@@ -91,9 +93,6 @@ that still fails is marked blocked, and the build moves on.
 Claude also asks when a step is ambiguous and evidence cannot settle it. Source:
 [`SKILL.md`](skills/lean-sdd/SKILL.md), the paragraph under the workflow diagram.
 
-lean-sdd replaces the superpowers brainstorming, writing-plans and subagent-driven-development
-skills. It still uses TDD, systematic-debugging and finishing-a-development-branch.
-
 ## Optional
 
 - **Exec room.** CEO, CPO and CMO position papers before the spec. It runs only when you ask.
@@ -144,12 +143,12 @@ caused the edit.
 | Line | Edit | Failure behind it |
 |---|---|---|
 | [L27](skills/lean-sdd/CHANGELOG.md?plain=1#L27) | `panel-correctness` moved to Sonnet | It used 19% of 24h usage at Opus |
-| [L35](skills/lean-sdd/CHANGELOG.md?plain=1#L35) | Docs claims cite a source | 8 fix rounds, 14+9 unsupported claims |
+| [L35](skills/lean-sdd/CHANGELOG.md?plain=1#L35) | Docs claims cite a source | 8 fix rounds by the retro's count, 14+9 unsupported claims |
 | [L73](skills/lean-sdd/CHANGELOG.md?plain=1#L73) | Medium tier dropped | 0 of 6 plans used it |
 | [L85](skills/lean-sdd/CHANGELOG.md?plain=1#L85) | `sdd-log.sh` refuses newlines | A multi-line note forged a ledger line |
 
 <details>
-<summary>Six milestones in one repo, from 2 to 9 tasks each, none blocked</summary>
+<summary>Six milestones in one repo, from 5 to 9 tasks each, none blocked</summary>
 
 | Milestone | Tasks | Fix rounds | Blocked | Panel findings → triage |
 |---|---|---|---|---|
@@ -157,10 +156,13 @@ caused the edit.
 | [platform-refresh](https://github.com/alchristleo/agentic-warden/blob/main/docs/superpowers/plans/2026-10-23-platform-refresh.md) | 5 | 2 | 0 | not logged |
 | [docs-onboarding](https://github.com/alchristleo/agentic-warden/blob/main/docs/superpowers/plans/2026-10-24-docs-onboarding.md) | 9 | 6 | 0 | not logged |
 | [readme-appeal](https://github.com/alchristleo/agentic-warden/blob/main/docs/superpowers/plans/2026-10-25-readme-appeal.md) | 6 | 3 | 0 | not logged |
-| [releases](https://github.com/alchristleo/agentic-warden/blob/main/docs/superpowers/plans/2026-10-25-releases.md) | 2 | 1 | 0 | 13 fixed, 1 dismissed, 1 backlog |
+| [releases](https://github.com/alchristleo/agentic-warden/blob/main/docs/superpowers/plans/2026-10-25-releases.md) | 8 | 6 | 0 | 13 fixed, 1 dismissed, 1 backlog |
 | [security-hardening](https://github.com/alchristleo/agentic-warden/blob/main/docs/superpowers/plans/2026-10-25-security-hardening.md) | 8 | 1 | 0 | 4 fixed, 0 dismissed, 1 backlog |
 
 6 milestones, one maintainer, one repo, Oct 2026. Descriptive, not a benchmark.
+
+The script counts ledger `fix` lines only, so some plan retros report more. The docs-onboarding
+retro says 8. The releases row sums both of its ledger phases.
 
 "Not logged": these ledgers predate the strict ledger format (`sdd-log.sh`), so panel triage was
 not recorded in a countable form. Source: [`docs/field-notes.md`](docs/field-notes.md).
@@ -173,15 +175,15 @@ Yes, no or partial, read from each project's docs on 2026-10-26.
 
 | Feature | lean-sdd | superpowers | spec-kit | Plain Claude Code |
 |---|---|---|---|---|
-| Size triage that skips small tasks | yes | partial | no | partial |
-| Fixed approval gates | yes | partial | partial | partial |
-| Acceptance criteria with a check command | yes | partial | partial | partial |
-| Parallel build in isolated worktrees | yes | partial | partial | yes |
-| Per-task review | yes | yes | no | partial |
-| Multi-seat milestone panel | yes | no | no | partial |
-| Spec converge, verdict per criterion | yes | no | partial | no |
-| Usage guard | yes | no | no | partial |
-| Retro that edits the workflow | yes | no | no | partial |
+| Size triage that skips small tasks | yes | partial: a small change still gets a design doc | no: no scaling to task size documented | partial: guidance only, "skip the plan" for a one-line diff |
+| Fixed approval gates | yes | partial: design and plan approval, merge is a menu choice | partial: a workflow `gate` step, no formal gates named | partial: plan mode approval only |
+| Acceptance criteria with a check command | yes | partial: plan steps give a command, no acceptance-criteria term | partial: names criteria, no command per criterion | partial: advice to give verification criteria, no spec format |
+| Parallel build in isolated worktrees | yes | partial: implementation subagents run serially | partial: `[P]` task groups, no worktrees documented | yes |
+| Per-task review | yes | yes | no: converge checks the whole feature, not each task | partial: `/code-review` is not tied to plan tasks |
+| Multi-seat milestone panel | yes | no: one reviewer subagent | no: one `code-review` skill | partial: you define reviewer subagents yourself |
+| Spec converge, verdict per criterion | yes | no: no converge step | partial: reports gaps only, no verdict per criterion | no: no spec-check command documented |
+| Usage guard | yes | no: not documented | no: not documented | partial: the status line shows rate limits, no built-in pause |
+| Retro that edits the workflow | yes | no: `writing-skills` makes new skills, no retro | no: not documented | partial: auto memory never edits skills |
 | Agents and editors | Claude Code | 16 entries | 43 entries | its own surfaces |
 | Install | plugin command | plugin command | `uv tool install` | install script |
 | Dependencies | superpowers, `gh` | not documented | Python 3.11+, uv | an account |
@@ -199,7 +201,7 @@ Sources, read 2026-10-26:
 2. It runs on Claude Code only. The other two list 16 and 43 agent entries.
 3. The merge scripts need GitHub. They call `gh pr view` and `gh pr merge`.
 4. One maintainer, since 2026-10-23. It is young.
-5. Large work has two fixed human gates. Plain Claude Code has none.
+5. Large work has two fixed human gates. Plain Claude Code has no fixed gate.
 
 ## Where this came from
 

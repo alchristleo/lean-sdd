@@ -1,31 +1,136 @@
 {
   "schema_version": 1,
   "diagram_type": "sequence",
-  "meta": { "title": "Who talks to whom", "quality_profile": "showcase", "output": "sequence.html", "column_fit": "spread" },
+  "meta": {
+    "title": "Who talks to whom",
+    "quality_profile": "showcase",
+    "output": "sequence.html",
+    "viewBox": [
+      744,
+      480
+    ],
+    "column_fit": "spread",
+    "legend": {
+      "mode": "hidden"
+    }
+  },
   "participants": [
-    { "id": "coord", "type": "frontend", "label": "Coordinator", "sublabel": "your session" },
-    { "id": "impl", "type": "backend", "label": "Implementer", "sublabel": "one task" },
-    { "id": "rev", "type": "security", "label": "Reviewer", "sublabel": "per task" },
-    { "id": "panel", "type": "messagebus", "label": "Panel seats", "sublabel": "whole branch" },
-    { "id": "conv", "type": "database", "label": "Spec-converge", "sublabel": "AC verdicts" }
+    {
+      "id": "coord",
+      "type": "frontend",
+      "label": "Coordinator"
+    },
+    {
+      "id": "impl",
+      "type": "backend",
+      "label": "Implementer"
+    },
+    {
+      "id": "rev",
+      "type": "security",
+      "label": "Reviewer"
+    },
+    {
+      "id": "panel",
+      "type": "messagebus",
+      "label": "Panel seats"
+    },
+    {
+      "id": "conv",
+      "type": "database",
+      "label": "Spec-converge"
+    }
   ],
   "messages": [
-    { "id": "m1", "from": "coord", "to": "impl", "y": 160, "label": "task + base sha", "variant": "emphasis" },
-    { "id": "m2", "from": "impl", "to": "coord", "y": 190, "label": "10-line report", "variant": "return" },
-    { "id": "m3", "from": "coord", "to": "rev", "y": 225, "label": "review package path", "variant": "emphasis" },
-    { "id": "m4", "from": "rev", "to": "coord", "y": 255, "label": "verdict", "variant": "return" },
-    { "id": "m5", "from": "coord", "to": "panel", "y": 290, "label": "whole-branch package", "variant": "emphasis" },
-    { "id": "m6", "from": "panel", "to": "coord", "y": 320, "label": "findings", "variant": "return" },
-    { "id": "m7", "from": "coord", "to": "conv", "y": 355, "label": "spec + base ref", "variant": "emphasis" },
-    { "id": "m8", "from": "conv", "to": "coord", "y": 385, "label": "verified or not", "variant": "return" }
+    {
+      "id": "m1",
+      "from": "coord",
+      "to": "impl",
+      "y": 160,
+      "label": "task + base sha",
+      "variant": "emphasis"
+    },
+    {
+      "id": "m2",
+      "from": "impl",
+      "to": "coord",
+      "y": 190,
+      "label": "10-line report",
+      "variant": "return"
+    },
+    {
+      "id": "m3",
+      "from": "coord",
+      "to": "rev",
+      "y": 225,
+      "label": "review package path",
+      "variant": "emphasis"
+    },
+    {
+      "id": "m4",
+      "from": "rev",
+      "to": "coord",
+      "y": 255,
+      "label": "verdict",
+      "variant": "return"
+    },
+    {
+      "id": "m5",
+      "from": "coord",
+      "to": "panel",
+      "y": 290,
+      "label": "whole-branch package",
+      "variant": "emphasis"
+    },
+    {
+      "id": "m6",
+      "from": "panel",
+      "to": "coord",
+      "y": 320,
+      "label": "findings",
+      "variant": "return"
+    },
+    {
+      "id": "m7",
+      "from": "coord",
+      "to": "conv",
+      "y": 355,
+      "label": "spec + base ref",
+      "variant": "emphasis"
+    },
+    {
+      "id": "m8",
+      "from": "conv",
+      "to": "coord",
+      "y": 385,
+      "label": "verified or not",
+      "variant": "return"
+    }
   ],
   "activations": [
-    { "participant": "impl", "from": 155, "to": 195, "type": "backend" },
-    { "participant": "rev", "from": 220, "to": 260, "type": "security" },
-    { "participant": "panel", "from": 285, "to": 325, "type": "messagebus" },
-    { "participant": "conv", "from": 350, "to": 390, "type": "database" }
-  ],
-  "cards": [
-    { "dot": "cyan", "title": "Reports, not diffs", "items": ["The coordinator reads short reports", "Agents read the diff package"] }
+    {
+      "participant": "impl",
+      "from": 155,
+      "to": 195,
+      "type": "backend"
+    },
+    {
+      "participant": "rev",
+      "from": 220,
+      "to": 260,
+      "type": "security"
+    },
+    {
+      "participant": "panel",
+      "from": 285,
+      "to": 325,
+      "type": "messagebus"
+    },
+    {
+      "participant": "conv",
+      "from": 350,
+      "to": 390,
+      "type": "database"
+    }
   ]
 }
