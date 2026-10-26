@@ -185,3 +185,31 @@ Base f5e0766, HEAD bdff4e5. First convergence pass, no earlier table.
 | 19 | field-notes table | VERIFIED | `test/check.sh fieldnotes`: 6 linked rows, rows equal field-notes.md, caption, no %; `SEAT cdo pass d8d3265 AC19` (supersedes the 82eb17f fail) |
 
 Deviations: none in commands run. AC1 resolution is an owner call: add a square PNG icon to the plugin, or reword AC1 to "exits 0". AC13, AC15, AC16 seat parts are stale because files in their scope changed after the seat lines.
+
+## Status (converged 2026-10-27, phase 3)
+
+Base f5e0766, HEAD 58829d1. Earlier table (11d718b) kept above. Every command-checked AC re-run at HEAD.
+
+| # | Criterion (short) | Verdict | Evidence |
+|---|---|---|---|
+| 1 | manifests valid (reworded by owner at gate: exits 0) | VERIFIED | `claude plugin validate --strict .` prints "Validation passed", rc 0. Owner accepted the ICON_MISSING advisory (ae7b0e3); plugins-reference says Claude Code does not read `icon`. |
+| 2 | 2 skills, 10 agents, hook on 2 events | VERIFIED | `test/install-smoke.sh` rc 0: "ok 2 skills", "ok 10 agents", "ok usage-guard on UserPromptSubmit", "ok usage-guard on PostToolUse", "every scripts/*.sh executable (0 not)" |
+| 3 | no machine paths | VERIFIED | AC command rc 0; positive control on `~/.claude` copies = 21 hits |
+| 4 | stack-neutral | VERIFIED | AC command rc 0; positive control on original copies = 9 hits |
+| 5 | 4 diagrams, picture pairs | VERIFIED | `test/check.sh readme` rc 0: 4 picture/4 dark/4 light, 8 non-empty files, 4 alts >= 5 words |
+| 6 | hero on one screen | VERIFIED | `test/check.sh hero` rc 0: workflow picture line 23, install block line 16 |
+| 7 | no unbacked claims | VERIFIED | grep exits 0 (no match) |
+| 8 | <= 3 alerts, 0 badges | VERIFIED | command rc 0 |
+| 9 | third-party notices | VERIFIED | command rc 0 |
+| 10 | shellcheck clean | VERIFIED | `shellcheck scripts/*.sh scripts/git-hooks/commit-msg` rc 0 |
+| 11 | guard pipeline | VERIFIED | `test/check.sh guard` rc 0: "ok 96% prints USAGE GUARD", "ok 10% prints nothing" |
+| 12 | trailer hook opt-in | VERIFIED | `test/install-smoke.sh`: "ok no .git/hooks/commit-msg after install" |
+| 13 | README claims trace to sources (seat panel-cdo) | INCONCLUSIVE | Ledger has `SEAT cdo fail bdff4e5 AC13` and no later `SEAT cdo pass`. Clause fixed in 187ce94; cdo seat had used its one re-run. Owner-chosen checker for post-seat edits: sdd-reviewer-lite, ledger `COORD review approve 97d761f sdd-reviewer-lite gate edits ...` (covers 187ce94, 21cdfb8). Own re-check: fetched plugins-reference, `version` section says "Setting it pins the plugin to that version until you change it", which backs README Releasing sentence "Setting `version` keeps installed users on that version until you change it" (the removed "used to detect updates" clause is gone). The other clause (status-line command picks highest installed version) is the repo's own script, not a docs claim. Not checked: the softened auto-memory cell "does not edit skills" (no source fetched). Not a seat pass, so not VERIFIED. |
+| 14 | diagrams/README polish (seat panel-cdo) | VERIFIED | Earlier row: `SEAT cdo pass d8d3265 AC14`; no diagram or layout file changed since (11d718b..HEAD touched only README text lines 123-130 and 185-189, plan, spec, SKILL.md) |
+| 15 | rewrites keep meaning (seat panel-correctness) | VERIFIED | `SEAT correctness pass 11d718b AC15`. Later edit 21cdfb8 (SKILL.md pr-checks-wait exit 1 line) is after the seat, covered by reviewer-lite approve 97d761f (owner-chosen); my diff read: one parenthetical adds "or the head moved during the wait: re-run it", no rule weakened. |
+| 16 | comparison table | INCONCLUSIVE | Script part: `test/check.sh compare` rc 0 (4 columns, 12 rows, 5 cons, sources+date, no unverified). Seat part: `SEAT cdo pass bdff4e5 AC16` predates 187ce94, which edited one cell ("auto memory does not edit skills"). Owner-chosen check for that edit: sdd-reviewer-lite approve 97d761f. My re-check did not fetch the auto-memory source. Not a cdo seat pass at the last commit, so not VERIFIED. |
+| 17 | owner setup (owner at gate) | INCONCLUSIVE | owner checks at merge gate; owner switch happens after publish; no `SEAT owner pass ... AC17` line |
+| 18 | one-line install | VERIFIED | `test/check.sh install` rc 0: "ok first bash block is one line", "ok block matches the command install-smoke.sh runs" |
+| 19 | field-notes table | VERIFIED | `test/check.sh fieldnotes` rc 0: 6 linked rows, equal to field-notes.md, caption, no %; `SEAT cdo pass d8d3265 AC19` (earlier row), no later touch of that table |
+
+Deviations: none in commands run. AC13 and AC16 are INCONCLUSIVE strictly under the seat rule (no `SEAT cdo pass` at or after 187ce94); the owner chose sdd-reviewer-lite as the post-seat checker and it approved in 97d761f, so the owner may accept them at the gate. AC15 is VERIFIED on the seat line, with 21cdfb8 reviewed by the same owner-chosen checker.
