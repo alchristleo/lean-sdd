@@ -1,0 +1,13 @@
+{
+  "name": "lean-sdd",
+  "description": "Marketplace for the lean-sdd workflow plugin.",
+  "owner": { "name": "alchristleo" },
+  "plugins": [
+    {
+      "name": "lean-sdd",
+      "source": "./",
+      "description": "Two gates. Evidence for everything else. A lean spec-driven build workflow for Claude Code.",
+      "author": { "name": "alchristleo" }
+    }
+  ]
+}
