@@ -37,6 +37,10 @@ Reader: a Claude Code power user who knows superpowers, wants fewer gates, and d
    Plugin name, marketplace name and install id are pinned to `lean-sdd`, `lean-sdd`, `lean-sdd@lean-sdd`.
    State path: scripts and the hook use `${CLAUDE_CONFIG_DIR:-$HOME/.claude}/state`, never `~/.claude/state`.
    Agent names in SKILL.md, README and the owner's CLAUDE.md follow the T1 result in one rename sweep.
+   **Settled by T1 (2026-10-26, `docs/superpowers/t1-findings.md`):** shape A holds (substituted in skill,
+   agent and hooks.json; exec bit survives install). Plugin agents are dispatched as `lean-sdd:<agent>`;
+   the bare name errors "not found". No declared superpowers dependency (owner, 2026-10-26): it fails to
+   load unless the user already added the official marketplace, so superpowers is a README prerequisite.
 3. **Source of truth:** this repo. The owner installs it as a plugin from the local clone and retires
    the copies in `~/.claude/{skills/lean-sdd,agents,scripts,hooks/usage-guard.py}` (backed up first,
    owner confirms at the merge gate).
@@ -76,9 +80,9 @@ Reader: a Claude Code power user who knows superpowers, wants fewer gates, and d
     source say "unverified" and get cut before merge.
 
 14. **One-line install** (owner, after spec approval): the README install block is one copy-paste shell
-    line, `claude plugin marketplace add alchristleo/lean-sdd && claude plugin install lean-sdd@lean-sdd`,
-    plus the same two `/plugin` commands for use inside a session. T1 checks whether a single command does
-    both, and whether it pulls superpowers. No `curl | bash`.
+    line. T1 found a single command does both steps:
+    `claude plugin install --marketplace alchristleo/lean-sdd lean-sdd`, plus the `/plugin` variant for use
+    inside a session. Superpowers is a listed prerequisite, not pulled. No `curl | bash`.
 15. **Field notes** (owner, after spec approval): Proof gets a `<details>` table from `docs/field-notes.md`
     (6 agentic-warden milestones: tasks, fix rounds, blocked, triage where logged), each row linked to its
     public plan, captioned "6 milestones, one maintainer, one repo, Oct 2026. Descriptive, not a benchmark."

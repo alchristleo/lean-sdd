@@ -121,3 +121,12 @@ spec), `~/.claude/scripts/{install-git-hooks,pr-checks-wait,pr-merge,review-pkg,
 ## Ledger
 USAGE start 12
 PLAN 6 tasks, group1 T1 T2 T3 parallel
+COORD spec Decision 15 + AC19 field notes, owner request
+T2 done 31a0fa0 sdd-implementer SVG pairs ok, 139KB each embedded fonts, export via playwright-core
+T3 done c227a8a sdd-implementer 12 rows 5 cons, quotes via WebFetch summaries, spec-kit agent count conflict
+T3 fix c227a8a sdd-reviewer fix-needed worktree cell, header claim, fabricated quote marks
+T1 done 38dc789 sdd-implementer shape A holds, agents lean-sdd:<name>, single-command install exists, superpowers dep needs official marketplace
+T2 review approve 31a0fa0 sdd-reviewer should: AC5 checks into script (folded into T5), nits: playwright-core path msg
+T1 fix 38dc789 sdd-reviewer fix-needed findings lack commands, smoke checks vacuous on missing scripts/hook
+T3 fix 51af2e9 sdd-reviewer-lite fix-needed header claims spot-check done
+T3 coord 61555a4 header wording matches Notes (spot-check scope)
