@@ -18,9 +18,8 @@ check() { # check <description> <command...>
 
 git -C "$TMP/scratch" init -q || { echo "usage error: git init failed"; exit 2; }
 cd "$TMP/scratch" || exit 2
-claude plugin marketplace add "$SRC" >"$TMP/add.log" 2>&1 &&
-  claude plugin install lean-sdd@lean-sdd >"$TMP/install.log" 2>&1 || {
-  echo "usage error: install failed"; cat "$TMP/add.log" "$TMP/install.log"; exit 2; }
+claude plugin install --marketplace "$SRC" lean-sdd >"$TMP/install.log" 2>&1 || {
+  echo "usage error: install failed"; cat "$TMP/install.log"; exit 2; }
 
 DIR=$(python3 -I -c '
 import json, sys
