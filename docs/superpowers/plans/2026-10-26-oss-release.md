@@ -184,3 +184,6 @@ SEAT cdo pass d8d3265 AC19
 COORD fix-wave re-review d8d3265 sdd-reviewer-lite fix-needed: must nan/inf threshold, should legacy hook refused (both coord-fixed df800f9); should pr scripts no stubbed-gh test -> backlog
 COORD review approve df800f9 sdd-reviewer-lite coord fixes ok; nit legacy-hook test -> backlog
 CONVERGE 11d718b 13 verified, AC1 not verified (icon warning), AC13/15/16 stale seat lines, AC17 owner
+SEAT cdo fail bdff4e5 AC13 version-detects-updates clause unsourced
+SEAT cdo pass bdff4e5 AC16
+COORD 187ce94 README version claim sourced to plugins-reference#version; auto-memory wording
