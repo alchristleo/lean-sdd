@@ -127,6 +127,7 @@ spec), `~/.claude/scripts/{install-git-hooks,pr-checks-wait,pr-merge,review-pkg,
 - README: say the trailer installer refuses a core.hooksPath outside .git (husky, .githooks).
 - pr-merge.sh: accept 64-hex SHA-256 repo shas.
 - SKILL.md retro marketplace route: add "with the same yes and evidence".
+- README Releasing: note that local-path marketplace installs are not pinned by version.
 - Upgrade archify 3.0.1 -> 3.2.0 and re-export (owner call).
 
 ## Ledger
@@ -195,3 +196,4 @@ PANEL correctness 11d718b must=0 should=1 nit=4
 SEAT correctness pass 11d718b AC15
 COORD 21cdfb8 SKILL.md pr-checks-wait exit 1 covers moved head (seat should)
 COORD owner gate: AC1 reworded to exit 0 (icon advisory accepted); publish private first; AC17 after push
+COORD review approve 97d761f sdd-reviewer-lite gate edits: AC13 version claim sourced, AC16 cell, AC15 exit note, AC1 wording (owner-chosen check for post-seat edits)
