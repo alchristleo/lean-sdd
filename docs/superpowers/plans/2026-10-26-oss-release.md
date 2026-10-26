@@ -200,3 +200,13 @@ COORD review approve 97d761f sdd-reviewer-lite gate edits: AC13 version claim so
 SEAT owner pass 6429351 AC13
 SEAT owner pass 6429351 AC16
 USAGE end 77
+MERGED private repo github.com/alchristleo/lean-sdd pushed; owner local switch to plugin done
+
+## Retro (2026-10-27)
+
+- **Numbers:** tasks=6 fix_rounds=5 coord=3 fix_waves=1 blocked=0 seats pass/fail=14/3 reruns=3 owner=2 panel(must/should/nit)=[design skipped; security 1/3/2; correctness 0/2/6; cdo 0/5/4; cdo(re-run) 0/0/3; correctness(re-run) 0/1/4] triage=[fixed=19 dismissed=4 backlog=1] 5h=12→77 (65pt)
+- **Seat re-run brief listed only the failed ACs** (AC14/19), so AC13/16 got no ACS verdict and converge ran twice. Structure: seat re-run briefs list every `check: seat` AC whose files changed in the fix diff (proposed SKILL.md step 7 edit).
+- **Coordinator text without a source failed review twice** (T3 header "10 confirmed", README "detects updates"). Structure: coord fixes that add a claim cite it in the commit body, same rule as implementers (proposed SKILL.md context-discipline edit).
+- **Review churn on an internal prototype doc** (T1 findings: 3 rounds on copy-paste reproducibility). Structure: prototype-task briefs state that the findings doc must record command + output per finding up front (plan template line).
+- **review-pkg.sh produced a stale package twice** (T1 38dc789, 4b319e2..bd11d7c). Next milestone T1: reproduce and add a check.
+- **Security seat caught a real cwd code-execution path** in the README status-line command; tests now cover it. Keep the security seat for any README that tells users to paste a shell command.
