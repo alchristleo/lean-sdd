@@ -113,7 +113,7 @@ Run from the repo root.
 1. Plugin manifest and marketplace are valid with no warnings. `claude plugin validate --strict .` exits 0.
 2. A clean install exposes 2 skills (lean-sdd, asd-ste100), 10 agents, and the usage-guard hook on
    UserPromptSubmit and PostToolUse. Check: `test/install-smoke.sh`: sets a temp `CLAUDE_CONFIG_DIR`, runs
-   `claude plugin marketplace add ./ && claude plugin install lean-sdd@lean-sdd`, then parses the installed
+   `claude plugin install --marketplace ./ lean-sdd` (the README one-liner, local path), then parses the installed
    plugin dir (or `details --json` if T1 finds it), asserts those counts and that every `scripts/*.sh` is executable.
 3. No machine-specific paths. `test -s skills/lean-sdd/SKILL.md && [ $(ls agents/*.md | wc -l) -eq 10 ] && test -d scripts && test -d hooks && ! grep -rnE --exclude=CHANGELOG.md '/home/|~/\.claude/' skills agents scripts hooks`
    exits 0. Positive control: the same grep on the original `~/.claude` copies finds hits.

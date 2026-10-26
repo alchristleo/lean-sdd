@@ -146,3 +146,5 @@ T4 coord 7fe5edb opt-in trigger, role-name note, neutral build-flag example
 T4 review approve 5b5ce5a sdd-reviewer-lite coord fixes ok; nit: Decision 5 wording vs opt-in trigger
 T5 done 432f5cf sdd-implementer 4 diagrams finalize ok, 8 assets ~150KB, snake workflow layout, lifecycle/sequence not eyeballed
 T5 review approve 432f5cf sdd-reviewer nits: arch missing statusline writer node, lifecycle edge crossing, dead cards (to panel)
+T6 done f651c8d sdd-implementer README + checks all green, 8 mutation proofs; statusline path pins version; archify upstream Apache-2.0 vs local MIT
+T6 fix f651c8d sdd-reviewer fix-needed statusline path pins version, archify license wording, plain=1 anchors
