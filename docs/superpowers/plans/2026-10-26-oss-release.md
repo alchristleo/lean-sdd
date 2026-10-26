@@ -194,3 +194,4 @@ COORD 187ce94 README version claim sourced to plugins-reference#version; auto-me
 PANEL correctness 11d718b must=0 should=1 nit=4
 SEAT correctness pass 11d718b AC15
 COORD 21cdfb8 SKILL.md pr-checks-wait exit 1 covers moved head (seat should)
+COORD owner gate: AC1 reworded to exit 0 (icon advisory accepted); publish private first; AC17 after push
