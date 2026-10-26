@@ -119,6 +119,7 @@ spec), `~/.claude/scripts/{install-git-hooks,pr-checks-wait,pr-merge,review-pkg,
 - Day-30 success thresholds (CEO paper).
 - install-smoke: two cached versions, assert `sort -V` picks the higher; README wording "highest version number".
 - Plugin icon (validate ICON warning).
+- Sequence diagram: trim empty lane space under the last message.
 - Upgrade archify 3.0.1 -> 3.2.0 and re-export (owner call).
 
 ## Ledger
@@ -154,3 +155,21 @@ T6 fix f651c8d sdd-reviewer fix-needed statusline path pins version, archify lic
 COORD spec AC2 wording single-command install (T6 review nit)
 T6 done dcd76ea sdd-reviewer-lite approve fix round; nits to Backlog
 PANEL design skipped new non-test code < 300 lines (ported scripts, vendored lint)
+PANEL security 82eb17f must=1 should=3 nit=2
+PANEL correctness 82eb17f must=0 should=2 nit=6
+SEAT correctness pass 82eb17f AC1
+SEAT correctness pass 82eb17f AC2
+SEAT correctness pass 82eb17f AC3
+SEAT correctness pass 82eb17f AC4
+SEAT correctness pass 82eb17f AC10
+SEAT correctness pass 82eb17f AC11
+SEAT correctness pass 82eb17f AC12
+SEAT correctness pass 82eb17f AC15
+PANEL cdo 82eb17f must=0 should=5 nit=4
+SEAT cdo pass 82eb17f AC13
+SEAT cdo fail 82eb17f AC14 small diagram text, arch writer node, scorecard tone
+SEAT cdo pass 82eb17f AC16
+SEAT cdo fail 82eb17f AC19 releases row phase 2 only
+TRIAGE fixed=19 dismissed=4 backlog=1
+DISMISSED lifecycle crossing, diagram cards, sequence lane space (backlog), statusline code-block scroll; owner approved
+COORD owner: rewrite author email to noreply before push; scrub /home/ paths in docs, AC3 extended

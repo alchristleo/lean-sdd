@@ -116,6 +116,8 @@ Run from the repo root.
    `claude plugin install --marketplace ./ lean-sdd` (the README one-liner, local path), then parses the installed
    plugin dir (or `details --json` if T1 finds it), asserts those counts and that every `scripts/*.sh` is executable.
 3. No machine-specific paths. `test -s skills/lean-sdd/SKILL.md && [ $(ls agents/*.md | wc -l) -eq 10 ] && test -d scripts && test -d hooks && ! grep -rnE --exclude=CHANGELOG.md '/home/|~/\.claude/' skills agents scripts hooks`
+   and `! grep -rnE '/home/[a-z]' docs` exits 0 (owner, panel round: planning docs ship too; `~/.claude` is fine in docs,
+   a local username is not)
    exits 0. Positive control: the same grep on the original `~/.claude` copies finds hits.
 4. Rules are stack-neutral. `test -s skills/lean-sdd/SKILL.md && [ $(ls agents/*.md | wc -l) -eq 10 ] && ! grep -rniwE 'tofu|docker|playwright|go test|IdP|Entra|App\.tsx|ECR' skills/lean-sdd/SKILL.md agents`
    exits 0. (CHANGELOG excluded by Decision 8.) Positive control: 9 hits on the original copies.
