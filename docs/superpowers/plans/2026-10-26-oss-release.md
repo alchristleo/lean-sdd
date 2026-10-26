@@ -197,3 +197,6 @@ SEAT correctness pass 11d718b AC15
 COORD 21cdfb8 SKILL.md pr-checks-wait exit 1 covers moved head (seat should)
 COORD owner gate: AC1 reworded to exit 0 (icon advisory accepted); publish private first; AC17 after push
 COORD review approve 97d761f sdd-reviewer-lite gate edits: AC13 version claim sourced, AC16 cell, AC15 exit note, AC1 wording (owner-chosen check for post-seat edits)
+SEAT owner pass 6429351 AC13
+SEAT owner pass 6429351 AC16
+USAGE end 77
