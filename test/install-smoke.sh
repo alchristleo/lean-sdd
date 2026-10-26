@@ -42,8 +42,12 @@ sys.exit(0 if any("usage-guard.py" in x["command"] for g in h for x in g["hooks"
 check "usage-guard on UserPromptSubmit" hook_ok UserPromptSubmit
 check "usage-guard on PostToolUse" hook_ok PostToolUse
 
+check "usage-guard.py executable" test -x "$DIR/hooks/usage-guard.py"
+
+total=$(find "$DIR/scripts" -maxdepth 1 -name '*.sh' 2>/dev/null | wc -l)
 nonexec=$(find "$DIR/scripts" -maxdepth 1 -name '*.sh' ! -perm -u+x 2>/dev/null | wc -l)
-check "every scripts/*.sh executable ($nonexec not)" test "$nonexec" -eq 0
+check "scripts/ exists with at least 1 .sh ($total found)" test -d "$DIR/scripts" -a "$total" -ge 1
+check "every scripts/*.sh executable ($nonexec not)" test "$total" -ge 1 -a "$nonexec" -eq 0
 check "no .git/hooks/commit-msg after install" test ! -e "$TMP/scratch/.git/hooks/commit-msg"
 
 exit "$fail"

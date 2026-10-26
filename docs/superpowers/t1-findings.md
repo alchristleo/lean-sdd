@@ -4,19 +4,44 @@ Date: 2026-10-26. Claude Code 2.1.310. Probe plugin: 1 skill, 1 agent, 1 script,
 marketplace both named `lean-sdd`. Every install used a temp `CLAUDE_CONFIG_DIR`. The probe fixtures are
 removed from the repo (they were `test/fixtures/probe-plugin/`).
 
-Method for runtime checks: `claude -p` against a local mock of the Messages API
-(`ANTHROPIC_BASE_URL=http://127.0.0.1:18765`, fake key). The mock replied with scripted `Skill` and `Agent`
-tool calls and logged every request body. No real model was called and no real credentials were used.
+Method for runtime checks: `claude -p` against a local mock of the Messages API. The mock script
+(`test/fixtures/mock-messages-api.py`) and the driver (`test/fixtures/t1-runtime-probe.sh`) are kept. The
+probe plugin itself is not kept. The mock replied with scripted `Skill` and `Agent` tool calls and logged
+every request body. No real model was called and no real credentials were used. The substitution of
+`${CLAUDE_PLUGIN_ROOT}` happens in the Claude Code client before the request leaves, so the mock could
+not fake it: the substituted text is what the client sent.
+
+Common setup for every command below (`$SP` is a scratch dir, `$W` is the repo root):
+
+```
+export CLAUDE_CONFIG_DIR=$SP/cfg1
+cd $W && claude plugin marketplace add ./test/fixtures/probe-plugin   # fixture since removed
+claude plugin install lean-sdd@lean-sdd
+```
+
+Output of those two: `Successfully added marketplace: lean-sdd (declared in user settings)` then
+`Successfully installed plugin: lean-sdd@lean-sdd (scope: user)`.
+
+Runtime driver, per step `skill`, `agent-prefixed`, `agent-bare`:
+
+```
+export ANTHROPIC_BASE_URL=http://127.0.0.1:18765 ANTHROPIC_API_KEY=sk-ant-fake
+python3 -I test/fixtures/mock-messages-api.py 18765 $SP/mock.log &
+claude -p "STEP skill" --dangerously-skip-permissions --output-format text
+claude -p "STEP agent-prefixed" --dangerously-skip-permissions --output-format text
+claude -p "STEP agent-bare" --dangerously-skip-permissions --output-format text
+```
 
 ## Verdict
 
 - Decision 2 path shape **A holds**. Shape B is not needed.
 - Decision 11 is not touched by T1 (see T2).
-- Decision 14: one command can add the marketplace and install, but `superpowers` only installs as a
-  dependency if its marketplace (`claude-plugins-official`) is already added. See finding 4.
+- Decision 14: one command can add the marketplace and install (finding 5). The plugin declares no
+  superpowers dependency (finding 4), so the README lists superpowers as a prerequisite.
 
 ## 1. `${CLAUDE_PLUGIN_ROOT}` substitution: YES in skill, agent and hook
 
+Command: `claude -p "STEP skill" ...` (mock sends a `Skill` call with `skill: lean-sdd:probe`).
 Skill body `ROOT=${CLAUDE_PLUGIN_ROOT}` and `QUOTED="${CLAUDE_PLUGIN_ROOT}"/scripts/probe.sh`, tool result of
 the `Skill` call (`lean-sdd:probe`):
 
@@ -25,6 +50,7 @@ ROOT=/home/leo/.../test/fixtures/probe-plugin
 QUOTED="/home/leo/.../test/fixtures/probe-plugin"/scripts/probe.sh
 ```
 
+Command: `claude -p "STEP agent-prefixed" ...`, then the system prompt of the sub-agent request was read from `$SP/mock.log`.
 Agent body `Reply exactly: PROBE-AGENT-OK ROOT=${CLAUDE_PLUGIN_ROOT}`, as seen in the sub-agent's request
 system prompt:
 
@@ -32,6 +58,7 @@ system prompt:
 Reply exactly: PROBE-AGENT-OK ROOT=/home/leo/.../test/fixtures/probe-plugin
 ```
 
+Hook: no extra command, the 3 `claude -p` runs above (plus 1 earlier run) each fired it, then `cat $CLAUDE_CONFIG_DIR/hook.log`.
 `hooks.json` command `"${CLAUDE_PLUGIN_ROOT}"/scripts/probe.sh >> "${CLAUDE_CONFIG_DIR}/hook.log"` on
 `UserPromptSubmit` ran on every prompt (4 log lines for 4 prompts):
 
@@ -60,6 +87,8 @@ copy with `chmod 644` printed `FAIL every scripts/*.sh executable (1 not)`). Com
 
 ## 3. `subagent_type` for plugin agents: `lean-sdd:<agent>`
 
+Commands: `claude -p "STEP agent-prefixed" ...` and `claude -p "STEP agent-bare" ...`.
+
 ```
 STEP agent-prefixed  subagent_type "lean-sdd:probe-agent" -> Agent launched, sub-agent system prompt
                      contained the agent body (request 3 in the mock log)
@@ -72,36 +101,47 @@ Rename sweep: every `subagent_type` and every agent mention in SKILL.md, README 
 CLAUDE.md becomes `lean-sdd:<agent>`. Old copies in `~/.claude/agents` would register under the bare name
 and may shadow, so AC17 stays.
 
-## 4. `dependencies` on `superpowers@claude-plugins-official`: WORKS with two conditions
+## 4. `dependencies` on `superpowers@claude-plugins-official`: works, but NOT DECLARED (owner decision)
 
-`plugin.json`: `"dependencies": ["superpowers@claude-plugins-official"]`. `marketplace.json`:
-`"allowCrossMarketplaceDependenciesOn": ["claude-plugins-official"]`. `validate --strict` passes with both.
+Owner decision after review: the plugin declares no dependency. `plugin.json` has no `dependencies` and
+`marketplace.json` has no `allowCrossMarketplaceDependenciesOn`. superpowers is a README prerequisite
+("install superpowers first"). The test results below are kept as the reason the decision is safe.
+
+Commands per case (`$SP/dep` = probe copy with `"dependencies": ["superpowers@claude-plugins-official"]`
+in `plugin.json`; `$SP/dep2` = same without `allowCrossMarketplaceDependenciesOn`; each case has its own
+`CLAUDE_CONFIG_DIR`):
+
+```
+# case 1
+claude plugin marketplace add anthropics/claude-plugins-official
+claude plugin marketplace add $SP/dep
+claude plugin install lean-sdd@lean-sdd
+claude plugin list
+# case 2: same, with $SP/dep2
+# case 3: same, without the first line
+```
 
 | Case | Result |
 |---|---|
-| Official marketplace added first, allow-list present | `Successfully installed plugin: lean-sdd@lean-sdd (+ 1 dependency: superpowers)`. Both `Status: enabled`. superpowers 7.0.0. |
-| Official marketplace added, allow-list absent | install rc 0, then `Status: failed to load`, `Dependency "superpowers@claude-plugins-official" is not installed` |
-| Official marketplace not added | install rc 0 with `Warning: dependency ... was not installed (no marketplace you have added lists it). "lean-sdd" will not load without it` |
+| 1. Official marketplace added first, allow-list present | `Successfully installed plugin: lean-sdd@lean-sdd (scope: user) (+ 1 dependency: superpowers)`. Both `Status: enabled`. superpowers 7.0.0. |
+| 2. Official marketplace added, allow-list absent | install rc 0, then `Status: failed to load`, `Dependency "superpowers@claude-plugins-official" is not installed` |
+| 3. Official marketplace not added | install rc 0 with `Warning: dependency "superpowers@claude-plugins-official" was not installed (no marketplace you have added lists it). "lean-sdd" will not load without it` |
 
-Consequence: the install block must make sure `claude-plugins-official` is added. A fresh
-`CLAUDE_CONFIG_DIR` does not have it. The owner's real config has it (auto-added by the app), so a normal
-user probably has it too, but this is not proven for a fresh machine. Safe one-liner for the README:
-`claude plugin marketplace add anthropics/claude-plugins-official && claude plugin marketplace add alchristleo/lean-sdd && claude plugin install lean-sdd@lean-sdd`
-(first add is a no-op if present: not tested). Decision 14 says the block is one line, so the README author
-must pick: the 2-command line plus a note, or the 3-command line. `install-smoke.sh` stays offline and
-does not add the official marketplace, so it sees the dependency warning, which AC2 allows.
+`validate --strict` passed in both manifest forms. With no declared dependency, none of these failure
+modes can happen, and the README tells the user to install superpowers first.
 
 ## 5. One command and `details`
 
-- `claude plugin install --marketplace <source> lean-sdd` adds the marketplace and installs in one command
+- Command: `claude plugin install --marketplace $SP/dep lean-sdd` (fresh `CLAUDE_CONFIG_DIR`, official marketplace added before). Output: `Adding marketplace…`, `Successfully added marketplace: lean-sdd`, `Successfully installed plugin: lean-sdd@lean-sdd (scope: user) (+ 1 dependency: superpowers)`. It adds the marketplace and installs in one command
   (tested with a local path, official marketplace already added: `(+ 1 dependency: superpowers)`).
   `<source>` accepts `owner/repo`, URL or path per `--help`. The GitHub form is untested (no remote yet).
-- The two-command form `marketplace add <src> && install lean-sdd@lean-sdd` also works (AC2 uses it).
-- `claude plugin details --json` does NOT exist (`error: unknown option '--json'`). `claude plugin details
-  lean-sdd` prints text: `Skills (1)`, `Agents (1)`, `Hooks (1)  UserPromptSubmit`. The smoke test parses
+- Command: `claude plugin marketplace add <src> && claude plugin install lean-sdd@lean-sdd`. The two-command form also works (AC2 uses it).
+- Command: `claude plugin details --json lean-sdd`. Output: `error: unknown option '--json'`, rc 1. `claude plugin details lean-sdd` prints text: `Skills (1)`, `Agents (1)`, `Hooks (1)  UserPromptSubmit`. The smoke test parses
   the installed dir instead. `claude plugin list --json` exists.
 
 ## 6. Isolation: YES
+
+Command run after all installs: `grep -c lean-sdd ~/.claude/plugins/known_marketplaces.json ~/.claude/plugins/installed_plugins.json ~/.claude/settings.json`.
 
 After all installs above, the real config has no trace:
 

@@ -2,7 +2,6 @@
   "name": "lean-sdd",
   "description": "Marketplace for the lean-sdd workflow plugin.",
   "owner": { "name": "alchristleo" },
-  "allowCrossMarketplaceDependenciesOn": ["claude-plugins-official"],
   "plugins": [
     {
       "name": "lean-sdd",

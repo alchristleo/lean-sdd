@@ -5,6 +5,5 @@
   "author": { "name": "alchristleo" },
   "license": "MIT",
   "homepage": "https://github.com/alchristleo/lean-sdd",
-  "repository": "https://github.com/alchristleo/lean-sdd",
-  "dependencies": ["superpowers@claude-plugins-official"]
+  "repository": "https://github.com/alchristleo/lean-sdd"
 }
