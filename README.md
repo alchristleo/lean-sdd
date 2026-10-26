@@ -29,6 +29,8 @@ Inside a session, run `/plugin marketplace add alchristleo/lean-sdd`, then
 
 ## Requirements
 
+Use it in Claude Code. claude.ai chat does not load plugin agents or hooks, and lean-sdd needs both.
+
 Install superpowers first. lean-sdd does not pull it in.
 
 | You need | When | How |
@@ -145,6 +147,22 @@ Add this to `settings.json`. The command finds the newest installed version by i
   }
 }
 ```
+
+## What it runs
+
+Everything runs on your machine. lean-sdd sends no data anywhere.
+Only `git` and `gh` use the network, and only when a step runs them.
+
+| Part | Reads | Writes | Network |
+|---|---|---|---|
+| `hooks/usage-guard.py`, on each prompt and tool call | `~/.claude/state/usage.json` | `~/.claude/state/usage-guard-<session>.json` | none |
+| `scripts/statusline-cache.py`, only if you add the status line | status-line input from Claude Code | `~/.claude/state/usage.json` | none |
+| `scripts/review-pkg.sh` | your git history | a review package in the repo's git dir | none |
+| `scripts/install-git-hooks.sh`, only if you opt in to trailers | your git config | a `commit-msg` hook in the repo's git dir | none |
+| `scripts/sdd-log.sh`, `scripts/sdd-metrics.sh` | the plan file | the plan file (log only) | none |
+| `scripts/pr-checks-wait.sh`, `scripts/pr-merge.sh`, at merge | your PR | merges your PR | GitHub, via `gh` and `git fetch` |
+
+`~/.claude` means `$CLAUDE_CONFIG_DIR` when you set it.
 
 ## Releasing
 
