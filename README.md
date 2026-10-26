@@ -123,8 +123,10 @@ Add this to `settings.json`. The command finds the newest installed version by i
 
 ## Releasing
 
-Maintainers: bump `version` in `.claude-plugin/plugin.json` on every user-visible change. Claude
-Code uses it to detect updates, and the status-line command picks the highest installed version.
+Maintainers: bump `version` in `.claude-plugin/plugin.json` on every user-visible change.
+Setting `version` keeps installed users on that version until you change it
+([plugin manifest reference](https://code.claude.com/docs/en/plugins-reference#version)),
+and the status-line command picks the highest installed version.
 
 ## Removed
 
@@ -183,7 +185,7 @@ Yes, no or partial, read from each project's docs on 2026-10-26.
 | Multi-seat milestone panel | yes | no: one reviewer subagent | no: one `code-review` skill | partial: you define reviewer subagents yourself |
 | Spec converge, verdict per criterion | yes | no: no converge step | partial: reports gaps only, no verdict per criterion | no: no spec-check command documented |
 | Usage guard | yes | no: not documented | no: not documented | partial: the status line shows rate limits, no built-in pause |
-| Retro that edits the workflow | yes | no: `writing-skills` makes new skills, no retro | no: not documented | partial: auto memory never edits skills |
+| Retro that edits the workflow | yes | no: `writing-skills` makes new skills, no retro | no: not documented | partial: auto memory does not edit skills |
 | Agents and editors | Claude Code | 16 entries | 43 entries | its own surfaces |
 | Install | plugin command | plugin command | `uv tool install` | install script |
 | Dependencies | superpowers, `gh` | not documented | Python 3.11+, uv | an account |
