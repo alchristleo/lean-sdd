@@ -130,3 +130,10 @@ T2 review approve 31a0fa0 sdd-reviewer should: AC5 checks into script (folded in
 T1 fix 38dc789 sdd-reviewer fix-needed findings lack commands, smoke checks vacuous on missing scripts/hook
 T3 fix 51af2e9 sdd-reviewer-lite fix-needed header claims spot-check done
 T3 coord 61555a4 header wording matches Notes (spot-check scope)
+T1 fix 4b319e2 sdd-reviewer-lite fix-needed findings commands elided, hook evidence no command
+T3 review fail 61555a4 sdd-reviewer-lite coord header claims 10 confirmed with no repo source; past 2-round cap
+T3 coord 29e2c9c header restates Notes scope only (owner allowed past cap)
+T1 review fail bd11d7c sdd-reviewer-lite findings doc not self-contained (env exports, dep copies); past cap
+T3 review fail 29e2c9c sdd-reviewer-lite header line 3 scope vs Notes subset; past cap
+COORD retro: review-pkg diff incomplete twice (T1 4b319e2-bd11d7c, T1 38dc789 pkg stale)
+DISMISSED T1 bd11d7c + T3 29e2c9c remaining doc-polish findings, owner accepted as-is (internal prototype record; AC16 re-verifies comparison)
