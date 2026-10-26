@@ -1,0 +1,27 @@
+{
+  "schema_version": 2,
+  "diagram_type": "workflow",
+  "meta": {
+    "title": "Probe Workflow",
+    "quality_profile": "showcase",
+    "output": "probe.html"
+  },
+  "lanes": [
+    { "id": "main", "label": "Task" }
+  ],
+  "mainPath": ["triage", "build", "review", "done"],
+  "nodes": [
+    { "id": "triage", "lane": "main", "col": 0, "type": "frontend", "label": "Triage", "sublabel": "size the task", "width": 132 },
+    { "id": "build", "lane": "main", "col": 1, "type": "backend", "label": "Build", "sublabel": "implementer", "width": 132 },
+    { "id": "review", "lane": "main", "col": 2, "type": "security", "label": "Review", "sublabel": "reviewer", "width": 132 },
+    { "id": "done", "lane": "main", "col": 3, "type": "external", "label": "Done", "sublabel": "merge", "width": 132 }
+  ],
+  "edges": [
+    { "id": "e1", "from": "triage", "to": "build", "variant": "default" },
+    { "id": "e2", "from": "build", "to": "review", "variant": "emphasis" },
+    { "id": "e3", "from": "review", "to": "done", "variant": "default" }
+  ],
+  "cards": [
+    { "dot": "cyan", "title": "Probe", "items": ["Tiny export test", "Four steps"] }
+  ]
+}
