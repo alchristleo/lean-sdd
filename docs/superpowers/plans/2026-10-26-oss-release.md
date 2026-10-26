@@ -123,6 +123,10 @@ spec), `~/.claude/scripts/{install-git-hooks,pr-checks-wait,pr-merge,review-pkg,
 - Stubbed-gh tests for pr-checks-wait.sh head-moved path and pr-merge.sh re-read path.
 - Hero diagram: larger / coloured "gate" label (~7px now).
 - install-smoke: legacy-hook replace and foreign-hook refusal cases.
+- install-git-hooks.sh portability: realpath -m / sha256sum are GNU-only (macOS); python3 / shasum fallback.
+- README: say the trailer installer refuses a core.hooksPath outside .git (husky, .githooks).
+- pr-merge.sh: accept 64-hex SHA-256 repo shas.
+- SKILL.md retro marketplace route: add "with the same yes and evidence".
 - Upgrade archify 3.0.1 -> 3.2.0 and re-export (owner call).
 
 ## Ledger
@@ -187,3 +191,6 @@ CONVERGE 11d718b 13 verified, AC1 not verified (icon warning), AC13/15/16 stale 
 SEAT cdo fail bdff4e5 AC13 version-detects-updates clause unsourced
 SEAT cdo pass bdff4e5 AC16
 COORD 187ce94 README version claim sourced to plugins-reference#version; auto-memory wording
+PANEL correctness 11d718b must=0 should=1 nit=4
+SEAT correctness pass 11d718b AC15
+COORD 21cdfb8 SKILL.md pr-checks-wait exit 1 covers moved head (seat should)
