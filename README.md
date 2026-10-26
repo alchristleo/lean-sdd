@@ -111,13 +111,13 @@ skills. It still uses TDD, systematic-debugging and finishing-a-development-bran
 > The guard does nothing without the status line. The hook reads a cache that
 > `scripts/statusline-cache.py` writes.
 
-Add this to `settings.json`. Replace `0.1.0` with the installed version.
+Add this to `settings.json`. The command finds the newest installed version by itself.
 
 ```json
 {
   "statusLine": {
     "type": "command",
-    "command": "~/.claude/plugins/cache/lean-sdd/lean-sdd/0.1.0/scripts/statusline-cache.py"
+    "command": "sh -c 'exec python3 \"$(ls -d \"${CLAUDE_CONFIG_DIR:-$HOME/.claude}\"/plugins/cache/lean-sdd/lean-sdd/*/ | sort -V | tail -1)scripts/statusline-cache.py\"'"
   }
 }
 ```
@@ -138,10 +138,10 @@ caused the edit.
 
 | Line | Edit | Failure behind it |
 |---|---|---|
-| [L27](skills/lean-sdd/CHANGELOG.md#L27) | `panel-correctness` moved to Sonnet | It used 19% of 24h usage at Opus |
-| [L35](skills/lean-sdd/CHANGELOG.md#L35) | Docs claims cite a source | 8 fix rounds, 14+9 unsupported claims |
-| [L73](skills/lean-sdd/CHANGELOG.md#L73) | Medium tier dropped | 0 of 6 plans used it |
-| [L85](skills/lean-sdd/CHANGELOG.md#L85) | `sdd-log.sh` refuses newlines | A multi-line note forged a ledger line |
+| [L27](skills/lean-sdd/CHANGELOG.md?plain=1#L27) | `panel-correctness` moved to Sonnet | It used 19% of 24h usage at Opus |
+| [L35](skills/lean-sdd/CHANGELOG.md?plain=1#L35) | Docs claims cite a source | 8 fix rounds, 14+9 unsupported claims |
+| [L73](skills/lean-sdd/CHANGELOG.md?plain=1#L73) | Medium tier dropped | 0 of 6 plans used it |
+| [L85](skills/lean-sdd/CHANGELOG.md?plain=1#L85) | `sdd-log.sh` refuses newlines | A multi-line note forged a ledger line |
 
 <details>
 <summary>Six milestones in one repo, from 2 to 9 tasks each, none blocked</summary>

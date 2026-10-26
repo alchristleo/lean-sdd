@@ -49,4 +49,19 @@ check "scripts/ exists with at least 1 .sh ($total found)" test -d "$DIR/scripts
 check "every scripts/*.sh executable ($nonexec not)" test "$total" -ge 1 -a "$nonexec" -eq 0
 check "no .git/hooks/commit-msg after install" test ! -e "$TMP/scratch/.git/hooks/commit-msg"
 
+# README status-line command: run it against the install, 96% sample -> cache -> guard.
+statusline_guard() {
+  local cmd out
+  cmd=$(python3 -I -c '
+import json, re, sys
+t = open(sys.argv[1]).read()
+print(json.loads(re.search(r"```json\n(.*?)\n```", t, re.S).group(1))["statusLine"]["command"])' "$ROOT/README.md") || return 1
+  printf '{"model":{"display_name":"M"},"rate_limits":{"five_hour":{"used_percentage":96}}}' |
+    sh -c "$cmd" >/dev/null || return 1
+  test -s "$CLAUDE_CONFIG_DIR/state/usage.json" || return 1
+  out=$(printf '{"hook_event_name":"UserPromptSubmit","session_id":"s"}' | "$DIR/hooks/usage-guard.py")
+  case $out in *"USAGE GUARD"*) return 0 ;; *) return 1 ;; esac
+}
+check "README status-line command writes the cache and the guard fires" statusline_guard
+
 exit "$fail"

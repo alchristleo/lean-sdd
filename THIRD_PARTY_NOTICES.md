@@ -36,5 +36,7 @@ SOFTWARE.
 ## archify (diagram tool)
 
 The four diagrams in `assets/` were made with [archify](https://github.com/tt-a1i/archify)
-by tt-a1i, MIT license per the `LICENSE` file in the archify copy used here. lean-sdd bundles no
-archify code. The diagram sources are in `docs/diagrams/`.
+3.0.1. The archify copy used here carries an MIT license with the lines "Copyright (c) 2026 tt-a1i
+(Archify)" and "Copyright (c) 2025 Cocoon AI". The upstream repository lists Apache-2.0 as its
+license on 2026-10-27. lean-sdd bundles no archify code. The diagram sources are in
+`docs/diagrams/`.
