@@ -153,3 +153,4 @@ T6 done f651c8d sdd-implementer README + checks all green, 8 mutation proofs; st
 T6 fix f651c8d sdd-reviewer fix-needed statusline path pins version, archify license wording, plain=1 anchors
 COORD spec AC2 wording single-command install (T6 review nit)
 T6 done dcd76ea sdd-reviewer-lite approve fix round; nits to Backlog
+PANEL design skipped new non-test code < 300 lines (ported scripts, vendored lint)
