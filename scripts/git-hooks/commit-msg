@@ -1,0 +1,17 @@
+#!/usr/bin/env bash
+# Normalize the Claude trailers.
+# If <git-common-dir>/claude-trailer exists, drop any other
+# "Co-Authored-By: Claude ..." and "Claude-Session: ..." lines and append
+# every non-empty line of that file (one trailer per line).
+msg="$1"
+want_file="$(git rev-parse --git-common-dir)/claude-trailer"
+[[ -f "$want_file" ]] || exit 0
+want="$(grep -v '^[[:space:]]*$' "$want_file")"
+[[ -n "$want" ]] || exit 0
+
+tmp="$(mktemp)"
+grep -viE '^(Co-Authored-By:[[:space:]]*Claude|Claude-Session:)' "$msg" > "$tmp" || true
+# trim trailing blank lines, then add one blank line + trailers
+sed -i -e :a -e '/^\n*$/{$d;N;ba' -e '}' "$tmp"
+printf '\n%s\n' "$want" >> "$tmp"
+mv "$tmp" "$msg"
