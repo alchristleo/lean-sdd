@@ -11,25 +11,42 @@ every request body. No real model was called and no real credentials were used. 
 `${CLAUDE_PLUGIN_ROOT}` happens in the Claude Code client before the request leaves, so the mock could
 not fake it: the substituted text is what the client sent.
 
-Common setup for every command below (`$SP` is a scratch dir, `$W` is the repo root):
+Variables used in all command blocks (set once per shell):
+
+```
+W=/home/leo/AI_STUFF/lean-sdd/.claude/worktrees/agent-aa1d438dc978dc36c   # repo root
+SP=/tmp/t1-probe                                                         # scratch dir
+mkdir -p $SP
+```
+
+The probe plugin lived in `$W/test/fixtures/probe-plugin/` while I tested. It was never committed. To
+recreate it, write the 6 files listed in "Probe plugin files" at the end of this file.
+
+Setup (historical, run once; the fixture path does not exist in the repo):
 
 ```
 export CLAUDE_CONFIG_DIR=$SP/cfg1
-cd $W && claude plugin marketplace add ./test/fixtures/probe-plugin   # fixture since removed
-claude plugin install lean-sdd@lean-sdd
+mkdir -p $CLAUDE_CONFIG_DIR
+cd $W && claude plugin marketplace add ./test/fixtures/probe-plugin
+cd $W && claude plugin install lean-sdd@lean-sdd
 ```
 
-Output of those two: `Successfully added marketplace: lean-sdd (declared in user settings)` then
+Output: `Successfully added marketplace: lean-sdd (declared in user settings)` then
 `Successfully installed plugin: lean-sdd@lean-sdd (scope: user)`.
 
-Runtime driver, per step `skill`, `agent-prefixed`, `agent-bare`:
+Runtime commands (what `test/fixtures/t1-runtime-probe.sh` runs, in one shell with the setup above done):
 
 ```
+export CLAUDE_CONFIG_DIR=$SP/cfg1
 export ANTHROPIC_BASE_URL=http://127.0.0.1:18765 ANTHROPIC_API_KEY=sk-ant-fake
-python3 -I test/fixtures/mock-messages-api.py 18765 $SP/mock.log &
+rm -f $SP/mock.log $CLAUDE_CONFIG_DIR/hook.log
+python3 -I $W/test/fixtures/mock-messages-api.py 18765 $SP/mock.log &
+cd $SP
 claude -p "STEP skill" --dangerously-skip-permissions --output-format text
 claude -p "STEP agent-prefixed" --dangerously-skip-permissions --output-format text
 claude -p "STEP agent-bare" --dangerously-skip-permissions --output-format text
+cat $CLAUDE_CONFIG_DIR/hook.log
+kill %1
 ```
 
 ## Verdict
@@ -41,29 +58,48 @@ claude -p "STEP agent-bare" --dangerously-skip-permissions --output-format text
 
 ## 1. `${CLAUDE_PLUGIN_ROOT}` substitution: YES in skill, agent and hook
 
-Command: `claude -p "STEP skill" ...` (mock sends a `Skill` call with `skill: lean-sdd:probe`).
+Command (mock sends a `Skill` call with `skill: lean-sdd:probe`):
+
+```
+cd $SP && claude -p "STEP skill" --dangerously-skip-permissions --output-format text
+```
+
+The tool result is in `$SP/mock.log`.
 Skill body `ROOT=${CLAUDE_PLUGIN_ROOT}` and `QUOTED="${CLAUDE_PLUGIN_ROOT}"/scripts/probe.sh`, tool result of
 the `Skill` call (`lean-sdd:probe`):
 
 ```
-ROOT=/home/leo/.../test/fixtures/probe-plugin
-QUOTED="/home/leo/.../test/fixtures/probe-plugin"/scripts/probe.sh
+ROOT=/home/leo/AI_STUFF/lean-sdd/.claude/worktrees/agent-aa1d438dc978dc36c/test/fixtures/probe-plugin
+QUOTED="/home/leo/AI_STUFF/lean-sdd/.claude/worktrees/agent-aa1d438dc978dc36c/test/fixtures/probe-plugin"/scripts/probe.sh
 ```
 
-Command: `claude -p "STEP agent-prefixed" ...`, then the system prompt of the sub-agent request was read from `$SP/mock.log`.
+Command (mock sends an `Agent` call with `subagent_type: lean-sdd:probe-agent`):
+
+```
+cd $SP && claude -p "STEP agent-prefixed" --dangerously-skip-permissions --output-format text
+```
+
+The sub-agent request system prompt is in `$SP/mock.log`.
 Agent body `Reply exactly: PROBE-AGENT-OK ROOT=${CLAUDE_PLUGIN_ROOT}`, as seen in the sub-agent's request
 system prompt:
 
 ```
-Reply exactly: PROBE-AGENT-OK ROOT=/home/leo/.../test/fixtures/probe-plugin
+Reply exactly: PROBE-AGENT-OK ROOT=/home/leo/AI_STUFF/lean-sdd/.claude/worktrees/agent-aa1d438dc978dc36c/test/fixtures/probe-plugin
 ```
 
-Hook: no extra command, the 3 `claude -p` runs above (plus 1 earlier run) each fired it, then `cat $CLAUDE_CONFIG_DIR/hook.log`.
+Hook command, run after the three `claude -p` runs above:
+
+```
+cat $SP/cfg1/hook.log
+```
+
+The first driver run (before I fixed the mock) wrote 3 lines for 3 prompts. The second run wrote 4 lines
+for 3 prompts. The 4th line is probably the sub-agent prompt. That is not verified.
 `hooks.json` command `"${CLAUDE_PLUGIN_ROOT}"/scripts/probe.sh >> "${CLAUDE_CONFIG_DIR}/hook.log"` on
-`UserPromptSubmit` ran on every prompt (4 log lines for 4 prompts):
+`UserPromptSubmit` ran on every prompt (log lines below):
 
 ```
-probe script ran; env CLAUDE_PLUGIN_ROOT=[/home/leo/.../test/fixtures/probe-plugin]
+probe script ran; env CLAUDE_PLUGIN_ROOT=[/home/leo/AI_STUFF/lean-sdd/.claude/worktrees/agent-aa1d438dc978dc36c/test/fixtures/probe-plugin]
 ```
 
 Notes:
@@ -87,7 +123,12 @@ copy with `chmod 644` printed `FAIL every scripts/*.sh executable (1 not)`). Com
 
 ## 3. `subagent_type` for plugin agents: `lean-sdd:<agent>`
 
-Commands: `claude -p "STEP agent-prefixed" ...` and `claude -p "STEP agent-bare" ...`.
+Commands:
+
+```
+cd $SP && claude -p "STEP agent-prefixed" --dangerously-skip-permissions --output-format text
+cd $SP && claude -p "STEP agent-bare" --dangerously-skip-permissions --output-format text
+```
 
 ```
 STEP agent-prefixed  subagent_type "lean-sdd:probe-agent" -> Agent launched, sub-agent system prompt
@@ -107,18 +148,31 @@ Owner decision after review: the plugin declares no dependency. `plugin.json` ha
 `marketplace.json` has no `allowCrossMarketplaceDependenciesOn`. superpowers is a README prerequisite
 ("install superpowers first"). The test results below are kept as the reason the decision is safe.
 
-Commands per case (`$SP/dep` = probe copy with `"dependencies": ["superpowers@claude-plugins-official"]`
-in `plugin.json`; `$SP/dep2` = same without `allowCrossMarketplaceDependenciesOn`; each case has its own
-`CLAUDE_CONFIG_DIR`):
+Commands per case. Each case has its own config dir. `$SP/dep` is a copy of the probe plugin with
+`"dependencies": ["superpowers@claude-plugins-official"]` in `plugin.json` and
+`"allowCrossMarketplaceDependenciesOn": ["claude-plugins-official"]` in `marketplace.json`. `$SP/dep2` is
+the same copy without the `allowCrossMarketplaceDependenciesOn` field.
 
 ```
 # case 1
+export CLAUDE_CONFIG_DIR=$SP/cfg4; mkdir -p $CLAUDE_CONFIG_DIR
 claude plugin marketplace add anthropics/claude-plugins-official
 claude plugin marketplace add $SP/dep
 claude plugin install lean-sdd@lean-sdd
 claude plugin list
-# case 2: same, with $SP/dep2
-# case 3: same, without the first line
+
+# case 2
+export CLAUDE_CONFIG_DIR=$SP/cfg5; mkdir -p $CLAUDE_CONFIG_DIR
+claude plugin marketplace add anthropics/claude-plugins-official
+claude plugin marketplace add $SP/dep2
+claude plugin install lean-sdd@lean-sdd
+claude plugin list
+
+# case 3
+export CLAUDE_CONFIG_DIR=$SP/cfg2; mkdir -p $CLAUDE_CONFIG_DIR
+claude plugin marketplace add $SP/dep
+claude plugin install lean-sdd@lean-sdd
+claude plugin list
 ```
 
 | Case | Result |
@@ -132,11 +186,11 @@ modes can happen, and the README tells the user to install superpowers first.
 
 ## 5. One command and `details`
 
-- Command: `claude plugin install --marketplace $SP/dep lean-sdd` (fresh `CLAUDE_CONFIG_DIR`, official marketplace added before). Output: `Adding marketplace…`, `Successfully added marketplace: lean-sdd`, `Successfully installed plugin: lean-sdd@lean-sdd (scope: user) (+ 1 dependency: superpowers)`. It adds the marketplace and installs in one command
+- Command: `export CLAUDE_CONFIG_DIR=$SP/cfg6; mkdir -p $CLAUDE_CONFIG_DIR; claude plugin marketplace add anthropics/claude-plugins-official; claude plugin install --marketplace $SP/dep lean-sdd` (`$SP/dep` as in finding 4). Output: `Adding marketplace…`, `Successfully added marketplace: lean-sdd`, `Successfully installed plugin: lean-sdd@lean-sdd (scope: user) (+ 1 dependency: superpowers)`. It adds the marketplace and installs in one command
   (tested with a local path, official marketplace already added: `(+ 1 dependency: superpowers)`).
   `<source>` accepts `owner/repo`, URL or path per `--help`. The GitHub form is untested (no remote yet).
 - Command: `claude plugin marketplace add <src> && claude plugin install lean-sdd@lean-sdd`. The two-command form also works (AC2 uses it).
-- Command: `claude plugin details --json lean-sdd`. Output: `error: unknown option '--json'`, rc 1. `claude plugin details lean-sdd` prints text: `Skills (1)`, `Agents (1)`, `Hooks (1)  UserPromptSubmit`. The smoke test parses
+- Command: `CLAUDE_CONFIG_DIR=$SP/cfg1 claude plugin details --json lean-sdd`. Output: `error: unknown option '--json'`, rc 1. `claude plugin details lean-sdd` prints text: `Skills (1)`, `Agents (1)`, `Hooks (1)  UserPromptSubmit`. The smoke test parses
   the installed dir instead. `claude plugin list --json` exists.
 
 ## 6. Isolation: YES
@@ -159,3 +213,14 @@ Plugin state, marketplaces and cache all landed under the temp `CLAUDE_CONFIG_DI
 - Agent frontmatter fields ignored by plugin agents (hooks, mcpServers, permissionMode): not tested.
   Check in T4 when the real agents land.
 - Whether the Bash tool env has `CLAUDE_PLUGIN_ROOT` (not needed under shape A).
+
+## Probe plugin files
+
+All 6 sit under `$W/test/fixtures/probe-plugin/`. `scripts/probe.sh` needs `chmod +x`.
+
+- `.claude-plugin/plugin.json`: `{"name":"lean-sdd","version":"0.0.1","description":"probe","license":"MIT","author":{"name":"probe"}}`
+- `.claude-plugin/marketplace.json`: `{"name":"lean-sdd","description":"probe","owner":{"name":"probe"},"plugins":[{"name":"lean-sdd","source":"./","description":"probe","author":{"name":"probe"}}]}`
+- `skills/probe/SKILL.md`: front matter `name: probe`, `description: Probe skill. Use when asked to run the probe.`, body lines `ROOT=${CLAUDE_PLUGIN_ROOT}` and `QUOTED="${CLAUDE_PLUGIN_ROOT}"/scripts/probe.sh`
+- `agents/probe-agent.md`: front matter `name: probe-agent`, `description: Probe agent. Replies with PROBE-AGENT-OK and its plugin root.`, `model: haiku`, body `Reply exactly: PROBE-AGENT-OK ROOT=${CLAUDE_PLUGIN_ROOT}`
+- `scripts/probe.sh`: `#!/bin/sh` then `echo "probe script ran; env CLAUDE_PLUGIN_ROOT=[${CLAUDE_PLUGIN_ROOT}]"`
+- `hooks/hooks.json`: `{"hooks":{"UserPromptSubmit":[{"hooks":[{"type":"command","command":"\"${CLAUDE_PLUGIN_ROOT}\"/scripts/probe.sh >> \"${CLAUDE_CONFIG_DIR}/hook.log\""}]}]}}`
