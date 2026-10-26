@@ -1,6 +1,6 @@
 # Comparison research (fills spec Decision 13)
 
-Check date: 2026-10-26. Every non-lean-sdd cell cites a page fetched on that date. Quotes came through a summarizing fetch. Reviewers re-fetched and confirmed 10 of them on 2026-10-26; the rest are checked at the panel-cdo seat (AC16, see Notes).
+Check date: 2026-10-26. Every non-lean-sdd cell cites a page fetched on that date. Several quotes came through a summarizing fetch, not a raw page read; they get spot-checked at the panel-cdo seat (AC16, see Notes).
 lean-sdd cells cite line numbers in `~/.claude/skills/lean-sdd/SKILL.md` (shown as `SKILL L<n>`), the
 version this repo ports. Answers are yes, no or partial. A "no" cell quotes the doc sentence that rules
 the feature out, or says "not documented" and names the page that was read. No cost, speed or quality claims.
