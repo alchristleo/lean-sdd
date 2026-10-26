@@ -156,3 +156,31 @@ Run from the repo root.
 Trust boundary is small: the plugin installs a hook that runs on every prompt and scripts that call
 `git` and `gh`. `panel-security` reviews: the hook reads only its own cache file, scripts quote all
 arguments, `pr-merge.sh` refuses a moved head, the trailer hook is opt-in and writes only inside `.git/`.
+
+## Status (converged 2026-10-27)
+
+Base f5e0766, HEAD bdff4e5. First convergence pass, no earlier table.
+
+| # | Criterion (short) | Verdict | Evidence |
+|---|---|---|---|
+| 1 | manifests valid, no warnings | NOT VERIFIED | `claude plugin validate --strict .` exits 0 ("Validation passed") but prints 1 warning: `plugin.json icon: No icon (ICON_MISSING)`. Exit code met, "no warnings" not met. |
+| 2 | 2 skills, 10 agents, hook on 2 events | VERIFIED | `test/install-smoke.sh`: "ok 2 skills", "ok 10 agents", "ok usage-guard on UserPromptSubmit", "ok ... on PostToolUse", "every scripts/*.sh executable (0 not)", rc 0 |
+| 3 | no machine paths | VERIFIED | AC command rc 0; positive control: same grep on `~/.claude` copies = 17 hits |
+| 4 | stack-neutral | VERIFIED | AC command rc 0; positive control on original copies = 9 hits |
+| 5 | 4 diagrams, picture pairs | VERIFIED | `test/check.sh readme`: 4 picture/4 dark/4 light, 8 non-empty files, 4 alts >= 5 words |
+| 6 | hero on one screen | VERIFIED | `test/check.sh hero`: workflow picture line 23, install block line 16 |
+| 7 | no unbacked claims | VERIFIED | grep exits 0 (no match) |
+| 8 | <= 3 alerts, 0 badges | VERIFIED | command rc 0 |
+| 9 | third-party notices | VERIFIED | command rc 0 |
+| 10 | shellcheck clean | VERIFIED | `shellcheck scripts/*.sh scripts/git-hooks/commit-msg` rc 0 |
+| 11 | guard pipeline | VERIFIED | `test/check.sh guard`: "ok 96% prints USAGE GUARD", "ok 10% prints nothing" |
+| 12 | trailer hook opt-in | VERIFIED | `test/install-smoke.sh`: "ok no .git/hooks/commit-msg after install" |
+| 13 | README claims trace to sources (seat panel-cdo) | INCONCLUSIVE | `SEAT cdo pass 82eb17f AC13` predates README edits (a76905a, d8d3265). No later AC13 seat line. Needs cdo re-seat. |
+| 14 | diagrams/README polish (seat panel-cdo) | VERIFIED | `SEAT cdo pass d8d3265 AC14`; later files changed (usage-guard.py, install-git-hooks.sh, test/check.sh, df800f9) are outside AC14 |
+| 15 | rewrites keep meaning (seat panel-correctness) | INCONCLUSIVE | `SEAT correctness pass 82eb17f AC15` predates 553863e, which edited skills/lean-sdd/SKILL.md (6 lines). Needs correctness re-seat on that diff. |
+| 16 | comparison table | INCONCLUSIVE | `test/check.sh compare`: 12 rows, 5 cons, sources+date, no unverified (script part VERIFIED). Seat part: `SEAT cdo pass 82eb17f AC16` predates README edits; needs cdo re-seat. |
+| 17 | owner setup (owner at gate) | INCONCLUSIVE | owner checks at merge gate; no `SEAT owner pass ... AC17` line yet |
+| 18 | one-line install | VERIFIED | `test/check.sh install`: "ok first bash block is one line", "ok block matches the command install-smoke.sh runs" |
+| 19 | field-notes table | VERIFIED | `test/check.sh fieldnotes`: 6 linked rows, rows equal field-notes.md, caption, no %; `SEAT cdo pass d8d3265 AC19` (supersedes the 82eb17f fail) |
+
+Deviations: none in commands run. AC1 resolution is an owner call: add a square PNG icon to the plugin, or reword AC1 to "exits 0". AC13, AC15, AC16 seat parts are stale because files in their scope changed after the seat lines.
