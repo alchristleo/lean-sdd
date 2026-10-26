@@ -110,7 +110,8 @@ test/check.sh                     runs ACs 3-9 locally
 
 Run from the repo root.
 
-1. Plugin manifest and marketplace are valid with no warnings. `claude plugin validate --strict .` exits 0.
+1. Plugin manifest and marketplace are valid. `claude plugin validate --strict .` exits 0. (Owner, merge gate: the
+   remaining ICON_MISSING advisory is accepted; Claude Code doesn't read `icon`, per plugins-reference.)
 2. A clean install exposes 2 skills (lean-sdd, asd-ste100), 10 agents, and the usage-guard hook on
    UserPromptSubmit and PostToolUse. Check: `test/install-smoke.sh`: sets a temp `CLAUDE_CONFIG_DIR`, runs
    `claude plugin install --marketplace ./ lean-sdd` (the README one-liner, local path), then parses the installed
