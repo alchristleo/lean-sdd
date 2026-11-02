@@ -105,6 +105,12 @@ constraints, **agent** (`sdd-implementer-lite` | `sdd-implementer`; role names, 
 - No full implementation code; snippets ≤ 15 lines only for tricky contracts.
 - When tasks share a contract (outputs, API, file format), the consumer's test fixtures use the producer's real-shaped values, not simplified fakes.
 - A removal or rename task's acceptance test is a repo-wide grep (every dir: web, assets, examples, dotfiles) with an explicit allowlist.
+- A migration or rewrite task's acceptance test runs the old and new paths on the same inputs and diffs
+  the outputs, with an allowlist of intended differences (one reason each). The task ends only after it
+  deletes the old path (the grep above), not in a later cleanup task.
+- A change to existing code with weak or no test coverage depends on a separate characterization task
+  first. That task pins the current behavior (ugly parts too) in tests, in its own dispatch, and its
+  ledger line is `done` before the change task starts.
 - Tiering: lite = docs, config, boilerplate, mechanical; implementer = logic, stores,
   handlers, integration, e2e. Tasks that run network or infra tooling (a download,
   install or network step) are never lite. Use `model: "opus"` override only for genuinely hard
