@@ -29,7 +29,7 @@ Inside a session, run `/plugin marketplace add alchristleo/lean-sdd`, then
 
 ## Requirements
 
-Use it in Claude Code. claude.ai chat does not load plugin agents or hooks, and lean-sdd needs both.
+Use it in Claude Code. claude.ai chat does not load plugin agents, and lean-sdd needs them.
 
 Install superpowers first. lean-sdd does not pull it in.
 
@@ -70,7 +70,7 @@ that still fails is marked blocked, and the build moves on.
 </details>
 
 <details>
-<summary>The plugin ships two skills, ten agents, shell scripts and one hook</summary>
+<summary>The plugin ships two skills, ten agents and shell scripts</summary>
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="assets/architecture-dark.svg">
@@ -129,21 +129,29 @@ Claude also asks when a step is ambiguous and evidence cannot settle it. Source:
   findings per seat. The retro pastes that line.
 - **Commit trailers.** The hook that adds a trailer to subagent commits is off by default. Ask
   for commit trailers in the session or in the project's `CLAUDE.md`, and step 0 installs it.
-- **Usage guard.** A hook pauses the build at 95% usage and prints `USAGE GUARD`.
+- **Usage guard.** An opt-in hook pauses the build at 95% usage and prints `USAGE GUARD`.
 
 ### Usage guard
 
 > [!WARNING]
-> The guard does nothing without the status line. The hook reads a cache that
-> `scripts/statusline-cache.py` writes.
+> The guard is off until you add both parts below. The plugin ships no hooks. The hook reads a
+> cache that `scripts/statusline-cache.py` writes, so it needs the status line too.
 
-Add this to `settings.json`. The command finds the newest installed version by itself.
+Add this to `settings.json`. Each command finds the newest installed version by itself.
 
 ```json
 {
   "statusLine": {
     "type": "command",
     "command": "sh -c 'd=$(ls -d \"${CLAUDE_CONFIG_DIR:-$HOME/.claude}\"/plugins/cache/lean-sdd/lean-sdd/*/ 2>/dev/null | sort -V | tail -1); [ -n \"$d\" ] || exit 0; exec python3 \"${d}scripts/statusline-cache.py\"'"
+  },
+  "hooks": {
+    "UserPromptSubmit": [
+      { "hooks": [{ "type": "command", "command": "sh -c 'd=$(ls -d \"${CLAUDE_CONFIG_DIR:-$HOME/.claude}\"/plugins/cache/lean-sdd/lean-sdd/*/ 2>/dev/null | sort -V | tail -1); [ -n \"$d\" ] || exit 0; exec python3 \"${d}hooks/usage-guard.py\"'" }] }
+    ],
+    "PostToolUse": [
+      { "hooks": [{ "type": "command", "command": "sh -c 'd=$(ls -d \"${CLAUDE_CONFIG_DIR:-$HOME/.claude}\"/plugins/cache/lean-sdd/lean-sdd/*/ 2>/dev/null | sort -V | tail -1); [ -n \"$d\" ] || exit 0; exec python3 \"${d}hooks/usage-guard.py\"'" }] }
+    ]
   }
 }
 ```
@@ -155,7 +163,7 @@ Only `git` and `gh` use the network, and only when a step runs them.
 
 | Part | Reads | Writes | Network |
 |---|---|---|---|
-| `hooks/usage-guard.py`, on each prompt and tool call | `~/.claude/state/usage.json` | `~/.claude/state/usage-guard-<session>.json` | none |
+| `hooks/usage-guard.py`, only if you add the hooks, on each prompt and tool call | `~/.claude/state/usage.json` | `~/.claude/state/usage-guard-<session>.json` | none |
 | `scripts/statusline-cache.py`, only if you add the status line | status-line input from Claude Code | `~/.claude/state/usage.json` | none |
 | `scripts/review-pkg.sh` | your git history | a review package in the repo's git dir | none |
 | `scripts/install-git-hooks.sh`, only if you opt in to trailers | your git config | a `commit-msg` hook in the repo's git dir | none |
