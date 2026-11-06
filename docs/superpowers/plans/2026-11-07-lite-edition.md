@@ -96,3 +96,13 @@ COORD review approve 6ad3518 sdd-reviewer-lite coord fixes verified; 2 out-of-sc
 PR #2 head 44b796a, no CI configured (pr-checks-wait rc 3, no checks listed); waiting on owner AC10 resubmit + AC11
 SEAT owner pass 0fe25a4 AC11
 MERGE owner yes; AC10 accepted pending directory resubmit from main
+USAGE end 24%
+MERGED 2f86d8f PR #2, tag v0.1.6, release published
+
+## Retro
+
+- **Numbers:** tasks=3 fix_rounds=1 fix_waves=1 blocked=0 seats pass/fail=0/2 reruns=1 owner=1 panel(must/should/nit)=[design skipped; security skipped; cdo 2/3/3; correctness 0/5/4; cdo(re-run) 1/1/0] triage=[fixed=17 dismissed=0 backlog=0] 5h=6→24 (18pt). Plus 3 coord fixes after the cap (owner call) and 2 backlog items from the coord review.
+- **Worked:** the probe repo settled scan scope before any rework (zero resubmit loops on file types). The pre-mortem caught the manifest name and prefix-rewrite gaps before the build.
+- **Repeated:** the CDO seat failed twice because the fix wave added a claim ("full ships the usage guard") that contradicted existing README text. Proposed edit (needs owner yes and a writing-skills eval): the sdd-implementer docs rule checks each new feature claim against the repo's existing docs.
+- **Escape risk:** gh 2.4.0 reports `cancel` as a check state, but scripts/pr-checks-wait.sh does not match it. The reviewer found it with `strings`. It is in the Backlog. Fix it in the next milestone, with a fake-gh test as T1.
+- **Next:** resubmit `lean-sdd-lite` from main (AC10), then delete the probe repo `alchristleo/lean-sdd-probe`.
