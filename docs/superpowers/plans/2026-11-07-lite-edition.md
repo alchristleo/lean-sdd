@@ -81,3 +81,7 @@ T3 review approve e71f007 sdd-reviewer-lite 1 nit (Editions heading, kept)
 T3 done e71f007 sdd-implementer-lite install-smoke lite + README
 PANEL design skipped 119 lines new non-test code (< 300)
 PANEL security skipped no trust boundary (scope gate)
+PANEL cdo 5486613 must=2 should=3 nit=3
+SEAT cdo fail 5486613 AC11 no edition decision rule, superpowers prereq missing on lite README
+PANEL correctness 5486613 must=0 should=5 nit=4
+TRIAGE fixed=17 dismissed=0 backlog=0
