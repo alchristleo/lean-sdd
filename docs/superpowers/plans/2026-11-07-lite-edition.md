@@ -79,3 +79,5 @@ T2 review approve 10e0c24 sdd-reviewer-lite 1 nit (40-hex note sits in wait step
 T2 done 10e0c24 sdd-implementer inline steps, test/check.sh lite 12 ok
 T3 review approve e71f007 sdd-reviewer-lite 1 nit (Editions heading, kept)
 T3 done e71f007 sdd-implementer-lite install-smoke lite + README
+PANEL design skipped 119 lines new non-test code (< 300)
+PANEL security skipped no trust boundary (scope gate)
