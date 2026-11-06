@@ -1,0 +1,11 @@
+{
+  "name": "lean-sdd-lite",
+  "version": "0.1.6",
+  "description": "Two gates. Evidence for everything else. Spec-driven builds for Claude Code, Markdown only, with no scripts or hooks.",
+  "author": {
+    "name": "alchristleo"
+  },
+  "license": "MIT",
+  "homepage": "https://github.com/alchristleo/lean-sdd",
+  "repository": "https://github.com/alchristleo/lean-sdd"
+}

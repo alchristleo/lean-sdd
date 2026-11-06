@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Local acceptance checks. Usage: test/check.sh <guard|export|readme|hero|compare|install|fieldnotes>
+# Local acceptance checks. Usage: test/check.sh <guard|export|readme|hero|compare|install|fieldnotes|lite>
 # export (AC5): the 8 diagram assets exist, pairs differ, no <script, no external refs.
 # guard (AC11): status-line sample -> cache -> usage-guard hook, in a temp state dir.
 set -u
@@ -158,6 +158,100 @@ fieldnotes() {
   return "$fail"
 }
 
+# fm_field <file> <key>: print a frontmatter value
+fm_field() {
+  awk -v k="$2" '/^---$/ { n++; next } n == 1 && index($0, k ":") == 1 { sub("^" k ": *", ""); print; exit }' "$1"
+}
+
+# lite (AC1-6, 8, 9, 12): plugin-lite/ is a fresh build and holds the right parts
+lite() {
+  local fail=0 L=$ROOT/plugin-lite bad names n a f x tmp out rc base blk pkg gd s
+  # AC1
+  bad=$(find "$L" -type f ! -name '*.md' ! -name '*.json' ! -name '*.png' ! -name LICENSE)
+  s=0; [ -z "$bad" ] || s=1
+  verdict $s "AC1 allowed file types only" "AC1 other file types: $bad"
+  # AC2
+  tmp=$(mktemp -d)
+  trap 'rm -rf "$tmp"' RETURN
+  python3 -I "$ROOT/scripts/dev/build-lite.py" --out "$tmp/fresh" &&
+    diff -r "$tmp/fresh" "$L" >/dev/null
+  verdict $? "AC2 plugin-lite equals a fresh build" "AC2 plugin-lite differs from a fresh build"
+  # AC3
+  sed 's/^Needs Claude Code\. If the Agent/Needs Claude Code. IF the Agent/' "$ROOT/scripts/dev/lite-edits.md" >"$tmp/edits.md"
+  out=$(python3 -I "$ROOT/scripts/dev/build-lite.py" --edits "$tmp/edits.md" --out "$tmp/out" 2>&1)
+  rc=$?
+  [ "$rc" -ne 0 ] && case $out in *"skills/lean-sdd/SKILL.md: anchor not found exactly once: Needs Claude Code. IF the Agent"*) true ;; *) false ;; esac
+  verdict $? "AC3 broken anchor fails and names path and anchor" "AC3 rc=$rc output: $out"
+  # AC4 (fails until T2 inlines the script steps)
+  out=$(grep -rnE 'CLAUDE_PLUGIN_ROOT|scripts/|hooks/|commit-msg|claude-trailer|usage\.json|USAGE GUARD|ste-lint|statusline' "$L"
+    grep -rnE '\.(sh|py)\b' "$L" --exclude-dir=asd-ste100)
+  s=0; [ -z "$out" ] || s=1
+  verdict $s "AC4 no reference to a file lite does not ship" "AC4 $(printf '%s\n' "$out" | wc -l) hits, first: $(printf '%s\n' "$out" | head -1)"
+  # AC5
+  names=$(cd "$ROOT/agents" && find . -name '*.md' | sed 's|^\./||; s|\.md$||' | sort)
+  n=$(find "$L/agents" -name '*.md' | wc -l)
+  s=0; [ "$n" -eq 10 ] && [ "$(find "$L/skills" -mindepth 1 -maxdepth 1 -type d | wc -l)" -eq 2 ] || s=1
+  for a in $names; do
+    for x in name model effort; do
+      [ "$(fm_field "$ROOT/agents/$a.md" $x)" = "$(fm_field "$L/agents/$a.md" $x)" ] || { echo "FAIL AC5 $a: $x differs"; s=1; }
+    done
+  done
+  grep -q '"name": "lean-sdd-lite"' "$L/.claude-plugin/plugin.json" || s=1
+  verdict $s "AC5 2 skills, 10 agents, frontmatter and manifest name match" "AC5 parts differ"
+  s=0
+  grep -rq 'lean-sdd:' "$L" && s=1
+  grep -rq 'lean-sdd-lite:lean-sdd-lite:' "$L" && s=1
+  while read -r x; do
+    case " ${names//$'\n'/ } <agent> <name> " in *" $x "*) ;; *) echo "FAIL AC5 unknown prefix target: $x"; s=1 ;; esac
+  done < <(grep -oE 'lean-sdd-lite:[A-Za-z<][A-Za-z<>-]*' "$L/skills/lean-sdd/SKILL.md" | sed 's/^lean-sdd-lite://' | sort -u)
+  verdict $s "AC5 prefix checks" "AC5 prefix checks failed"
+  # AC6
+  out=$(claude plugin validate --profile directory "$L" 2>&1)
+  rc=$?
+  s=0; [ "$rc" -eq 0 ] && ! printf '%s\n' "$out" | grep -q '❯' || s=1
+  verdict $s "AC6 directory profile passes with no advisory" "AC6 rc=$rc: $(printf '%s\n' "$out" | grep '❯' | head -1)"
+  claude plugin validate "$ROOT" >/dev/null 2>&1
+  verdict $? "AC6 validate . passes" "AC6 validate . failed"
+  # AC8
+  out=$(git -C "$ROOT" diff main -- skills agents scripts hooks ':!scripts/dev')
+  s=0; [ -z "$out" ] || s=1
+  verdict $s "AC8 full edition unchanged" "AC8 full edition differs from main"
+  # AC9: run the fenced bash block that writes review-pkg-* in a temp repo
+  blk=$(awk '/^```bash/ { b = ""; on = 1; next } /^```/ { if (on && b ~ /review-pkg-/) { printf "%s", b; exit } on = 0 } on { b = b $0 "\n" }' "$L/skills/lean-sdd/SKILL.md")
+  s=0
+  if [ -z "$blk" ]; then
+    s=1
+  else
+    mkdir "$tmp/r" && git -C "$tmp/r" init -q && git -C "$tmp/r" config user.email t@t && git -C "$tmp/r" config user.name t
+    echo a >"$tmp/r/a.txt" && git -C "$tmp/r" add . && git -C "$tmp/r" commit -qm "first commit" || s=1
+    base=$(git -C "$tmp/r" rev-parse HEAD)
+    mkdir -p "$tmp/r/docs/superpowers" "$tmp/r/sub"
+    echo b >"$tmp/r/b.txt" && echo secretplan >"$tmp/r/docs/superpowers/p.md"
+    git -C "$tmp/r" add . && git -C "$tmp/r" commit -qm "second commit" || s=1
+    blk=${blk//<base>/$base}
+    (cd "$tmp/r" && bash -c "$blk" >/dev/null 2>&1) || s=1
+    gd=$(git -C "$tmp/r" rev-parse --path-format=absolute --git-common-dir)
+    pkg=$(find "$gd" -maxdepth 1 -name 'review-pkg-*' | head -1)
+    if [ -z "$pkg" ]; then s=1; else
+      case $pkg in /*) ;; *) s=1 ;; esac
+      grep -q 'second commit' "$pkg" && grep -q ' | ' "$pkg" && grep -q 'b.txt' "$pkg" && ! grep -q 'secretplan\|docs/superpowers' "$pkg" || s=1
+      rm -f "$pkg"
+      (cd "$tmp/r/sub" && bash -c "$blk" >/dev/null 2>&1) || s=1
+      [ -f "$pkg" ] || s=1
+    fi
+  fi
+  verdict $s "AC9 review-package block writes the file from root and subdirectory" "AC9 review-package block missing or wrong"
+  f=$L/skills/lean-sdd/SKILL.md
+  s=0
+  grep -q -e '--watch' -e '--match-head-commit' "$f" && s=1
+  grep -qi '20[- ]minute' "$f" && grep -qi 'no checks' "$f" && grep -q 'ls-remote' "$f" && grep -qi 'head moved' "$f" || s=1
+  verdict $s "AC9 PR commands: no --watch, no --match-head-commit, 20-minute limit, stop on no checks, ls-remote, head moved" "AC9 PR step wording wrong"
+  # AC12
+  [ "$(grep '"version"' "$L/.claude-plugin/plugin.json")" = "$(grep '"version"' "$ROOT/.claude-plugin/plugin.json")" ]
+  verdict $? "AC12 versions equal" "AC12 versions differ"
+  return "$fail"
+}
+
 case ${1:-} in
   guard) guard ;;
   export) export_assets ;;
@@ -166,5 +260,6 @@ case ${1:-} in
   compare) compare ;;
   install) install ;;
   fieldnotes) fieldnotes ;;
-  *) echo "usage: test/check.sh guard|export|readme|hero|compare|install|fieldnotes" >&2; exit 2 ;;
+  lite) lite ;;
+  *) echo "usage: test/check.sh guard|export|readme|hero|compare|install|fieldnotes|lite" >&2; exit 2 ;;
 esac
