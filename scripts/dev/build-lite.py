@@ -34,6 +34,8 @@ claude plugin install --marketplace alchristleo/lean-sdd lean-sdd-lite
 
 ## What lite drops
 
+The first two are opt-in in full.
+
 - The commit-trailer hook. Subagent commits get no trailer.
 - The usage guard and the status line. Nothing pauses the build before you hit the 5-hour or 7-day limit.
 - The `asd-ste100` linter. Nothing checks wording by script.
@@ -80,7 +82,7 @@ def main():
     ap.add_argument("--out", default=os.path.join(ROOT, "plugin-lite"))
     a = ap.parse_args()
     out = os.path.abspath(a.out)
-    if out == ROOT or ROOT.startswith(out + os.sep):
+    if out == ROOT or ROOT.startswith(out.rstrip(os.sep) + os.sep):
         die(f"--out {out} is the repo root or a parent of it: refusing to delete it")
 
     files = {}

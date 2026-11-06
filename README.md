@@ -48,10 +48,11 @@ Agents run as `lean-sdd:<name>`, for example `lean-sdd:sdd-implementer`.
 lean-sdd ships in two editions. Install one, not both. Both ship skills named `lean-sdd` and
 `asd-ste100`.
 
-- **Full.** The default. It ships the commit-trailer hook, the usage guard and status line, the
-  `asd-ste100` linter, the ledger format lint, the metrics line, and the review-package, PR-checks
-  and merge scripts. Choose full if you want the usage guard, the commit-trailer hook and the PR
-  wait and merge scripts.
+- **Full.** The default. It adds the review-package, PR-checks and merge scripts, the
+  `asd-ste100` linter, the ledger format lint and the metrics line. You can also opt in to the
+  usage guard and status line (a `settings.json` snippet you add) and to commit trailers (a git
+  hook installed on request). Choose full if you want the scripts, or want to opt in to the guard
+  or trailers.
 - **Lite.** Markdown only: 2 skills and 10 agents, with no hooks and no scripts. It is the edition
   for the plugin directory. Choose lite if you want only skills and agents, with no shell scripts
   or hooks.
@@ -62,7 +63,7 @@ Install lite with this command:
 claude plugin install --marketplace alchristleo/lean-sdd lean-sdd-lite
 ```
 
-Lite drops these parts of full:
+Lite drops these parts of full (the first two are opt-in in full):
 
 - The commit-trailer hook. Subagent commits get no trailer.
 - The usage guard and the status line. Nothing pauses the build before you hit the 5-hour or 7-day limit.

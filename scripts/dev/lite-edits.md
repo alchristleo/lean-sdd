@@ -114,12 +114,12 @@ wave or coord fixes) gets that seat re-run on the fix diff only (the step 6 comm
        echo "head moved (${before:-unknown} -> ${sha:-unknown}): run the wait again"; exit 1
      fi
      status=$(printf '%s\n' "$out" | awk -F'\t' 'NF >= 2 { print $2 }')
-     if ! printf '%s\n' "$status" | grep -qxE 'pass|fail|pending|queued|in_progress|skipping|cancelled|timed_out|action_required'; then
+     if ! printf '%s\n' "$status" | grep -qxE 'pass|fail|pending|queued|in_progress|skipping|cancelled|cancel|timed_out|action_required'; then
        echo "$out"; echo "gh error or no checks listed: stop and report"; exit 3
      fi
      if ! printf '%s\n' "$status" | grep -qxE 'pending|queued|in_progress'; then
        echo "$out"; echo "head $sha"
-       printf '%s\n' "$status" | grep -qxE 'fail|cancelled|timed_out|action_required' && { echo "CI is red"; exit 1; }
+       printf '%s\n' "$status" | grep -qxE 'fail|cancelled|cancel|timed_out|action_required' && { echo "CI is red"; exit 1; }
        exit 0
      fi
      [ "$(date +%s)" -ge "$deadline" ] && { echo "$out"; echo "timeout after 20 minutes"; exit 2; }

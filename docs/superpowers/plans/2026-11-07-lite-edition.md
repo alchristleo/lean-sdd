@@ -86,3 +86,6 @@ SEAT cdo fail 5486613 AC11 no edition decision rule, superpowers prereq missing 
 PANEL correctness 5486613 must=0 should=5 nit=4
 TRIAGE fixed=17 dismissed=0 backlog=0
 FIX wave 458feea sdd-implementer 17 panel findings
+PANEL cdo d095330 must=1 should=1 nit=0
+SEAT cdo fail d095330 AC11 Full bullet says ships guard/hook, both opt-in
+COORD re-review d095330 sdd-reviewer-lite fix-needed: --out / not refused (must), gh 2.4 'cancel' state (should)
