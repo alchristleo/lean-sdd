@@ -136,4 +136,3 @@ Follow the table with a one-line note on anything you deliberately did **not** s
 
 - **`references/writing-rules.md`** — fuller summary of the 9 rule sections and dictionary structure, with citations to the official standard and secondary sources.
 - **`examples/before-after.md`** — worked examples, including official STE examples and agent-output examples built for this skill.
-

@@ -19,12 +19,13 @@ Needs Claude Code. If the Agent tool or the `lean-sdd-lite:` agents are missing 
 >>>>
 
 <<<<
+- Trailer hook, only if the user asked for commit trailers, in this session or in the project's CLAUDE.md (otherwise skip it; never install it unasked), so subagent commits never need rewriting:
   `"${CLAUDE_PLUGIN_ROOT}"/scripts/install-git-hooks.sh "<trailer lines from the system attribution reminder, one per line>"`
   Re-run at every session start and whenever the attribution reminder changes (it can change mid-session).
 - Usage: `cat "${CLAUDE_CONFIG_DIR:-$HOME/.claude}/state/usage.json"` (written by the status line). Pause threshold 95%
   unless the user says otherwise. Obey `USAGE GUARD` messages from the hook.
 ====
-  lite ships no hook. Tell every subagent to end its commit message with the trailer lines from the system attribution reminder.
+- Trailers, only if the user asked for them in this session or in the project's CLAUDE.md. Then tell every subagent to end its commit message with the trailer lines from the system attribution reminder. Otherwise add none.
 - Usage: read the 5h and 7d percentages the status line shows. Pause threshold 95%
   unless the user says otherwise. If the user sends a pause message, follow the Pause / resume section.
 >>>>
@@ -32,10 +33,11 @@ Needs Claude Code. If the Agent tool or the `lean-sdd-lite:` agents are missing 
 <<<<
 - Ledger stays (pause/resume), one line per event, appended with `"${CLAUDE_PLUGIN_ROOT}"/scripts/sdd-log.sh <plan> <line>`
   (it refuses formats not in the `"${CLAUDE_PLUGIN_ROOT}"/scripts/sdd-metrics.sh` header). Run sdd-metrics.sh after each panel round (it lints).
+  A `fix` = one reviewer fix-needed verdict on a task; the re-review that passes is `done`.
 ====
 - Ledger stays (pause/resume), one line per event. Append each line with the Edit tool at the end of the last `## Ledger` section of the plan doc.
   Lite does not check the format, so use only these (the first word is the line type):
-  - `T<n>[a-z] done <sha> <agent> <note>` (task done, or re-review passed)
+  - `T<n>[a-z] done <sha> <agent> <note>` (task done; the re-review that passes is `done`)
   - `T<n>[a-z] fix <sha> <reviewer> fix-needed <note>` (one fix round = one reviewer fix-needed verdict on a task)
   - `T<n>[a-z] coord <sha> <note>` (coordinator fix, 10 lines or fewer)
   - `T<n>[a-z] blocked <sha> <agent> <note>`
@@ -100,14 +102,15 @@ wave or coord fixes) gets that seat re-run on the fix diff only (the step 6 comm
 ====
 - After the PR opens, and again after every push to the PR branch, wait for the checks:
   1. Run `sleep 15` so the checks register.
-  2. Run `gh pr checks <pr>`. It exits non-zero when a check fails, so read its output, not its exit code.
+  2. Run `gh pr view <pr> --json commits -q '.commits[-1].oid'` and record the sha as the before sha. Then run `gh pr checks <pr>`. It exits non-zero when a check fails, so read its output, not its exit code.
   3. If any line shows pending, queued or in_progress, run `sleep 20` and go to 2. Stop after 20 minutes in total and report the timeout.
   4. If gh prints an error or lists no checks, stop and report. Do not loop.
-  5. Run `gh pr view <pr> --json commits -q '.commits[-1].oid'` and record the head sha. If it differs from the sha before the checks call, run the wait again.
+  5. Run `gh pr view <pr> --json commits -q '.commits[-1].oid'` again. If it differs from the before sha, report that the head moved and restart the wait. Otherwise record it as the head sha. It must be the full 40 hex characters.
   6. A line that shows fail, cancelled, timed_out or action_required means CI is red.
   The merge gate quotes the head sha. CI red → fix before merge. ACs checked on PR
   CI get their spec edit committed to the branch before the merge, never after.
 - Merge in this order:
+  0. Run `gh pr view <pr> --json headRefName,baseRefName` to read `<branch>` and `<base>`.
   1. Run `git ls-remote origin refs/heads/<branch>`. If the sha differs from the recorded head sha, stop and run the wait again.
   2. Run `git fetch origin`, then repeat step 1.
   3. Run `gh pr merge <pr> --merge`.
@@ -180,8 +183,10 @@ The trailer to check is the one in `.git/claude-trailer` (installed by the commi
 >>>>
 
 <<<<
+- **`examples/before-after.md`** — worked examples, including official STE examples and agent-output examples built for this skill.
 - **`scripts/ste-lint.py`** — deterministic, stdlib-only linter for the structural rules, including dangling-conjunction in supported list items, plus a synonym-rotation check (one word, one meaning) scoped per file. Exit 1 when hard violations exceed `--baseline` (default 0); advisory findings (passive voice, compound tenses) never fail the run; `--disable` silences named rules. It never flags hedges or modality: those are content, not style, and `--selftest` asserts that "may have failed" passes clean.
 ====
+- **`examples/before-after.md`** — worked examples, including official STE examples and agent-output examples built for this skill.
 >>>>
 
 ## skills/lean-sdd/SKILL.md

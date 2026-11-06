@@ -41,8 +41,7 @@ Say the size you picked in one line. Trust boundary or size unclear → Large.
 
 ## 0. Setup (once per repo / branch)
 
-- Trailer hook, only if the user asked for commit trailers, in this session or in the project's CLAUDE.md (otherwise skip it; never install it unasked), so subagent commits never need rewriting:
-  lite ships no hook. Tell every subagent to end its commit message with the trailer lines from the system attribution reminder.
+- Trailers, only if the user asked for them in this session or in the project's CLAUDE.md. Then tell every subagent to end its commit message with the trailer lines from the system attribution reminder. Otherwise add none.
 - Usage: read the 5h and 7d percentages the status line shows. Pause threshold 95%
   unless the user says otherwise. If the user sends a pause message, follow the Pause / resume section.
   Budget mode (usage ≥ 85%): drop `panel-design`, keep `panel-cdo` only if an AC rests on it,
@@ -133,7 +132,7 @@ constraints, **agent** (`sdd-implementer-lite` | `sdd-implementer`; role names, 
   in plan order, run the full suite after the merge.
 - Ledger stays (pause/resume), one line per event. Append each line with the Edit tool at the end of the last `## Ledger` section of the plan doc.
   Lite does not check the format, so use only these (the first word is the line type):
-  - `T<n>[a-z] done <sha> <agent> <note>` (task done, or re-review passed)
+  - `T<n>[a-z] done <sha> <agent> <note>` (task done; the re-review that passes is `done`)
   - `T<n>[a-z] fix <sha> <reviewer> fix-needed <note>` (one fix round = one reviewer fix-needed verdict on a task)
   - `T<n>[a-z] coord <sha> <note>` (coordinator fix, 10 lines or fewer)
   - `T<n>[a-z] blocked <sha> <agent> <note>`
@@ -146,7 +145,6 @@ constraints, **agent** (`sdd-implementer-lite` | `sdd-implementer`; role names, 
   - `FIX wave <sha> <agent> <note>`
   - `USAGE start|end <5h%>` (at start, pause, resume and merge)
   - `COORD`, `CONVERGE`, `DISMISSED`, `MERGE`, `MERGED`, `PAUSED`, `PLAN`, `PR` and `RESUME` lines, each followed by a note.
-  A `fix` = one reviewer fix-needed verdict on a task; the re-review that passes is `done`.
 
 ## 6. Per-task review
 
@@ -226,14 +224,15 @@ Max one re-run per seat per milestone; a second fail → ask the owner.
   findings are listed right above it; picking merge or PR is then the explicit yes.
 - After the PR opens, and again after every push to the PR branch, wait for the checks:
   1. Run `sleep 15` so the checks register.
-  2. Run `gh pr checks <pr>`. It exits non-zero when a check fails, so read its output, not its exit code.
+  2. Run `gh pr view <pr> --json commits -q '.commits[-1].oid'` and record the sha as the before sha. Then run `gh pr checks <pr>`. It exits non-zero when a check fails, so read its output, not its exit code.
   3. If any line shows pending, queued or in_progress, run `sleep 20` and go to 2. Stop after 20 minutes in total and report the timeout.
   4. If gh prints an error or lists no checks, stop and report. Do not loop.
-  5. Run `gh pr view <pr> --json commits -q '.commits[-1].oid'` and record the head sha. If it differs from the sha before the checks call, run the wait again.
+  5. Run `gh pr view <pr> --json commits -q '.commits[-1].oid'` again. If it differs from the before sha, report that the head moved and restart the wait. Otherwise record it as the head sha. It must be the full 40 hex characters.
   6. A line that shows fail, cancelled, timed_out or action_required means CI is red.
   The merge gate quotes the head sha. CI red → fix before merge. ACs checked on PR
   CI get their spec edit committed to the branch before the merge, never after.
 - Merge in this order:
+  0. Run `gh pr view <pr> --json headRefName,baseRefName` to read `<branch>` and `<base>`.
   1. Run `git ls-remote origin refs/heads/<branch>`. If the sha differs from the recorded head sha, stop and run the wait again.
   2. Run `git fetch origin`, then repeat step 1.
   3. Run `gh pr merge <pr> --merge`.
