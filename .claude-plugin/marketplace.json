@@ -8,6 +8,12 @@
       "source": "./",
       "description": "Two gates. Evidence for everything else. A lean spec-driven build workflow for Claude Code.",
       "author": { "name": "alchristleo" }
+    },
+    {
+      "name": "lean-sdd-lite",
+      "source": "./plugin-lite",
+      "description": "Lean-sdd without scripts or hooks: Markdown-only skills and agents for the plugin directory.",
+      "author": { "name": "alchristleo" }
     }
   ]
 }
