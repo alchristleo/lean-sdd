@@ -74,3 +74,4 @@ USAGE start 6%
 PLAN 3 tasks, T1 -> T2 -> T3 serial
 T1 review approve 06e93ca sdd-reviewer 1 nit: AC9 block must stay first review-pkg fence
 T1 done 06e93ca sdd-implementer generator, plugin-lite, check.sh lite
+T2 fix 0bd8cf6 sdd-reviewer fix-needed 2 must (trailer wording unconditional, wait head-moved before sha missing), 2 should, 2 nit
