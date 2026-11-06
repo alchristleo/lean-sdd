@@ -130,3 +130,25 @@ README.md                         Install section: both editions, what lite drop
 
 No new trust boundary. Lite runs the same `git`/`gh` commands the full scripts run, typed by
 Claude instead of read from a script.
+
+## Status (converged 2026-11-07)
+
+Branch head 552c32b, base main. No earlier status table.
+
+| # | Criterion | Verdict | Evidence |
+|---|-----------|---------|----------|
+| 1 | Only .md/.json/.png/LICENSE | VERIFIED | `test/check.sh lite`: `ok AC1 allowed file types only` |
+| 2 | plugin-lite equals fresh build | VERIFIED | `test/check.sh lite`: `ok AC2 plugin-lite equals a fresh build` |
+| 3 | Missing anchor fails build | VERIFIED | `test/check.sh lite`: `ok AC3 broken anchor fails and names path and anchor` |
+| 4 | No reference to unshipped files | VERIFIED | `test/check.sh lite`: `ok AC4 ...` |
+| 5 | Same parts, names, prefixes | VERIFIED | `test/check.sh lite`: `ok AC5 2 skills, 10 agents...` and `ok AC5 prefix checks` |
+| 6 | directory validate 0, no advisory; `validate .` 0 | VERIFIED | `test/check.sh lite`: `ok AC6 directory profile passes with no advisory`, `ok AC6 validate . passes` |
+| 7 | Clean install exposes 2 skills, 10 agents, no hooks/scripts | VERIFIED | `D=$(mktemp -d); git clone -q . "$D"; test/install-smoke.sh "$D"`: `ok lite: 2 skills`, `ok lite: 10 agents`, `ok lite: no hooks/ dir`, `ok lite: no scripts/ dir`; full-install checks ok |
+| 8 | Full edition unchanged | VERIFIED | `git diff main -- skills agents scripts hooks ':!scripts/dev' \| wc -l` = 0; `ok AC8` |
+| 9 | Review-package block and PR commands | VERIFIED | `test/check.sh lite`: both `ok AC9` lines |
+| 10 | Directory accepts lean-sdd-lite | NOT VERIFIED (pending) | `check: owner at gate`: owner checks at merge gate (directory resubmit after push); no `SEAT owner pass` line in ledger |
+| 11 | README tells visitor which edition, in house voice | INCONCLUSIVE | `check: seat cdo`: ledger has `SEAT cdo fail 5486613 AC11` and `SEAT cdo fail d095330 AC11`, no pass line. Owner chose coordinator fixes (`COORD b672aca`); reviewer verified the wording against the README (`COORD review approve 6ad3518`). Owner judges AC11 at the merge gate |
+| 12 | Lite version equals full version | VERIFIED | `test/check.sh lite`: `ok AC12 versions equal` |
+
+Deviations: none. AC7 was run with the clone form given by the coordinator (`install-smoke.sh <clone>`), not bare `test/install-smoke.sh`.
+Open findings: none. Two out-of-scope items went to Backlog (`COORD review approve 6ad3518`).
