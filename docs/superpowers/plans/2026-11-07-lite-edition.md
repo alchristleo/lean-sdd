@@ -72,3 +72,5 @@ Acceptance: `test/install-smoke.sh` rc 0; `test/check.sh readme|hero|install|com
 ## Ledger
 USAGE start 6%
 PLAN 3 tasks, T1 -> T2 -> T3 serial
+T1 review approve 06e93ca sdd-reviewer 1 nit: AC9 block must stay first review-pkg fence
+T1 done 06e93ca sdd-implementer generator, plugin-lite, check.sh lite
