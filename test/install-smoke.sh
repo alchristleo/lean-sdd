@@ -85,4 +85,20 @@ statusline_no_fallback() {
 }
 check "README status-line command with an empty cache exits 0 and runs no planted script" statusline_no_fallback
 
+# AC7: lite installs from the same marketplace into the same config and ships no hooks or scripts.
+claude plugin install --marketplace "$SRC" lean-sdd-lite >"$TMP/install-lite.log" 2>&1 || {
+  echo "usage error: lite install failed"; cat "$TMP/install-lite.log"; exit 2; }
+LDIR=$(python3 -I -c '
+import json, sys
+d = json.load(open(sys.argv[1]))
+print(d["plugins"]["lean-sdd-lite@lean-sdd"][0]["installPath"])' "$CLAUDE_CONFIG_DIR/plugins/installed_plugins.json") || {
+  echo "usage error: no lite installPath"; exit 2; }
+
+lskills=$(find "$LDIR/skills" -mindepth 2 -maxdepth 2 -name SKILL.md 2>/dev/null | wc -l)
+lagents=$(find "$LDIR/agents" -maxdepth 1 -name '*.md' 2>/dev/null | wc -l)
+check "lite: 2 skills (found $lskills)" test "$lskills" -eq 2
+check "lite: 10 agents (found $lagents)" test "$lagents" -eq 10
+check "lite: no hooks/ dir" test ! -e "$LDIR/hooks"
+check "lite: no scripts/ dir" test ! -e "$LDIR/scripts"
+
 exit "$fail"

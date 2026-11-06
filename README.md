@@ -42,6 +42,32 @@ Install superpowers first. lean-sdd does not pull it in.
 
 Agents run as `lean-sdd:<name>`, for example `lean-sdd:sdd-implementer`.
 
+## Editions
+
+lean-sdd ships in two editions. Install one, not both. Both ship skills named `lean-sdd` and
+`asd-ste100`.
+
+- **Full.** The default. It runs the scripts and the hooks described below.
+- **Lite.** Markdown only: 2 skills and 10 agents, with no hooks and no scripts. It is the edition
+  for the plugin directory.
+
+Install lite with this command:
+
+```bash
+claude plugin install --marketplace alchristleo/lean-sdd lean-sdd-lite
+```
+
+Lite drops:
+
+- The commit-trailer hook.
+- The usage guard and the status line.
+- The `asd-ste100` linter.
+- The ledger format lint.
+- The metrics line. Claude counts the ledger lines instead.
+- The review-package, PR-checks and merge scripts. The skill holds the same commands as text.
+
+Install the full `lean-sdd` plugin to get these back.
+
 ## What happens to one task
 
 Claude states the size first. Small means 1 to 3 files, under about 150 lines and no new
@@ -175,6 +201,7 @@ Only `git` and `gh` use the network, and only when a step runs them.
 ## Releasing
 
 Maintainers: bump `version` in `.claude-plugin/plugin.json` on every user-visible change.
+Before every version bump, run `python3 -I scripts/dev/build-lite.py` and `test/check.sh lite`.
 Setting `version` keeps installed users on that version until you change it
 ([plugin manifest reference](https://code.claude.com/docs/en/plugins-reference#version)),
 and the status-line command picks the highest installed version.
