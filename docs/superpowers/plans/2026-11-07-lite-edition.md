@@ -94,3 +94,5 @@ COORD re-review d095330 sdd-reviewer-lite fix-needed: --out / not refused (must)
 COORD b672aca owner chose coord-fix: --out / guard, cancel state, Editions opt-in wording
 COORD review approve 6ad3518 sdd-reviewer-lite coord fixes verified; 2 out-of-scope items to Backlog
 PR #2 head 44b796a, no CI configured (pr-checks-wait rc 3, no checks listed); waiting on owner AC10 resubmit + AC11
+SEAT owner pass 0fe25a4 AC11
+MERGE owner yes; AC10 accepted pending directory resubmit from main

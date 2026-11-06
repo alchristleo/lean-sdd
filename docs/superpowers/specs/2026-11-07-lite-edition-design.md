@@ -146,8 +146,8 @@ Branch head 552c32b, base main. No earlier status table.
 | 7 | Clean install exposes 2 skills, 10 agents, no hooks/scripts | VERIFIED | `D=$(mktemp -d); git clone -q . "$D"; test/install-smoke.sh "$D"`: `ok lite: 2 skills`, `ok lite: 10 agents`, `ok lite: no hooks/ dir`, `ok lite: no scripts/ dir`; full-install checks ok |
 | 8 | Full edition unchanged | VERIFIED | `git diff main -- skills agents scripts hooks ':!scripts/dev' \| wc -l` = 0; `ok AC8` |
 | 9 | Review-package block and PR commands | VERIFIED | `test/check.sh lite`: both `ok AC9` lines |
-| 10 | Directory accepts lean-sdd-lite | NOT VERIFIED (pending) | `check: owner at gate`: owner checks at merge gate (directory resubmit after push); no `SEAT owner pass` line in ledger |
-| 11 | README tells visitor which edition, in house voice | INCONCLUSIVE | `check: seat cdo`: ledger has `SEAT cdo fail 5486613 AC11` and `SEAT cdo fail d095330 AC11`, no pass line. Owner chose coordinator fixes (`COORD b672aca`); reviewer verified the wording against the README (`COORD review approve 6ad3518`). Owner judges AC11 at the merge gate |
+| 10 | Directory accepts lean-sdd-lite | NOT VERIFIED (accepted) | Owner chose to merge before the directory resubmit result. Resubmit `lean-sdd-lite` from main after the merge. |
+| 11 | README tells visitor which edition, in house voice | VERIFIED | Owner yes at the merge gate (`SEAT owner pass 0fe25a4 AC11`), after coord fix b672aca. |
 | 12 | Lite version equals full version | VERIFIED | `test/check.sh lite`: `ok AC12 versions equal` |
 
 Deviations: none. AC7 was run with the clone form given by the coordinator (`install-smoke.sh <clone>`), not bare `test/install-smoke.sh`.
