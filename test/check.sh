@@ -171,19 +171,20 @@ lite() {
   s=0; [ -z "$bad" ] || s=1
   verdict $s "AC1 allowed file types only" "AC1 other file types: $bad"
   # AC2
-  python3 -I "$ROOT/scripts/dev/build-lite.py" &&
-    [ -z "$(git -C "$ROOT" status --porcelain plugin-lite)" ]
-  verdict $? "AC2 plugin-lite equals a fresh build" "AC2 plugin-lite differs from a fresh build"
-  # AC3
   tmp=$(mktemp -d)
   trap 'rm -rf "$tmp"' RETURN
+  python3 -I "$ROOT/scripts/dev/build-lite.py" --out "$tmp/fresh" &&
+    diff -r "$tmp/fresh" "$L" >/dev/null
+  verdict $? "AC2 plugin-lite equals a fresh build" "AC2 plugin-lite differs from a fresh build"
+  # AC3
   sed 's/^Needs Claude Code\. If the Agent/Needs Claude Code. IF the Agent/' "$ROOT/scripts/dev/lite-edits.md" >"$tmp/edits.md"
   out=$(python3 -I "$ROOT/scripts/dev/build-lite.py" --edits "$tmp/edits.md" --out "$tmp/out" 2>&1)
   rc=$?
   [ "$rc" -ne 0 ] && case $out in *"skills/lean-sdd/SKILL.md: anchor not found exactly once: Needs Claude Code. IF the Agent"*) true ;; *) false ;; esac
   verdict $? "AC3 broken anchor fails and names path and anchor" "AC3 rc=$rc output: $out"
   # AC4 (fails until T2 inlines the script steps)
-  out=$(grep -rnE 'CLAUDE_PLUGIN_ROOT|scripts/|hooks/|commit-msg|claude-trailer|usage\.json|USAGE GUARD|ste-lint|statusline' "$L")
+  out=$(grep -rnE 'CLAUDE_PLUGIN_ROOT|scripts/|hooks/|commit-msg|claude-trailer|usage\.json|USAGE GUARD|ste-lint|statusline' "$L"
+    grep -rnE '\.(sh|py)\b' "$L" --exclude-dir=asd-ste100)
   s=0; [ -z "$out" ] || s=1
   verdict $s "AC4 no reference to a file lite does not ship" "AC4 $(printf '%s\n' "$out" | wc -l) hits, first: $(printf '%s\n' "$out" | head -1)"
   # AC5
@@ -243,8 +244,8 @@ lite() {
   f=$L/skills/lean-sdd/SKILL.md
   s=0
   grep -q -e '--watch' -e '--match-head-commit' "$f" && s=1
-  grep -qi '20[- ]minute' "$f" && grep -qi 'no checks' "$f" || s=1
-  verdict $s "AC9 PR commands: no --watch, no --match-head-commit, 20-minute limit, stop on no checks" "AC9 PR step wording wrong"
+  grep -qi '20[- ]minute' "$f" && grep -qi 'no checks' "$f" && grep -q 'ls-remote' "$f" && grep -qi 'head moved' "$f" || s=1
+  verdict $s "AC9 PR commands: no --watch, no --match-head-commit, 20-minute limit, stop on no checks, ls-remote, head moved" "AC9 PR step wording wrong"
   # AC12
   [ "$(grep '"version"' "$L/.claude-plugin/plugin.json")" = "$(grep '"version"' "$ROOT/.claude-plugin/plugin.json")" ]
   verdict $? "AC12 versions equal" "AC12 versions differ"

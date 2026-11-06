@@ -223,19 +223,44 @@ Max one re-run per seat per milestone; a second fail → ask the owner.
   finishing menu counts as the gate only if the non-VERIFIED criteria and the dismissed
   findings are listed right above it; picking merge or PR is then the explicit yes.
 - After the PR opens, and again after every push to the PR branch, wait for the checks:
-  1. Run `sleep 15` so the checks register.
-  2. Run `gh pr view <pr> --json commits -q '.commits[-1].oid'` and record the sha as the before sha. Then run `gh pr checks <pr>`. It exits non-zero when a check fails, so read its output, not its exit code.
-  3. If any line shows pending, queued or in_progress, run `sleep 20` and go to 2. Stop after 20 minutes in total and report the timeout.
-  4. If gh prints an error or lists no checks, stop and report. Do not loop.
-  5. Run `gh pr view <pr> --json commits -q '.commits[-1].oid'` again. If it differs from the before sha, report that the head moved and restart the wait. Otherwise record it as the head sha. It must be the full 40 hex characters.
-  6. A line that shows fail, cancelled, timed_out or action_required means CI is red.
+  Run this block in one Bash call. Replace `<pr>` first. It does the whole wait, so do not run `sleep` as a separate call.
+   ```bash
+   pr=<pr>
+   deadline=$(( $(date +%s) + 1200 ))
+   sleep 15
+   while :; do
+     before=$(gh pr view "$pr" --json commits -q '.commits[-1].oid' 2>/dev/null)
+     out=$(gh pr checks "$pr" 2>&1)
+     sha=$(gh pr view "$pr" --json commits -q '.commits[-1].oid' 2>/dev/null)
+     if [ "$before" != "$sha" ]; then
+       echo "head moved (${before:-unknown} -> ${sha:-unknown}): run the wait again"; exit 1
+     fi
+     status=$(printf '%s\n' "$out" | awk -F'\t' 'NF >= 2 { print $2 }')
+     if ! printf '%s\n' "$status" | grep -qxE 'pass|fail|pending|queued|in_progress|skipping|cancelled|timed_out|action_required'; then
+       echo "$out"; echo "gh error or no checks listed: stop and report"; exit 3
+     fi
+     if ! printf '%s\n' "$status" | grep -qxE 'pending|queued|in_progress'; then
+       echo "$out"; echo "head $sha"
+       printf '%s\n' "$status" | grep -qxE 'fail|cancelled|timed_out|action_required' && { echo "CI is red"; exit 1; }
+       exit 0
+     fi
+     [ "$(date +%s)" -ge "$deadline" ] && { echo "$out"; echo "timeout after 20 minutes"; exit 2; }
+     sleep 20
+   done
+   ```
+  The block reads the status column, which is the second tab-separated field. It does not match words anywhere else in the line. Act on the result:
+  1. Exit 0: nothing is pending and nothing failed. The last line is `head <sha>`. Record that sha as the head sha. It must be the full 40 hex characters.
+  2. Exit 1 with "head moved": a push landed during the wait. Run the block again.
+  3. Exit 1 with "CI is red": a check failed, was cancelled, timed out or needs action. Fix it before the merge.
+  4. Exit 2: the checks did not finish in 20 minutes. Stop and report the timeout.
+  5. Exit 3: gh printed an error or listed no checks. Stop and report. Do not loop.
   The merge gate quotes the head sha. CI red → fix before merge. ACs checked on PR
   CI get their spec edit committed to the branch before the merge, never after.
 - Merge in this order:
   0. Run `gh pr view <pr> --json headRefName,baseRefName` to read `<branch>` and `<base>`.
-  1. Run `git ls-remote origin refs/heads/<branch>`. If the sha differs from the recorded head sha, stop and run the wait again.
+  1. Run `git ls-remote origin refs/heads/<branch>`. If the output is empty or the sha differs from the recorded head sha, the head moved. Stop and run the wait again.
   2. Run `git fetch origin`, then repeat step 1.
-  3. Run `gh pr merge <pr> --merge`.
+  3. Run `gh pr merge <pr> --merge`. If it fails, stop and report. Do not run step 4.
   4. Run `git fetch origin`, then `git log --oneline origin/<base>..origin/<branch>`. A non-empty list is lost work: land it on main.
 
 ## 9. Retro (after merge, ≤ 6 lines, appended to the plan doc)

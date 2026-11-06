@@ -19,6 +19,7 @@ claude plugin install --marketplace alchristleo/lean-sdd lean-sdd
 
 Inside a session, run `/plugin marketplace add alchristleo/lean-sdd`, then
 `/plugin install lean-sdd@lean-sdd`. [Install superpowers first](#requirements).
+Want no scripts or hooks? See [Editions](#editions).
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="assets/workflow-dark.svg">
@@ -47,9 +48,13 @@ Agents run as `lean-sdd:<name>`, for example `lean-sdd:sdd-implementer`.
 lean-sdd ships in two editions. Install one, not both. Both ship skills named `lean-sdd` and
 `asd-ste100`.
 
-- **Full.** The default. It runs the scripts and the hooks described below.
+- **Full.** The default. It ships the commit-trailer hook, the usage guard and status line, the
+  `asd-ste100` linter, the ledger format lint, the metrics line, and the review-package, PR-checks
+  and merge scripts. Choose full if you want the usage guard, the commit-trailer hook and the PR
+  wait and merge scripts.
 - **Lite.** Markdown only: 2 skills and 10 agents, with no hooks and no scripts. It is the edition
-  for the plugin directory.
+  for the plugin directory. Choose lite if you want only skills and agents, with no shell scripts
+  or hooks.
 
 Install lite with this command:
 
@@ -57,12 +62,12 @@ Install lite with this command:
 claude plugin install --marketplace alchristleo/lean-sdd lean-sdd-lite
 ```
 
-Lite drops:
+Lite drops these parts of full:
 
-- The commit-trailer hook.
-- The usage guard and the status line.
-- The `asd-ste100` linter.
-- The ledger format lint.
+- The commit-trailer hook. Subagent commits get no trailer.
+- The usage guard and the status line. Nothing pauses the build before you hit the 5-hour or 7-day limit.
+- The `asd-ste100` linter. Nothing checks wording by script.
+- The ledger format lint. Nothing checks ledger lines by script.
 - The metrics line. Claude counts the ledger lines instead.
 - The review-package, PR-checks and merge scripts. The skill holds the same commands as text.
 
@@ -201,7 +206,7 @@ Only `git` and `gh` use the network, and only when a step runs them.
 ## Releasing
 
 Maintainers: bump `version` in `.claude-plugin/plugin.json` on every user-visible change.
-Before every version bump, run `python3 -I scripts/dev/build-lite.py` and `test/check.sh lite`.
+Before every version bump, run `python3 -I scripts/dev/build-lite.py`. Then run `test/check.sh lite`.
 Setting `version` keeps installed users on that version until you change it
 ([plugin manifest reference](https://code.claude.com/docs/en/plugins-reference#version)),
 and the status-line command picks the highest installed version.

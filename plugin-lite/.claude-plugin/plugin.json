@@ -1,7 +1,7 @@
 {
   "name": "lean-sdd-lite",
   "version": "0.1.6",
-  "description": "Lean-sdd without scripts or hooks: Markdown-only skills and agents for the plugin directory.",
+  "description": "Two gates. Evidence for everything else. Spec-driven builds for Claude Code, Markdown only, with no scripts or hooks.",
   "author": {
     "name": "alchristleo"
   },
