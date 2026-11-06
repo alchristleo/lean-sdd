@@ -85,3 +85,4 @@ PANEL cdo 5486613 must=2 should=3 nit=3
 SEAT cdo fail 5486613 AC11 no edition decision rule, superpowers prereq missing on lite README
 PANEL correctness 5486613 must=0 should=5 nit=4
 TRIAGE fixed=17 dismissed=0 backlog=0
+FIX wave 458feea sdd-implementer 17 panel findings
