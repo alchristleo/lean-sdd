@@ -68,6 +68,8 @@ Acceptance: `test/install-smoke.sh` rc 0; `test/check.sh readme|hero|install|com
 
 - CI job running `test/check.sh lite` on push.
 - Lite README visuals as PNG.
+- Full edition: scripts/pr-checks-wait.sh lacks gh 2.4.0 `cancel` state (exits 3, not CI red). Out of scope (AC8).
+- README "The plugin ships no hooks" vs hooks/usage-guard.py file: reword to "registers no hooks". Pre-existing.
 
 ## Ledger
 USAGE start 6%
@@ -90,3 +92,4 @@ PANEL cdo d095330 must=1 should=1 nit=0
 SEAT cdo fail d095330 AC11 Full bullet says ships guard/hook, both opt-in
 COORD re-review d095330 sdd-reviewer-lite fix-needed: --out / not refused (must), gh 2.4 'cancel' state (should)
 COORD b672aca owner chose coord-fix: --out / guard, cancel state, Editions opt-in wording
+COORD review approve 6ad3518 sdd-reviewer-lite coord fixes verified; 2 out-of-scope items to Backlog
