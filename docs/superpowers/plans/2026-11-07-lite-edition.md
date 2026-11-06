@@ -93,3 +93,4 @@ SEAT cdo fail d095330 AC11 Full bullet says ships guard/hook, both opt-in
 COORD re-review d095330 sdd-reviewer-lite fix-needed: --out / not refused (must), gh 2.4 'cancel' state (should)
 COORD b672aca owner chose coord-fix: --out / guard, cancel state, Editions opt-in wording
 COORD review approve 6ad3518 sdd-reviewer-lite coord fixes verified; 2 out-of-scope items to Backlog
+PR #2 head 44b796a, no CI configured (pr-checks-wait rc 3, no checks listed); waiting on owner AC10 resubmit + AC11
