@@ -77,3 +77,5 @@ T1 done 06e93ca sdd-implementer generator, plugin-lite, check.sh lite
 T2 fix 0bd8cf6 sdd-reviewer fix-needed 2 must (trailer wording unconditional, wait head-moved before sha missing), 2 should, 2 nit
 T2 review approve 10e0c24 sdd-reviewer-lite 1 nit (40-hex note sits in wait step, covered)
 T2 done 10e0c24 sdd-implementer inline steps, test/check.sh lite 12 ok
+T3 review approve e71f007 sdd-reviewer-lite 1 nit (Editions heading, kept)
+T3 done e71f007 sdd-implementer-lite install-smoke lite + README
