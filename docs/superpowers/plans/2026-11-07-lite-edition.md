@@ -89,3 +89,4 @@ FIX wave 458feea sdd-implementer 17 panel findings
 PANEL cdo d095330 must=1 should=1 nit=0
 SEAT cdo fail d095330 AC11 Full bullet says ships guard/hook, both opt-in
 COORD re-review d095330 sdd-reviewer-lite fix-needed: --out / not refused (must), gh 2.4 'cancel' state (should)
+COORD b672aca owner chose coord-fix: --out / guard, cancel state, Editions opt-in wording
