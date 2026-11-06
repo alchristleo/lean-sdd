@@ -42,10 +42,9 @@ Say the size you picked in one line. Trust boundary or size unclear → Large.
 ## 0. Setup (once per repo / branch)
 
 - Trailer hook, only if the user asked for commit trailers, in this session or in the project's CLAUDE.md (otherwise skip it; never install it unasked), so subagent commits never need rewriting:
-  `"${CLAUDE_PLUGIN_ROOT}"/scripts/install-git-hooks.sh "<trailer lines from the system attribution reminder, one per line>"`
-  Re-run at every session start and whenever the attribution reminder changes (it can change mid-session).
-- Usage: `cat "${CLAUDE_CONFIG_DIR:-$HOME/.claude}/state/usage.json"` (written by the status line). Pause threshold 95%
-  unless the user says otherwise. Obey `USAGE GUARD` messages from the hook.
+  lite ships no hook. Tell every subagent to end its commit message with the trailer lines from the system attribution reminder.
+- Usage: read the 5h and 7d percentages the status line shows. Pause threshold 95%
+  unless the user says otherwise. If the user sends a pause message, follow the Pause / resume section.
   Budget mode (usage ≥ 85%): drop `panel-design`, keep `panel-cdo` only if an AC rests on it,
   never escalate `panel-correctness` to Opus, and say so.
 
@@ -132,14 +131,52 @@ constraints, **agent** (`sdd-implementer-lite` | `sdd-implementer`; role names, 
   so the brief is just: task text from the plan + base sha + spec path.
 - Parallel group → dispatch in one message, each with `isolation: "worktree"`; merge back
   in plan order, run the full suite after the merge.
-- Ledger stays (pause/resume), one line per event, appended with `"${CLAUDE_PLUGIN_ROOT}"/scripts/sdd-log.sh <plan> <line>`
-  (it refuses formats not in the `"${CLAUDE_PLUGIN_ROOT}"/scripts/sdd-metrics.sh` header). Run sdd-metrics.sh after each panel round (it lints).
+- Ledger stays (pause/resume), one line per event. Append each line with the Edit tool at the end of the last `## Ledger` section of the plan doc.
+  Lite does not check the format, so use only these (the first word is the line type):
+  - `T<n>[a-z] done <sha> <agent> <note>` (task done, or re-review passed)
+  - `T<n>[a-z] fix <sha> <reviewer> fix-needed <note>` (one fix round = one reviewer fix-needed verdict on a task)
+  - `T<n>[a-z] coord <sha> <note>` (coordinator fix, 10 lines or fewer)
+  - `T<n>[a-z] blocked <sha> <agent> <note>`
+  - `T<n>[a-z] review <approve|fail> <sha> <agent> <note>`
+  - `SEAT <seat> <pass|fail> <sha> AC<n> [note]` (one line per AC a seat rules on)
+  - `SEAT owner pass <sha> AC<n>` (owner yes on a `check: owner` AC)
+  - `PANEL <seat> <sha> must=<n> should=<n> nit=<n>` (a later PANEL of the same seat = re-run)
+  - `PANEL <seat> skipped <reason>`
+  - `TRIAGE fixed=<n> dismissed=<n> backlog=<n>` (after the panel round)
+  - `FIX wave <sha> <agent> <note>`
+  - `USAGE start|end <5h%>` (at start, pause, resume and merge)
+  - `COORD`, `CONVERGE`, `DISMISSED`, `MERGE`, `MERGED`, `PAUSED`, `PLAN`, `PR` and `RESUME` lines, each followed by a note.
   A `fix` = one reviewer fix-needed verdict on a task; the re-review that passes is `done`.
 
 ## 6. Per-task review
 
-`"${CLAUDE_PLUGIN_ROOT}"/scripts/review-pkg.sh <task-base-sha>` → prints package path (diff, diffstat,
-trailer check). Dispatch `lean-sdd-lite:sdd-reviewer` (or `lean-sdd-lite:sdd-reviewer-lite` for lite tasks) with the
+Build the review package with this command. Replace `<base>` with the task base sha and keep the rest as written.
+It prints the package path (commits, diffstat, diff).
+
+```bash
+base=<base>
+head=$(git rev-parse --short HEAD)
+out=$(git rev-parse --path-format=absolute --git-common-dir)/review-pkg-$(git rev-parse --short "$base")-$head.md
+{
+  echo "# Review package: $base..HEAD"
+  echo
+  echo "## Commits"
+  git log --format='- %h %s' "$base..HEAD"
+  echo
+  echo "## Diffstat"
+  echo '```'
+  git diff --stat "$base..HEAD" -- ':(top)' ':(top,exclude)docs/superpowers'
+  echo '```'
+  echo
+  echo "## Diff"
+  echo '```diff'
+  git diff "$base..HEAD" -- ':(top)' ':(top,exclude)docs/superpowers'
+  echo '```'
+} > "$out"
+echo "$out"
+```
+
+Dispatch `lean-sdd-lite:sdd-reviewer` (or `lean-sdd-lite:sdd-reviewer-lite` for lite tasks) with the
 path + task brief.
 
 **Fix-round cap:** max 2 fix rounds per task. Re-reviews use `lean-sdd-lite:sdd-reviewer-lite` on the fix
@@ -171,7 +208,7 @@ gets fixed if cheap, otherwise goes to the Backlog. One fix wave (`lean-sdd-lite
 `lean-sdd-lite:sdd-reviewer-lite` re-review. Log each `ACS:` answer as a `SEAT` line; an owner's yes on a
 `check: owner` AC is `SEAT owner pass <sha> AC<n>` (spec-converge reads only that form).
 **Seat re-run** (the one rule): a `check: seat` AC whose files changed after its `SEAT` line (fix
-wave or coord fixes) gets that seat re-run on the fix diff only (`review-pkg.sh <pre-fix sha>`),
+wave or coord fixes) gets that seat re-run on the fix diff only (the step 6 command with `<base>` set to the pre-fix sha),
 never the whole branch. All re-runs finish before spec-converge, so converge runs once. The brief
 lists the owned ACs and every dismissed finding with its one-line reason (not re-raised). The seat
 rules pass/fail on those ACs plus regressions the fix caused; new nits go to the Backlog, unfixed.
@@ -187,20 +224,29 @@ Max one re-run per seat per milestone; a second fail → ask the owner.
 - superpowers:finishing-a-development-branch, then **GATE: user approves merge**. The
   finishing menu counts as the gate only if the non-VERIFIED criteria and the dismissed
   findings are listed right above it; picking merge or PR is then the explicit yes.
-- After the PR opens, and again after every push to the PR branch: `"${CLAUDE_PLUGIN_ROOT}"/scripts/pr-checks-wait.sh <pr>`
-  (exit 1 = a check failed, or the head moved during the wait: re-run it; 3 = gh error or no checks). The merge gate quotes the head sha it printed. CI red → fix before merge. ACs checked on PR
+- After the PR opens, and again after every push to the PR branch, wait for the checks:
+  1. Run `sleep 15` so the checks register.
+  2. Run `gh pr checks <pr>`. It exits non-zero when a check fails, so read its output, not its exit code.
+  3. If any line shows pending, queued or in_progress, run `sleep 20` and go to 2. Stop after 20 minutes in total and report the timeout.
+  4. If gh prints an error or lists no checks, stop and report. Do not loop.
+  5. Run `gh pr view <pr> --json commits -q '.commits[-1].oid'` and record the head sha. If it differs from the sha before the checks call, run the wait again.
+  6. A line that shows fail, cancelled, timed_out or action_required means CI is red.
+  The merge gate quotes the head sha. CI red → fix before merge. ACs checked on PR
   CI get their spec edit committed to the branch before the merge, never after.
-- Merge with `"${CLAUDE_PLUGIN_ROOT}"/scripts/pr-merge.sh <pr> <head sha>`: it refuses a moved head, merges, and
-  prints any branch commit missing from the base (exit 3 = lost work; land it on main).
+- Merge in this order:
+  1. Run `git ls-remote origin refs/heads/<branch>`. If the sha differs from the recorded head sha, stop and run the wait again.
+  2. Run `git fetch origin`, then repeat step 1.
+  3. Run `gh pr merge <pr> --merge`.
+  4. Run `git fetch origin`, then `git log --oneline origin/<base>..origin/<branch>`. A non-empty list is lost work: land it on main.
 
 ## 9. Retro (after merge, ≤ 6 lines, appended to the plan doc)
 
-- **Numbers:** paste the line from `"${CLAUDE_PLUGIN_ROOT}"/scripts/sdd-metrics.sh <plan>` (tasks, fix rounds,
+- **Numbers:** count the plan's ledger lines by type and write one line (tasks done, fix rounds,
   coord fixes, blocked, findings per seat, triage, 5h usage).
 - **What repeated or wasted effort?** Turn each item into **structure**: a script, hook,
   test, agent rule or CLAUDE.md line. Mechanical lessons get a check, not prose. Keep a lesson
   only if it is high-signal, high-frequency or high-impact.
-- **Workflow lessons** (this skill, the plugin's `agents/` and `scripts/`): propose the edit
+- **Workflow lessons** (this skill and the plugin's `agents/`): propose the edit
   with its evidence, apply on the user's yes in your clone of the lean-sdd repo, then append
   `YYYY-MM-DD <file>: <change> (evidence)` to `skills/lean-sdd/CHANGELOG.md` there. A marketplace
   install has no clone, and the plugin cache is overwritten on update: record the lesson in the
@@ -227,7 +273,7 @@ Max one re-run per seat per milestone; a second fail → ask the owner.
 
 ## Pause / resume
 
-On a `USAGE GUARD` pause message or a user request:
+When usage reaches the pause threshold or the user asks:
 1. Let in-flight agents finish and commit.
 2. Append `PAUSED at <step/task>, next: <action>` to the ledger, the plan doc and project memory.
 3. Stop any containers you started, then report.
