@@ -55,7 +55,7 @@ Write 6 lines max, in chat:
 - **Deferred:** good ideas parked → plan doc's Backlog section, not the spec.
 - **Reuse/delete:** existing code to reuse or remove instead of adding.
 - **Trust boundary?** yes/no (auth, tokens, crypto, signing, provisioning, payments, PII,
-  admin surfaces, untrusted input parsing). Yes → security seat in step 7.
+  admin surfaces, untrusted input parsing, CI workflows, release and install scripts, git hooks, agent hooks or permissions). Yes → security seat in step 7.
 - **Audience-facing?** yes/no (docs, onboarding, README, site/landing, pricing,
   positioning) + the target reader. Yes → `panel-cdo` in step 7.
 
@@ -177,6 +177,10 @@ echo "$out"
 Dispatch `lean-sdd-lite:sdd-reviewer` (or `lean-sdd-lite:sdd-reviewer-lite` for lite tasks) with the
 path + task brief.
 
+**Re-review brief:** list the earlier findings, so the reviewer answers each one on a `PRIOR:` line.
+Name the task base sha too, so the reviewer can tell original-task lines from untouched ones.
+A `PRE-EXISTING` line goes to the plan's Backlog with no fix round. Per-task `PRE-EXISTING` items are not counted in `TRIAGE`, which counts the panel round only.
+
 **Fix-round cap:** max 2 fix rounds per task. Re-reviews use `lean-sdd-lite:sdd-reviewer-lite` on the fix
 diff only. Still failing after 2 → mark `blocked` in the ledger, move on to independent
 tasks, report at milestone end.
@@ -196,6 +200,7 @@ After all tasks, build one package for the whole branch, then dispatch in ONE me
   browser QA (main flows, screenshots) with a browser automation tool if installed, otherwise it says QA was partial. Brief: target reader, plus any skills or
   reference bar to judge against.
 Each seat's brief lists the `check: seat <name>` ACs it owns; the seat answers them on its `ACS:` line.
+`PRE-EXISTING` lines from seats go to the Backlog, not the fix wave. Count them in `TRIAGE fixed=<n> dismissed=<n> backlog=<n>`.
 
 Filter first. Propose dismissals, each with a one-line reason: a hypothetical input no
 caller can produce (trace the call site), a preference with no concrete failure ("I'd use
@@ -208,7 +213,8 @@ gets fixed if cheap, otherwise goes to the Backlog. One fix wave (`lean-sdd-lite
 **Seat re-run** (the one rule): a `check: seat` AC whose files changed after its `SEAT` line (fix
 wave or coord fixes) gets that seat re-run on the fix diff only (the step 6 command with `<base>` set to the pre-fix sha),
 never the whole branch. All re-runs finish before spec-converge, so converge runs once. The brief
-lists the owned ACs and every dismissed finding with its one-line reason (not re-raised). The seat
+lists the owned ACs, every dismissed finding with its one-line reason (not re-raised), and the
+branch base sha (the whole task's change, the base of the milestone branch), so the seat can tell original-task lines from untouched ones. The seat
 rules pass/fail on those ACs plus regressions the fix caused; new nits go to the Backlog, unfixed.
 Max one re-run per seat per milestone; a second fail → ask the owner.
 
