@@ -31,17 +31,19 @@ git add -A; git commit -q -m "feat: old module"
 base="$(git rev-parse HEAD)"
 
 cat > new.py <<'PY'
-def double(x):
-    return x * 2
+from old import ratio
+
+def double_ratio(a, b):
+    return ratio(a, b) * 2
 PY
 cat > test_new.py <<'PY'
-from new import double
+from new import double_ratio
 
-def test_double():
-    assert double(2) == 4
-    assert double(0) == 0
+def test_double_ratio():
+    assert double_ratio(9, 3) == 6
+    assert double_ratio(-3, 1) == -6
 PY
-git add -A; git commit -q -m "feat: add double
+git add -A; git commit -q -m "feat: add double_ratio
 
 Co-Authored-By: Eval <e@e>"
 
@@ -53,7 +55,7 @@ fi
 
 body="$(printf '%s\n' "$agent" | awk '/^---$/ && n<2 {n++; next} n>=2')"
 brief="Review package: $pkg
-Task: Add new.py:double with tests"
+Task: Add new.py:double_ratio with tests"
 # --bare needs ANTHROPIC_API_KEY; with a login only, isolate from user settings by hand.
 if [[ -n "${ANTHROPIC_API_KEY:-}" ]]; then iso=(--bare); else iso=(--setting-sources project --disable-slash-commands --strict-mcp-config); fi
 out="$(claude -p "${iso[@]}" --model sonnet --tools Read,Bash,Grep,Glob --allowedTools Read,Bash,Grep,Glob \
