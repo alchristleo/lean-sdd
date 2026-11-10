@@ -94,3 +94,5 @@ T1 coord 35fc4ce owner: 2 wording fixes applied, no further review (owner judges
 SEAT owner pass 35fc4ce AC10
 CONVERGE 706ec4a 10/10 VERIFIED (AC8 from ledger, AC10 owner pass)
 USAGE end 40
+PR #3 opened, merge held until lite 0.1.6 directory review
+PAUSED at step 8 merge gate, next: when lite 0.1.6 review result is in, bump both editions to 0.1.7 (build-lite + check lite), push, pr-checks-wait, pr-merge.sh 3 <head sha>, then retro
