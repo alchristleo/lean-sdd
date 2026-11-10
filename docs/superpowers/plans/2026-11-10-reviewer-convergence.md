@@ -86,3 +86,5 @@ PANEL correctness 1aa8f73 must=0 should=1 nit=1
 SEAT correctness fail 1aa8f73 AC10 steps 6/7 briefs don't pass the whole-task base sha; second fail -> owner
 COORD eval rerun 1aa8f73: baseline FAIL, new sdd-reviewer 3/3 PASS
 T1 coord 5266903 owner: steps 6/7 briefs name the base sha (AC10 -> owner at gate); seat nit split PRIOR sentence -> Backlog
+COORD review fail 1aa8f73 sdd-reviewer-lite: PRIOR P1-5,7,9 fixed; P6 open (eval regex: **[must]**, numbered, backtick forms); P8 open (CHANGELOG evidence not all in ledger); base-sha gap already fixed in 5266903
+PLAN evidence: docs/superpowers/plans/2026-10-26-oss-release.md retro tasks=6 fix_rounds=5; docs/superpowers/plans/2026-11-07-lite-edition.md:72 Backlog item 'Pre-existing.'; test/eval-reviewer.sh baseline bd62e10 FAIL vs new 3/3 PASS (twice)
