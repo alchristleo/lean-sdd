@@ -72,3 +72,5 @@ T1 done d8c1813 sdd-implementer-lite reviewed 749aeaf + coord d8c1813
 COORD eval AC8 new sdd-reviewer 0/3 PASS: no run named old.py anywhere; all 3 put b==0 as should/nit on test_new.py (fixture elicits no old-code finding)
 T2 coord 0f217a8 owner fixture try 2 (clamp bug); baseline bd62e10: [must] new.py:4 citing old.py:5, fix-needed
 COORD eval try2 new text: 3/3 old.py:5 under PRE-EXISTING heading, all fix-needed on real new.py bug; script FAIL from parser (heading form, any old.py mention). Owner: change PASS rule, rerun
+T2 coord ef180fa PASS rule: PRE-EXISTING section form, finding located at old.py; selftest 4 samples ok; spec AC8 updated
+COORD eval AC8 ef180fa: baseline bd62e10 FAIL (old bug as [must] in FINDINGS, no PRE-EXISTING); new sdd-reviewer 3/3 PASS (old.py:5 under PRE-EXISTING)
