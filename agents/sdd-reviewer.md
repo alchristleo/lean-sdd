@@ -14,5 +14,7 @@ Lenses:
 
 ## Output (max 15 lines)
 VERDICT: approve | fix-needed
-FINDINGS: one per line as `[must|should|nit] file:line — problem — fix`
+FINDINGS: one per line as `[must|should|nit] file:line — problem (also: file:line, …) — fix`
+The `(also: …)` part lists the other places in the change with the same mistake, and you leave it out when there are none.
+PRE-EXISTING: one per line as `file:line — problem — fix` for problems on lines the diff does not touch. These never make VERDICT fix-needed. Omit if none.
 Only report what you verified. No praise, no restating the diff.

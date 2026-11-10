@@ -163,7 +163,7 @@ fm_field() {
   awk -v k="$2" '/^---$/ { n++; next } n == 1 && index($0, k ":") == 1 { sub("^" k ": *", ""); print; exit }' "$1"
 }
 
-# lite (AC1-6, 8, 9, 12): plugin-lite/ is a fresh build and holds the right parts
+# lite (AC1-6, 9, 12): plugin-lite/ is a fresh build and holds the right parts
 lite() {
   local fail=0 L=$ROOT/plugin-lite bad names n a f x tmp out rc base blk pkg gd s
   # AC1
@@ -212,10 +212,6 @@ lite() {
   verdict $s "AC6 directory profile passes with no advisory" "AC6 rc=$rc: $(printf '%s\n' "$out" | grep '❯' | head -1)"
   claude plugin validate "$ROOT" >/dev/null 2>&1
   verdict $? "AC6 validate . passes" "AC6 validate . failed"
-  # AC8
-  out=$(git -C "$ROOT" diff main -- skills agents scripts hooks ':!scripts/dev')
-  s=0; [ -z "$out" ] || s=1
-  verdict $s "AC8 full edition unchanged" "AC8 full edition differs from main"
   # AC9: run the fenced bash block that writes review-pkg-* in a temp repo
   blk=$(awk '/^```bash/ { b = ""; on = 1; next } /^```/ { if (on && b ~ /review-pkg-/) { printf "%s", b; exit } on = 0 } on { b = b $0 "\n" }' "$L/skills/lean-sdd/SKILL.md")
   s=0

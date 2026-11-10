@@ -57,7 +57,7 @@ Write 6 lines max, in chat:
 - **Deferred:** good ideas parked → plan doc's Backlog section, not the spec.
 - **Reuse/delete:** existing code to reuse or remove instead of adding.
 - **Trust boundary?** yes/no (auth, tokens, crypto, signing, provisioning, payments, PII,
-  admin surfaces, untrusted input parsing). Yes → security seat in step 7.
+  admin surfaces, untrusted input parsing, CI workflows, release and install scripts, git hooks, agent hooks or permissions). Yes → security seat in step 7.
 - **Audience-facing?** yes/no (docs, onboarding, README, site/landing, pricing,
   positioning) + the target reader. Yes → `panel-cdo` in step 7.
 
@@ -142,6 +142,9 @@ constraints, **agent** (`sdd-implementer-lite` | `sdd-implementer`; role names, 
 trailer check). Dispatch `lean-sdd:sdd-reviewer` (or `lean-sdd:sdd-reviewer-lite` for lite tasks) with the
 path + task brief.
 
+**Re-review brief:** list the earlier findings, so the reviewer answers each one on a `PRIOR:` line.
+A `PRE-EXISTING` line goes to the plan's Backlog with no fix round.
+
 **Fix-round cap:** max 2 fix rounds per task. Re-reviews use `lean-sdd:sdd-reviewer-lite` on the fix
 diff only. Still failing after 2 → mark `blocked` in the ledger, move on to independent
 tasks, report at milestone end.
@@ -161,6 +164,7 @@ After all tasks, build one package for the whole branch, then dispatch in ONE me
   browser QA (main flows, screenshots) with a browser automation tool if installed, otherwise it says QA was partial. Brief: target reader, plus any skills or
   reference bar to judge against.
 Each seat's brief lists the `check: seat <name>` ACs it owns; the seat answers them on its `ACS:` line.
+`PRE-EXISTING` lines from seats go to the Backlog, not the fix wave. Count them in `TRIAGE fixed=<n> dismissed=<n> backlog=<n>`.
 
 Filter first. Propose dismissals, each with a one-line reason: a hypothetical input no
 caller can produce (trace the call site), a preference with no concrete failure ("I'd use
