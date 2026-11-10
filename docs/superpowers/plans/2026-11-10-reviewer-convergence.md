@@ -89,3 +89,5 @@ T1 coord 5266903 owner: steps 6/7 briefs name the base sha (AC10 -> owner at gat
 COORD review fail 1aa8f73 sdd-reviewer-lite: PRIOR P1-5,7,9 fixed; P6 open (eval regex: **[must]**, numbered, backtick forms); P8 open (CHANGELOG evidence not all in ledger); base-sha gap already fixed in 5266903
 PLAN evidence: docs/superpowers/plans/2026-10-26-oss-release.md retro tasks=6 fix_rounds=5; docs/superpowers/plans/2026-11-07-lite-edition.md:72 Backlog item 'Pre-existing.'; test/eval-reviewer.sh baseline bd62e10 FAIL vs new 3/3 PASS (twice)
 T1 coord 2131ce0 owner: re-review rule moved under FINDINGS, PRIOR sentence split; P6 eval regex -> Backlog
+COORD review fail f0cb14b sdd-reviewer-lite: R1 R2 fixed; new 2 should wording: lite exception base vs PRE-EXISTING base, step 7 'branch base sha' term
+T1 coord 35fc4ce owner: 2 wording fixes applied, no further review (owner judges AC10 at gate); check lite 0 FAIL, selftest ok, AC1-5 ok
