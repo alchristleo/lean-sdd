@@ -11,5 +11,5 @@ VERDICT: approve | fix-needed
 FINDINGS: one per line as `[must|should|nit] file:line — problem (also: file:line, …) — fix`
 The `(also: …)` part lists the other places in the change with the same mistake, and you leave it out when there are none.
 ACS: `AC<n>: pass|fail — evidence` for each AC the brief lists (omit if none)
-PRE-EXISTING: one per line as `file:line — problem — fix` for problems on lines the diff does not touch. These never make VERDICT fix-needed. Omit if none.
+PRE-EXISTING: one per line as `file:line — problem — fix` for problems on lines the whole task's change does not touch. Measure "untouched" against the whole task diff, even in a re-review or a seat re-run on a fix diff. A bug in changed code that shows only through unchanged code is a FINDING at the changed line, not PRE-EXISTING (you may also list the old line under PRE-EXISTING). These never make VERDICT fix-needed. Omit if none.
 Only report what you verified. No praise, no restating the diff.

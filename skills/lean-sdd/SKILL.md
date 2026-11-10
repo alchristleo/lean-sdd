@@ -143,7 +143,7 @@ trailer check). Dispatch `lean-sdd:sdd-reviewer` (or `lean-sdd:sdd-reviewer-lite
 path + task brief.
 
 **Re-review brief:** list the earlier findings, so the reviewer answers each one on a `PRIOR:` line.
-A `PRE-EXISTING` line goes to the plan's Backlog with no fix round.
+A `PRE-EXISTING` line goes to the plan's Backlog with no fix round. Per-task `PRE-EXISTING` items are not counted in `TRIAGE`, which counts the panel round only.
 
 **Fix-round cap:** max 2 fix rounds per task. Re-reviews use `lean-sdd:sdd-reviewer-lite` on the fix
 diff only. Still failing after 2 → mark `blocked` in the ledger, move on to independent
