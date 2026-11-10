@@ -57,7 +57,7 @@ Acceptance tests:
 - Mod ledger band for the full plugin (current task, fix rounds, usage) (digest 2026-11-10, post C).
 - PR body headings Testing / Risk / How to revert (cut by owner 2026-11-10).
 - Rule pruning on model change (cut by owner 2026-11-10).
-- Split the long PRIOR sentence in sdd-reviewer-lite into two (correctness re-run nit, 2026-11-10).
+- eval-reviewer.sh PASS rule: also catch `- **[must]** old.py:5`, `1. [must] old.py:5` and backticked `old.py:5` findings, with selftest cases (re-review P6, owner: Backlog 2026-11-10).
 
 ## Ledger
 
@@ -88,3 +88,4 @@ COORD eval rerun 1aa8f73: baseline FAIL, new sdd-reviewer 3/3 PASS
 T1 coord 5266903 owner: steps 6/7 briefs name the base sha (AC10 -> owner at gate); seat nit split PRIOR sentence -> Backlog
 COORD review fail 1aa8f73 sdd-reviewer-lite: PRIOR P1-5,7,9 fixed; P6 open (eval regex: **[must]**, numbered, backtick forms); P8 open (CHANGELOG evidence not all in ledger); base-sha gap already fixed in 5266903
 PLAN evidence: docs/superpowers/plans/2026-10-26-oss-release.md retro tasks=6 fix_rounds=5; docs/superpowers/plans/2026-11-07-lite-edition.md:72 Backlog item 'Pre-existing.'; test/eval-reviewer.sh baseline bd62e10 FAIL vs new 3/3 PASS (twice)
+T1 coord 2131ce0 owner: re-review rule moved under FINDINGS, PRIOR sentence split; P6 eval regex -> Backlog
