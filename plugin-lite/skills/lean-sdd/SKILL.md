@@ -295,6 +295,7 @@ Max one re-run per seat per milestone; a second fail → ask the owner.
   `T<n> coord <sha> <note>`. Batch them: one `lean-sdd-lite:sdd-reviewer-lite` checks all coord fixes of a
   task (or of the panel round) at the boundary, before a dependent task starts. A coord fix
   under a `check: seat` AC follows the step-7 seat re-run rule instead.
+  Max 2 coord-review rounds per boundary. A third fail goes to the owner, as with the fix-round cap.
 - Chat between gates: only questions, blockers, gate summaries and one line when the build or
   panel phase finishes. Agent reports go to the ledger, not to chat. Answer status questions when asked.
 - The plan doc and the ledger are the source of truth. After a `/compact` or on resume, re-read the
