@@ -58,6 +58,7 @@ Acceptance tests:
 - PR body headings Testing / Risk / How to revert (cut by owner 2026-11-10).
 - Rule pruning on model change (cut by owner 2026-11-10).
 - eval-reviewer.sh PASS rule: also catch `- **[must]** old.py:5`, `1. [must] old.py:5` and backticked `old.py:5` findings, with selftest cases (re-review P6, owner: Backlog 2026-11-10).
+- Eval tasks: run the fixture on the baseline first to confirm it triggers the target behavior, and selftest the parser on captured real outputs (ledger: AC8 took 3 fixture/parser tries; retro 2026-11-11).
 
 ## Ledger
 
@@ -96,3 +97,13 @@ CONVERGE 706ec4a 10/10 VERIFIED (AC8 from ledger, AC10 owner pass)
 USAGE end 40
 PR #3 opened, merge held until lite 0.1.6 directory review
 PAUSED at step 8 merge gate, next: when lite 0.1.6 review result is in, bump both editions to 0.1.7 (build-lite + check lite), push, pr-checks-wait, pr-merge.sh 3 <head sha>, then retro
+RESUME retro; owner merged PR #3 at 2e93d3b before the lite review result
+MERGED 20b39ba PR #4 bumps both editions to 0.1.7, tag v0.1.7, release published
+
+## Retro (2026-11-11)
+
+- **Numbers:** tasks=2 fix_rounds=0 coord=7 fix_waves=1 blocked=0 seats pass/fail=0/2 reruns=1 owner=1 panel(must/should/nit)=[correctness 0/2/3; design skipped; correctness(re-run) 0/1/1] triage=[fixed=5 dismissed=0 backlog=0] 5h=16→40 (24pt)
+- **Repeated:** coord reviews looped. sdd-reviewer-lite failed 3 coord reviews in a row on AC10 wording, each raising new shoulds, until the owner ended it at the gate. The lite-edition retro also had coord fixes past the cap. Structure (owner yes): SKILL.md caps coord reviews at 2 rounds per boundary, then the owner decides.
+- **Wasted:** the AC8 eval took 3 fixture/parser tries. This is the first eval, so it goes to the Backlog, not a rule (owner).
+- **Escape:** PR #3 merged with plugin-lite content changed and the version still 0.1.6. PR #4 bumped it by hand. Next plan T1: `test/check.sh` fails when agents/, skills/ or plugin-lite/ changed since the last `v*` tag but plugin.json still has that tag's version.
+- **Next:** that T1, the gh 2.4.0 `cancel` fix from the lite-edition retro, then resubmit `lean-sdd-lite` 0.1.7 to the directory if the owner wants.
