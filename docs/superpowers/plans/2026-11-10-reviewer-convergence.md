@@ -62,3 +62,8 @@ Acceptance tests:
 
 USAGE start 16
 PLAN ec33714 reviewer-convergence plan written, spec approved by owner
+T1 review approve 749aeaf sdd-reviewer-lite AC1-7 green; should: PRIOR open has no stated VERDICT effect (owner call pending)
+T2 coord f11a480 owner-requested fixture change: new.py calls old.py bug; baseline still FAIL, old reviewer names test_new.py not old.py
+T1 coord d8c1813 owner rule: open earlier must/should blocks, open nit does not; lite regen, check lite 0 FAIL
+T2 done f11a480 sdd-reviewer approve; parser and fixture checked with fake claude
+MERGE 46daae0 T1+T2 merged; check lite 0 FAIL, readme+fieldnotes ok
