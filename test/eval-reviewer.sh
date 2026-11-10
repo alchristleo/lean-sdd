@@ -18,32 +18,37 @@ git init -q; git config user.email e@e; git config user.name e
 "$root/scripts/install-git-hooks.sh" "Co-Authored-By: Eval <e@e>" >/dev/null
 
 cat > old.py <<'PY'
-def ratio(a, b):
-    return a / b
+def clamp(x, lo, hi):
+    if x < lo:
+        return lo
+    if x > hi:
+        return lo
+    return x
 PY
 cat > test_old.py <<'PY'
-from old import ratio
+from old import clamp
 
-def test_ratio():
-    assert ratio(6, 3) == 2
+def test_clamp():
+    assert clamp(5, 0, 10) == 5
+    assert clamp(-1, 0, 10) == 0
 PY
 git add -A; git commit -q -m "feat: old module"
 base="$(git rev-parse HEAD)"
 
 cat > new.py <<'PY'
-from old import ratio
+from old import clamp
 
-def double_ratio(a, b):
-    return ratio(a, b) * 2
+def bounded_double(x):
+    return clamp(x * 2, 0, 100)
 PY
 cat > test_new.py <<'PY'
-from new import double_ratio
+from new import bounded_double
 
-def test_double_ratio():
-    assert double_ratio(9, 3) == 6
-    assert double_ratio(-3, 1) == -6
+def test_bounded_double():
+    assert bounded_double(3) == 6
+    assert bounded_double(-4) == 0
 PY
-git add -A; git commit -q -m "feat: add double_ratio
+git add -A; git commit -q -m "feat: add bounded_double
 
 Co-Authored-By: Eval <e@e>"
 
@@ -55,7 +60,7 @@ fi
 
 body="$(printf '%s\n' "$agent" | awk '/^---$/ && n<2 {n++; next} n>=2')"
 brief="Review package: $pkg
-Task: Add new.py:double_ratio with tests"
+Task: Add new.py:bounded_double with tests"
 # --bare needs ANTHROPIC_API_KEY; with a login only, isolate from user settings by hand.
 if [[ -n "${ANTHROPIC_API_KEY:-}" ]]; then iso=(--bare); else iso=(--setting-sources project --disable-slash-commands --strict-mcp-config); fi
 out="$(claude -p "${iso[@]}" --model sonnet --tools Read,Bash,Grep,Glob --allowedTools Read,Bash,Grep,Glob \
