@@ -214,7 +214,7 @@ gets fixed if cheap, otherwise goes to the Backlog. One fix wave (`lean-sdd-lite
 wave or coord fixes) gets that seat re-run on the fix diff only (the step 6 command with `<base>` set to the pre-fix sha),
 never the whole branch. All re-runs finish before spec-converge, so converge runs once. The brief
 lists the owned ACs, every dismissed finding with its one-line reason (not re-raised), and the
-branch base sha, so the seat can tell original-task lines from untouched ones. The seat
+branch base sha (the whole task's change, the base of the milestone branch), so the seat can tell original-task lines from untouched ones. The seat
 rules pass/fail on those ACs plus regressions the fix caused; new nits go to the Backlog, unfixed.
 Max one re-run per seat per milestone; a second fail → ask the owner.
 
