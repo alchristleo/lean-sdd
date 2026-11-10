@@ -74,3 +74,9 @@ T2 coord 0f217a8 owner fixture try 2 (clamp bug); baseline bd62e10: [must] new.p
 COORD eval try2 new text: 3/3 old.py:5 under PRE-EXISTING heading, all fix-needed on real new.py bug; script FAIL from parser (heading form, any old.py mention). Owner: change PASS rule, rerun
 T2 coord ef180fa PASS rule: PRE-EXISTING section form, finding located at old.py; selftest 4 samples ok; spec AC8 updated
 COORD eval AC8 ef180fa: baseline bd62e10 FAIL (old bug as [must] in FINDINGS, no PRE-EXISTING); new sdd-reviewer 3/3 PASS (old.py:5 under PRE-EXISTING)
+PANEL correctness aa19160 must=0 should=2 nit=3
+SEAT correctness fail aa19160 AC10 PRE-EXISTING 'diff' ambiguous in re-review
+PANEL design skipped prompt-only change, <300 lines non-test code
+TRIAGE fixed=5 dismissed=0 backlog=0
+COORD review fail aa19160 sdd-reviewer-lite: 3 should eval parser (heading forms, test_old.py, bullet findings), 1 should CHANGELOG evidence not in ledger, 1 nit PRIOR only in lite -> fix wave
+PLAN source of proposals: feed-watch digest ~/AI_STUFF/feed-watch/digests/2026-11-10.md post B = X article 'How the Claude Code team does code review'
