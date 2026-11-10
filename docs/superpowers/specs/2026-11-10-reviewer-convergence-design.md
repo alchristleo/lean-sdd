@@ -63,6 +63,6 @@ Base `main` (bd62e10), branch HEAD ddcd539. No earlier status table in this spec
 | 7 | readme and fieldnotes modes pass | VERIFIED | loop printed no `FAIL` |
 | 8 | Eval: new reviewer 3/3 PASS, baseline recorded | VERIFIED (ledger) | Not re-run (needs login, costs usage; deviation by instruction). Ledger: `COORD eval rerun 1aa8f73: baseline FAIL, new sdd-reviewer 3/3 PASS`; `git diff 1aa8f73 HEAD -- agents/sdd-reviewer.md` empty; `test/eval-reviewer.sh --selftest` all ok |
 | 9 | CHANGELOG line | VERIFIED | `grep ... && echo ok` printed `ok` |
-| 10 | Re-review wording reads clearly (`check: seat panel-correctness`) | INCONCLUSIVE | Seat failed twice (`SEAT correctness fail aa19160`, `SEAT correctness fail 1aa8f73`); wording changed after (5266903, 2131ce0, 35fc4ce) with no seat pass. Owner checks at merge gate; pending `SEAT owner pass <ref> AC10` |
+| 10 | Re-review wording reads clearly (`check: seat panel-correctness`) | VERIFIED | Seat failed twice (aa19160, 1aa8f73); owner chose to judge at the merge gate; ledger `SEAT owner pass 35fc4ce AC10` |
 
 Deviations: AC8 judged from the ledger, not re-run. AC10 not seat-verified; owner decision to judge at the merge gate.
