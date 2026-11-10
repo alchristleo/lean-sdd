@@ -67,3 +67,8 @@ T2 coord f11a480 owner-requested fixture change: new.py calls old.py bug; baseli
 T1 coord d8c1813 owner rule: open earlier must/should blocks, open nit does not; lite regen, check lite 0 FAIL
 T2 done f11a480 sdd-reviewer approve; parser and fixture checked with fake claude
 MERGE 46daae0 T1+T2 merged; check lite 0 FAIL, readme+fieldnotes ok
+COORD review approve d8c1813 sdd-reviewer-lite coord fix ok, fresh lite build identical
+T1 done d8c1813 sdd-implementer-lite reviewed 749aeaf + coord d8c1813
+COORD eval AC8 new sdd-reviewer 0/3 PASS: no run named old.py anywhere; all 3 put b==0 as should/nit on test_new.py (fixture elicits no old-code finding)
+T2 coord 0f217a8 owner fixture try 2 (clamp bug); baseline bd62e10: [must] new.py:4 citing old.py:5, fix-needed
+COORD eval try2 new text: 3/3 old.py:5 under PRE-EXISTING heading, all fix-needed on real new.py bug; script FAIL from parser (heading form, any old.py mention). Owner: change PASS rule, rerun

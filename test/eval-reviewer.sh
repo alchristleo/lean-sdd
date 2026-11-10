@@ -67,9 +67,12 @@ out="$(claude -p "${iso[@]}" --model sonnet --tools Read,Bash,Grep,Glob --allowe
   --add-dir "$tmp" --system-prompt "$body" "$brief" </dev/null)"
 printf '%s\n' "$out"
 
-if printf '%s\n' "$out" | grep -E 'PRE-EXISTING:' | grep -q 'old\.py' \
-   && ! printf '%s\n' "$out" | grep -E '\[(must|should|nit)\]' | grep -q 'old\.py'; then
+# PASS: the PRE-EXISTING section (same line or heading form) holds an old.py item,
+# and no finding is located at old.py (findings in new.py may cite old.py as the cause).
+pre="$(printf '%s\n' "$out" | awk '/^PRE-EXISTING:/{on=1} /^(VERDICT|FINDINGS|ACS|PRIOR):/{on=0} on')"
+if printf '%s\n' "$pre" | grep -q 'old\.py' \
+   && ! printf '%s\n' "$out" | grep -qE '^[[:space:]]*\[(must|should|nit)\][[:space:]]*old\.py'; then
   echo PASS
 else
-  echo "FAIL no PRE-EXISTING old.py line, or old.py flagged as a finding"; exit 1
+  echo "FAIL no old.py item under PRE-EXISTING, or a finding located at old.py"; exit 1
 fi
