@@ -57,6 +57,7 @@ Acceptance tests:
 - Mod ledger band for the full plugin (current task, fix rounds, usage) (digest 2026-11-10, post C).
 - PR body headings Testing / Risk / How to revert (cut by owner 2026-11-10).
 - Rule pruning on model change (cut by owner 2026-11-10).
+- Split the long PRIOR sentence in sdd-reviewer-lite into two (correctness re-run nit, 2026-11-10).
 
 ## Ledger
 
@@ -80,3 +81,8 @@ PANEL design skipped prompt-only change, <300 lines non-test code
 TRIAGE fixed=5 dismissed=0 backlog=0
 COORD review fail aa19160 sdd-reviewer-lite: 3 should eval parser (heading forms, test_old.py, bullet findings), 1 should CHANGELOG evidence not in ledger, 1 nit PRIOR only in lite -> fix wave
 PLAN source of proposals: feed-watch digest ~/AI_STUFF/feed-watch/digests/2026-11-10.md post B = X article 'How the Claude Code team does code review'
+FIX wave 1aa8f73 sdd-implementer 5 panel + 5 coord-review findings; selftest 8/8, check lite 0 FAIL
+PANEL correctness 1aa8f73 must=0 should=1 nit=1
+SEAT correctness fail 1aa8f73 AC10 steps 6/7 briefs don't pass the whole-task base sha; second fail -> owner
+COORD eval rerun 1aa8f73: baseline FAIL, new sdd-reviewer 3/3 PASS
+T1 coord 5266903 owner: steps 6/7 briefs name the base sha (AC10 -> owner at gate); seat nit split PRIOR sentence -> Backlog
