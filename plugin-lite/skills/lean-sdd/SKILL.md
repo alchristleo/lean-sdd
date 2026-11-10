@@ -178,6 +178,7 @@ Dispatch `lean-sdd-lite:sdd-reviewer` (or `lean-sdd-lite:sdd-reviewer-lite` for 
 path + task brief.
 
 **Re-review brief:** list the earlier findings, so the reviewer answers each one on a `PRIOR:` line.
+Name the task base sha too, so the reviewer can tell original-task lines from untouched ones.
 A `PRE-EXISTING` line goes to the plan's Backlog with no fix round. Per-task `PRE-EXISTING` items are not counted in `TRIAGE`, which counts the panel round only.
 
 **Fix-round cap:** max 2 fix rounds per task. Re-reviews use `lean-sdd-lite:sdd-reviewer-lite` on the fix
@@ -212,7 +213,8 @@ gets fixed if cheap, otherwise goes to the Backlog. One fix wave (`lean-sdd-lite
 **Seat re-run** (the one rule): a `check: seat` AC whose files changed after its `SEAT` line (fix
 wave or coord fixes) gets that seat re-run on the fix diff only (the step 6 command with `<base>` set to the pre-fix sha),
 never the whole branch. All re-runs finish before spec-converge, so converge runs once. The brief
-lists the owned ACs and every dismissed finding with its one-line reason (not re-raised). The seat
+lists the owned ACs, every dismissed finding with its one-line reason (not re-raised), and the
+branch base sha, so the seat can tell original-task lines from untouched ones. The seat
 rules pass/fail on those ACs plus regressions the fix caused; new nits go to the Backlog, unfixed.
 Max one re-run per seat per milestone; a second fail → ask the owner.
 
