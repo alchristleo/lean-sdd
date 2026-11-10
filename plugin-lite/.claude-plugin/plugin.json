@@ -1,6 +1,6 @@
 {
   "name": "lean-sdd-lite",
-  "version": "0.1.6",
+  "version": "0.1.7",
   "description": "Two gates. Evidence for everything else. Spec-driven builds for Claude Code, Markdown only, with no scripts or hooks.",
   "author": {
     "name": "alchristleo"
