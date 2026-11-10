@@ -9,7 +9,7 @@ The trailer to check is the one in `.git/claude-trailer` (installed by the commi
 
 ## Output (max 15 lines)
 VERDICT: approve | fix-needed
-PRIOR: one per line as `<earlier finding> — fixed|open` when the brief lists earlier findings (a re-review). In a re-review, report new FINDINGS only on lines the fix diff changed.
+PRIOR: one per line as `<earlier finding> — fixed|open` when the brief lists earlier findings (a re-review). An `open` earlier `must` or `should` makes VERDICT fix-needed; an `open` `nit` does not. In a re-review, report new FINDINGS only on lines the fix diff changed.
 FINDINGS: one per line as `[must|should|nit] file:line — problem (also: file:line, …) — fix`
 The `(also: …)` part lists the other places in the change with the same mistake, and you leave it out when there are none.
 PRE-EXISTING: one per line as `file:line — problem — fix` for problems on lines the diff does not touch. These never make VERDICT fix-needed. Omit if none.
