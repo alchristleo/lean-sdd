@@ -47,3 +47,22 @@ ACs 1–5 run on both editions: `for R in . plugin-lite; do … done` with each 
 8. Eval: with the new `sdd-reviewer.md`, the fixture's old bug appears on a `PRE-EXISTING:` line and not in FINDINGS, in 3 of 3 runs. The baseline run uses the agent text at `bd62e10` and is recorded as is. Check: `for i in 1 2 3; do test/eval-reviewer.sh agents/sdd-reviewer.md; done` prints `PASS` 3 times (the script prints `PASS` when the PRE-EXISTING section, same-line or heading form, holds an `old.py` item and no finding is located at `old.py`; findings located in new code may cite `old.py` as the cause). Rule changed after the first fixture-2 results, owner decision 2026-11-10; the earlier rule's runs are in the ledger; `test/eval-reviewer.sh --base bd62e10` output is pasted into the ledger.
 9. CHANGELOG line added. Check: `grep -q '^2026-11-10 ' skills/lean-sdd/CHANGELOG.md && echo ok` prints `ok`.
 10. The re-review behavior reads clearly to a coordinator who did not write it. `check: seat panel-correctness`.
+
+## Status (converged 2026-11-10)
+
+Base `main` (bd62e10), branch HEAD ddcd539. No earlier status table in this spec.
+
+| # | Criterion | Verdict | Evidence |
+|---|-----------|---------|----------|
+| 1 | PRE-EXISTING line in 6 agents x 2 editions | VERIFIED | AC1 loop printed nothing |
+| 2 | also-list in 6 FINDINGS formats x 2 editions | VERIFIED | AC2 loop printed nothing |
+| 3 | Re-review mode (PRIOR) and step 6 "earlier findings" | VERIFIED | AC3 loop printed nothing |
+| 4 | Steps 6 and 7 send PRE-EXISTING to Backlog | VERIFIED | AC4 loop printed nothing |
+| 5 | Step 1 trust list names four new items | VERIFIED | AC5 loop printed nothing |
+| 6 | Lite check passes, AC8 gone | VERIFIED | `test/check.sh lite` rc=0, 0 FAIL, 0 AC8 lines; `grep -n AC8 test/check.sh` empty |
+| 7 | readme and fieldnotes modes pass | VERIFIED | loop printed no `FAIL` |
+| 8 | Eval: new reviewer 3/3 PASS, baseline recorded | VERIFIED (ledger) | Not re-run (needs login, costs usage; deviation by instruction). Ledger: `COORD eval rerun 1aa8f73: baseline FAIL, new sdd-reviewer 3/3 PASS`; `git diff 1aa8f73 HEAD -- agents/sdd-reviewer.md` empty; `test/eval-reviewer.sh --selftest` all ok |
+| 9 | CHANGELOG line | VERIFIED | `grep ... && echo ok` printed `ok` |
+| 10 | Re-review wording reads clearly (`check: seat panel-correctness`) | INCONCLUSIVE | Seat failed twice (`SEAT correctness fail aa19160`, `SEAT correctness fail 1aa8f73`); wording changed after (5266903, 2131ce0, 35fc4ce) with no seat pass. Owner checks at merge gate; pending `SEAT owner pass <ref> AC10` |
+
+Deviations: AC8 judged from the ledger, not re-run. AC10 not seat-verified; owner decision to judge at the merge gate.
