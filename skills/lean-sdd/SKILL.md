@@ -121,6 +121,14 @@ constraints, **agent** (`sdd-implementer-lite` | `sdd-implementer`; role names, 
 - Mark tasks with no shared files and no depends-on as one **parallel group**.
 - An e2e that proves a workflow sizes its fixture so the workflow takes its full path, and asserts
   the workflow's own artifacts (ledger, metrics), not only the final output.
+- A milestone that changes runtime behavior (app, service, CLI) names one **smoke command** that
+  boots the real thing and drives one main flow end to end (the repo's run/verify skill or a script;
+  none yet → the scaffold task adds it). It binds a free port, so parallel worktrees don't collide.
+  Every brief for a task that changes runtime behavior carries it.
+- Acceptance tests for a round-trip (encode/decode, parse/print), an invariant or an idempotent
+  operation are property tests (the repo's library, else fast-check, Hypothesis or proptest) with a
+  pinned seed, plus one literal-value example (a symmetric encode/decode bug passes a round-trip).
+  Adding a library is out of scope → list the hand-picked edge inputs instead.
 - Add a **Backlog** section (deferred items from step 1 and later reviews).
 - Then build immediately.
 
