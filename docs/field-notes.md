@@ -1,7 +1,8 @@
-# Field notes: lean-sdd on agentic-warden
+# Field notes: lean-sdd on agentic-warden and on itself
 
-Source: `sdd-metrics.sh` run on each plan's ledger, 2026-10-26. Plans live at
-https://github.com/alchristleo/agentic-warden/tree/main/docs/superpowers/plans
+Source: `sdd-metrics.sh` run on each plan's ledger, 2026-10-26 (agentic-warden) and 2026-11-21 (lean-sdd). Plans live at
+https://github.com/alchristleo/agentic-warden/tree/main/docs/superpowers/plans and
+https://github.com/alchristleo/lean-sdd/tree/main/docs/superpowers/plans
 
 | Milestone | Tasks | Fix rounds | Blocked | Panel findings → triage |
 |---|---|---|---|---|
@@ -11,6 +12,9 @@ https://github.com/alchristleo/agentic-warden/tree/main/docs/superpowers/plans
 | [readme-appeal](https://github.com/alchristleo/agentic-warden/blob/main/docs/superpowers/plans/2026-10-25-readme-appeal.md) | 6 | 3 | 0 | not logged |
 | [releases](https://github.com/alchristleo/agentic-warden/blob/main/docs/superpowers/plans/2026-10-25-releases.md) | 8 | 6 | 0 | 13 fixed, 1 dismissed, 1 backlog |
 | [security-hardening](https://github.com/alchristleo/agentic-warden/blob/main/docs/superpowers/plans/2026-10-25-security-hardening.md) | 8 | 1 | 0 | 4 fixed, 0 dismissed, 1 backlog |
+| [oss-release](https://github.com/alchristleo/lean-sdd/blob/main/docs/superpowers/plans/2026-10-26-oss-release.md) | 6 | 5 | 0 | 19 fixed, 4 dismissed, 1 backlog |
+| [lite-edition](https://github.com/alchristleo/lean-sdd/blob/main/docs/superpowers/plans/2026-11-07-lite-edition.md) | 3 | 1 | 0 | 17 fixed, 0 dismissed, 0 backlog |
+| [reviewer-convergence](https://github.com/alchristleo/lean-sdd/blob/main/docs/superpowers/plans/2026-11-10-reviewer-convergence.md) | 2 | 0 | 0 | 5 fixed, 0 dismissed, 0 backlog |
 
 "Not logged": these ledgers predate the strict ledger format (`sdd-log.sh`), so panel triage was not recorded in a countable form.
 
