@@ -148,6 +148,7 @@ Claude also asks when a step is ambiguous and evidence cannot settle it. Source:
 | Panel, seat | End-of-milestone review. Each seat is one lens: correctness, design, security, CDO (look). |
 | Fix wave | One batch of fixes for the panel's findings. |
 | Pre-existing | A problem on lines the task did not touch. It goes to the Backlog, not a fix round. |
+| Check line | A reviewer's note that names a lint rule, type check or import ban your repo already uses and that would stop a class of mistake. It goes to the Backlog. A class seen twice becomes a task in the next plan. |
 | Spec converge | The final check. Each AC gets VERIFIED, NOT VERIFIED or INCONCLUSIVE. |
 | Ledger | One line per event at the end of the plan, used for pause, resume and metrics. |
 | Backlog | Good ideas parked in the plan instead of built now. |

@@ -188,6 +188,7 @@ path + task brief.
 **Re-review brief:** list the earlier findings, so the reviewer answers each one on a `PRIOR:` line.
 Name the task base sha too, so the reviewer can tell original-task lines from untouched ones.
 A `PRE-EXISTING` line goes to the plan's Backlog with no fix round. Per-task `PRE-EXISTING` items are not counted in `TRIAGE`, which counts the panel round only.
+A `CHECK:` line (a lint rule, type check or import ban that would stop a class of mistake) goes to a `Checks` list in the Backlog, with no fix round.
 
 **Fix-round cap:** max 2 fix rounds per task. Re-reviews use `lean-sdd-lite:sdd-reviewer-lite` on the fix
 diff only. Still failing after 2 → mark `blocked` in the ledger, move on to independent
@@ -208,7 +209,7 @@ After all tasks, build one package for the whole branch, then dispatch in ONE me
   browser QA (main flows, screenshots) with a browser automation tool if installed, otherwise it says QA was partial. Brief: target reader, plus any skills or
   reference bar to judge against.
 Each seat's brief lists the `check: seat <name>` ACs it owns; the seat answers them on its `ACS:` line.
-`PRE-EXISTING` lines from seats go to the Backlog, not the fix wave. Count them in `TRIAGE fixed=<n> dismissed=<n> backlog=<n>`.
+`PRE-EXISTING` lines from seats go to the Backlog, not the fix wave. Count them in `TRIAGE fixed=<n> dismissed=<n> backlog=<n>`. `CHECK:` lines go to the Backlog's `Checks` list, uncounted.
 
 Filter first. Propose dismissals, each with a one-line reason: a hypothetical input no
 caller can produce (trace the call site), a preference with no concrete failure ("I'd use
@@ -283,7 +284,8 @@ Max one re-run per seat per milestone; a second fail → ask the owner.
   coord fixes, blocked, findings per seat, triage, 5h usage).
 - **What repeated or wasted effort?** Turn each item into **structure**: a script, hook,
   test, agent rule or CLAUDE.md line. Mechanical lessons get a check, not prose. Keep a lesson
-  only if it is high-signal, high-frequency or high-impact.
+  only if it is high-signal, high-frequency or high-impact. A Backlog `Checks` class seen 2+ times
+  becomes a task in the next plan.
 - **Workflow lessons** (this skill and the plugin's `agents/`): propose the edit
   with its evidence, apply on the user's yes in your clone of the lean-sdd repo, then append
   `YYYY-MM-DD <file>: <change> (evidence)` to `skills/lean-sdd/CHANGELOG.md` there. A marketplace
