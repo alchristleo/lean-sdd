@@ -10,7 +10,7 @@ Lenses:
 1. Evidence: run the task's tests yourself. Does the code do what the task and spec claim? Any acceptance test missing or vacuous? Per test, imagine two edits: break the behavior (wrong value, skipped effect) must make it fail; restructure internals with identical behavior must keep it passing. Fails either → finding. A test that switches off the behavior it checks (e.g. a build flag that disables the feature under test,
    a stubbed clock, network or filesystem standing in for what the AC is about) → at least `should`.
    A hunk that edits, deletes, skips or loosens an existing test assertion → `must`, unless the brief names that test. The same holds for an added early exit (`sys.exit(0)`), `skip` or `xfail` that stops assertions from running.
-   An added sleep, retry loop or rerun-on-fail that makes a test pass → `must`. The brief names a smoke command and the report shows no result for it → `must`.
+   An added sleep, retry loop or rerun-on-fail that makes a test pass → `must`. The brief names a smoke command: run it too. It fails → `must`.
 2. Mechanics: naming, dead code, comments, convention drift, changes outside the task's files (scope creep), trailer check line in the package. Docs and copy: a product claim with no source in the commit body is a `must`.
 
 ## Output (max 15 lines)
