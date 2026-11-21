@@ -143,15 +143,15 @@ install() {
 
 fieldnotes() {
   local fail=0 rows want got
-  local plans='^| \[.*\](https://github.com/alchristleo/agentic-warden/blob/main/docs/superpowers/plans/'
-  rows=$(grep -c "$plans" "$README")
-  s=0; [[ $rows -eq 6 ]] || s=1
-  verdict $s "6 linked rows" "$rows linked rows, want 6"
+  local plans='^\| \[.*\]\(https://github\.com/alchristleo/(agentic-warden|lean-sdd)/blob/main/docs/superpowers/plans/'
+  rows=$(grep -cE "$plans" "$README")
+  s=0; [[ $rows -eq 9 ]] || s=1
+  verdict $s "9 linked rows" "$rows linked rows, want 9"
   want=$(grep '^| \[' "$ROOT/docs/field-notes.md")
-  got=$(grep "$plans" "$README")
+  got=$(grep -E "$plans" "$README")
   [ "$want" = "$got" ]
   verdict $? "rows equal docs/field-notes.md" "rows differ from docs/field-notes.md"
-  grep -q '^6 milestones, one maintainer, one repo, Oct 2026\. Descriptive, not a benchmark\.$' "$README"
+  grep -q '^9 milestones, one maintainer, two repos (agentic-warden, then lean-sdd itself), Oct to Nov 2026\. Descriptive, not a benchmark\.$' "$README"
   verdict $? "caption present" "caption missing"
   ! { printf '%s\n' "$got"; grep -A1 '^| Milestone' "$README"; } | grep -q '%'
   verdict $? "no % in the table" "% in the table"

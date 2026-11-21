@@ -9,6 +9,7 @@ You approve the spec and the merge. Claude asks about the rest in one batched ro
 
 - Small tasks skip it: 1 to 3 files, no spec, no plan, no subagents.
 - The plan lists interfaces and tests, not code.
+- Tasks that change runtime behavior run the real app, not only unit tests.
 - Each rule cites the failure behind it, or says it has none.
 - Replaces superpowers brainstorming, writing-plans and subagent-driven-development. It still
   uses TDD, systematic-debugging and finishing-a-development-branch.
@@ -140,11 +141,13 @@ Claude also asks when a step is ambiguous and evidence cannot settle it. Source:
 | T1, T2, ... | Tasks in the plan, in order. T1 often settles an open question with a prototype. |
 | Gate | A stop where Claude waits for your explicit yes. There are two: spec and merge. |
 | Implementer, reviewer | Subagents that build one task and check it. `-lite` ones use a cheaper model. |
+| Smoke command | One command in the plan that starts the real app and runs one main flow. Implementers and reviewers run it. |
 | Fix round | One "fix needed" verdict from a reviewer. A task gets at most two. |
 | Coord fix | A fix of 10 lines or fewer the main session makes itself, reviewed afterwards. |
-| Trust boundary | Auth, tokens, crypto, payments, personal data, untrusted input. Adds a security seat. |
+| Trust boundary | Auth, tokens, crypto, payments, personal data, untrusted input, CI workflows, release and install scripts, git hooks, agent hooks or permissions. Adds a security seat. |
 | Panel, seat | End-of-milestone review. Each seat is one lens: correctness, design, security, CDO (look). |
 | Fix wave | One batch of fixes for the panel's findings. |
+| Pre-existing | A problem on lines the task did not touch. It goes to the Backlog, not a fix round. |
 | Spec converge | The final check. Each AC gets VERIFIED, NOT VERIFIED or INCONCLUSIVE. |
 | Ledger | One line per event at the end of the plan, used for pause, resume and metrics. |
 | Backlog | Good ideas parked in the plan instead of built now. |
@@ -234,7 +237,7 @@ caused the edit.
 | [L85](skills/lean-sdd/CHANGELOG.md?plain=1#L85) | `sdd-log.sh` refuses newlines | A multi-line note forged a ledger line |
 
 <details>
-<summary>Six milestones in one repo, from 5 to 9 tasks each, none blocked</summary>
+<summary>Nine milestones in two repos, from 2 to 9 tasks each, none blocked</summary>
 
 | Milestone | Tasks | Fix rounds | Blocked | Panel findings → triage |
 |---|---|---|---|---|
@@ -244,8 +247,11 @@ caused the edit.
 | [readme-appeal](https://github.com/alchristleo/agentic-warden/blob/main/docs/superpowers/plans/2026-10-25-readme-appeal.md) | 6 | 3 | 0 | not logged |
 | [releases](https://github.com/alchristleo/agentic-warden/blob/main/docs/superpowers/plans/2026-10-25-releases.md) | 8 | 6 | 0 | 13 fixed, 1 dismissed, 1 backlog |
 | [security-hardening](https://github.com/alchristleo/agentic-warden/blob/main/docs/superpowers/plans/2026-10-25-security-hardening.md) | 8 | 1 | 0 | 4 fixed, 0 dismissed, 1 backlog |
+| [oss-release](https://github.com/alchristleo/lean-sdd/blob/main/docs/superpowers/plans/2026-10-26-oss-release.md) | 6 | 5 | 0 | 19 fixed, 4 dismissed, 1 backlog |
+| [lite-edition](https://github.com/alchristleo/lean-sdd/blob/main/docs/superpowers/plans/2026-11-07-lite-edition.md) | 3 | 1 | 0 | 17 fixed, 0 dismissed, 0 backlog |
+| [reviewer-convergence](https://github.com/alchristleo/lean-sdd/blob/main/docs/superpowers/plans/2026-11-10-reviewer-convergence.md) | 2 | 0 | 0 | 5 fixed, 0 dismissed, 0 backlog |
 
-6 milestones, one maintainer, one repo, Oct 2026. Descriptive, not a benchmark.
+9 milestones, one maintainer, two repos (agentic-warden, then lean-sdd itself), Oct to Nov 2026. Descriptive, not a benchmark.
 
 The script counts ledger `fix` lines only, so some plan retros report more. The docs-onboarding
 retro says 8. The releases row sums both of its ledger phases.
@@ -292,9 +298,10 @@ Sources, read 2026-10-26:
 ## Where this came from
 
 The rules come from real sessions in one public project,
-[agentic-warden](https://github.com/alchristleo/agentic-warden). Milestone names in the changelog
-refer to that repo. The spec, the plan and the exec-room papers for this release are in
-[`docs/superpowers/`](docs/superpowers/) as a worked example of the workflow on itself.
+[agentic-warden](https://github.com/alchristleo/agentic-warden), and later from building lean-sdd
+itself. Milestone names in the changelog refer to one of those two repos. The specs, plans and
+exec-room papers for lean-sdd's own milestones are in [`docs/superpowers/`](docs/superpowers/), as
+a worked example of the workflow on itself.
 
 ## Built on
 
