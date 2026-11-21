@@ -68,7 +68,7 @@ Acceptance: `test/install-smoke.sh` rc 0; `test/check.sh readme|hero|install|com
 
 - CI job running `test/check.sh lite` on push.
 - Lite README visuals as PNG.
-- Full edition: scripts/pr-checks-wait.sh lacks gh 2.4.0 `cancel` state (exits 3, not CI red). Out of scope (AC8).
+- Full edition: scripts/pr-checks-wait.sh lacks gh 2.4.0 `cancel` state (exits 3, not CI red). Out of scope (AC8). Closed 2026-11-21, false alarm: `gh pr checks` text output never prints `cancel`. gh 2.4.0 maps CANCELLED to `fail` (pkg/cmd/pr/checks/checks.go@v2.4.0), and since cli/cli decbbd2 the `cancel` bucket prints as `fail` (output.go).
 - README "The plugin ships no hooks" vs hooks/usage-guard.py file: reword to "registers no hooks". Pre-existing.
 
 ## Ledger

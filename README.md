@@ -212,6 +212,8 @@ Only `git` and `gh` use the network, and only when a step runs them.
 
 Maintainers: bump `version` in `.claude-plugin/plugin.json` on every user-visible change.
 Before every version bump, run `python3 -I scripts/dev/build-lite.py`. Then run `test/check.sh lite`.
+It also runs `test/check.sh version`, which fails when shipped files changed since the last `v*` tag
+but `version` still matches that tag.
 Setting `version` keeps installed users on that version until you change it
 ([plugin manifest reference](https://code.claude.com/docs/en/plugins-reference#version)),
 and the status-line command picks the highest installed version.

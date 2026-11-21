@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
-# Local acceptance checks. Usage: test/check.sh <guard|export|readme|hero|compare|install|fieldnotes|lite>
+# Local acceptance checks. Usage: test/check.sh <guard|export|readme|hero|compare|install|fieldnotes|lite|version|version-selftest>
 # export (AC5): the 8 diagram assets exist, pairs differ, no <script, no external refs.
 # guard (AC11): status-line sample -> cache -> usage-guard hook, in a temp state dir.
+# version [repo] (AC13, also run by lite): shipped files changed since the last v* tag need a version bump.
 set -u
 ROOT=$(cd "$(dirname "$0")/.." && pwd)
 
@@ -164,6 +165,52 @@ fm_field() {
 }
 
 # lite (AC1-6, 9, 12): plugin-lite/ is a fresh build and holds the right parts
+# version [repo] (AC13): shipped files changed since the last v* tag need a new plugin.json version.
+# Compares the tag with the HEAD commit; uncommitted edits do not count.
+version() {
+  local fail=0 repo=${1:-$ROOT} tag headv changed s
+  tag=$(git -C "$repo" describe --tags --abbrev=0 --match 'v*' 2>/dev/null) || { echo "ok   AC13 no v* tag yet"; return 0; }
+  headv=$(git -C "$repo" show HEAD:.claude-plugin/plugin.json | sed -n 's/.*"version": *"\([^"]*\)".*/\1/p')
+  changed=$(git -C "$repo" diff --name-only "$tag" HEAD -- agents skills hooks scripts plugin-lite \
+    ':(exclude)scripts/dev' ':(exclude)plugin-lite/.claude-plugin/plugin.json')
+  s=0; [ -n "$changed" ] && [ "v$headv" = "$tag" ] && s=1
+  verdict $s "AC13 version bumped since $tag, or no shipped change" \
+    "AC13 shipped files changed since $tag but plugin.json is still $headv (first: $(printf '%s\n' "$changed" | head -1))"
+  return "$fail"
+}
+
+# version_selftest: run version() on throwaway repos (tagged base, then one change each).
+version_selftest() {
+  local fail=0 tmp r out rc
+  tmp=$(mktemp -d)
+  trap 'rm -rf "$tmp"' RETURN
+  # case <name> <expect ok|FAIL> <file to change> [new version]
+  vcase() {
+    r=$tmp/$1
+    mkdir -p "$r/.claude-plugin" "$r/agents" "$r/scripts/dev" "$r/plugin-lite/.claude-plugin"
+    git -C "$r" init -q && git -C "$r" config user.email t@t && git -C "$r" config user.name t
+    printf '{\n  "version": "0.1.0"\n}\n' | tee "$r/.claude-plugin/plugin.json" >"$r/plugin-lite/.claude-plugin/plugin.json"
+    echo a >"$r/agents/a.md"; echo d >"$r/scripts/dev/d.sh"; echo r >"$r/README.md"
+    git -C "$r" add -A && git -C "$r" commit -qm base && git -C "$r" tag -a v0.1.0 -m v0.1.0
+    if [ "$3" != - ]; then echo changed >>"$r/$3"; fi
+    if [ -n "${4:-}" ]; then sed -i "s/0\.1\.0/$4/" "$r/.claude-plugin/plugin.json" "$r/plugin-lite/.claude-plugin/plugin.json"; fi
+    git -C "$r" add -A && git -C "$r" commit -qm change --allow-empty
+    out=$(version "$r"); rc=$?
+    case "$2:$rc:$out" in ok:0:ok*|FAIL:1:FAIL*) echo "ok   selftest $1" ;; *) echo "FAIL selftest $1 rc=$rc: $out"; fail=1 ;; esac
+  }
+  vcase agent-no-bump FAIL agents/a.md
+  vcase agent-bumped ok agents/a.md 0.1.1
+  vcase readme-only ok README.md
+  vcase dev-script-only ok scripts/dev/d.sh
+  vcase lite-manifest-only ok plugin-lite/.claude-plugin/plugin.json
+  vcase no-change ok -
+  r=$tmp/untagged; mkdir -p "$r/agents"; git -C "$r" init -q; git -C "$r" config user.email t@t; git -C "$r" config user.name t
+  printf '{"version": "0.1.0"}\n' >"$r/plugin.json"; echo a >"$r/agents/a.md"; git -C "$r" add -A; git -C "$r" commit -qm x
+  out=$(version "$r"); rc=$?
+  case "$rc:$out" in 0:ok*) echo "ok   selftest no-tag" ;; *) echo "FAIL selftest no-tag rc=$rc: $out"; fail=1 ;; esac
+  return "$fail"
+}
+
 lite() {
   local fail=0 L=$ROOT/plugin-lite bad names n a f x tmp out rc base blk pkg gd s
   # AC1
@@ -247,6 +294,7 @@ lite() {
   # AC12
   [ "$(grep '"version"' "$L/.claude-plugin/plugin.json")" = "$(grep '"version"' "$ROOT/.claude-plugin/plugin.json")" ]
   verdict $? "AC12 versions equal" "AC12 versions differ"
+  version || fail=1
   return "$fail"
 }
 
@@ -259,5 +307,7 @@ case ${1:-} in
   install) install ;;
   fieldnotes) fieldnotes ;;
   lite) lite ;;
-  *) echo "usage: test/check.sh guard|export|readme|hero|compare|install|fieldnotes|lite" >&2; exit 2 ;;
+  version) version "${2:-}" ;;
+  version-selftest) version_selftest ;;
+  *) echo "usage: test/check.sh guard|export|readme|hero|compare|install|fieldnotes|lite|version|version-selftest" >&2; exit 2 ;;
 esac
