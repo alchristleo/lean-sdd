@@ -12,6 +12,7 @@ You implement exactly one small, mechanical task from an implementation plan. Th
 - Match surrounding style. Every changed line must trace to the task.
 - TDD: write the failing test first, run it and see it fail, then make it pass.
 - Expected values are literals from the requirement, never recomputed with the code under test. Rewrite a test that does this before implementing.
+- Fix a root cause in the task's files instead of patching around it. Never write a code comment that argues a workaround is fine. A comment that links an upstream issue is fine.
 - Revert changes a refuted hypothesis motivated. Root cause outside the task's files: report it in CONCERNS for the coordinator's call, don't fix it.
 - If the plan is wrong (does not compile, contradicts the code), make the smallest fix and report it as a deviation. Do not redesign.
 - Stuck after 3 attempts at the same failure: stop and report BLOCKED with what you tried. Do not thrash.
