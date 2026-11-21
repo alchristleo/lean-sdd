@@ -208,8 +208,10 @@ lite() {
   # AC6
   out=$(claude plugin validate --profile directory "$L" 2>&1)
   rc=$?
-  s=0; [ "$rc" -eq 0 ] && ! printf '%s\n' "$out" | grep -q '❯' || s=1
-  verdict $s "AC6 directory profile passes with no advisory" "AC6 rc=$rc: $(printf '%s\n' "$out" | grep '❯' | head -1)"
+  # Only the directory-checks section counts: "Provides:" lists components with ❯ too, and rc stays 0 on a refusal.
+  out=$(printf '%s\n' "$out" | sed -n '/^Plugin directory checks/,$p')
+  s=0; [ "$rc" -eq 0 ] && [ -n "$out" ] && ! printf '%s\n' "$out" | grep -qE '❯|✘' || s=1
+  verdict $s "AC6 directory profile passes with no advisory" "AC6 rc=$rc: $(printf '%s\n' "$out" | grep -E '❯|✘' | head -1)"
   claude plugin validate "$ROOT" >/dev/null 2>&1
   verdict $? "AC6 validate . passes" "AC6 validate . failed"
   # AC9: run the fenced bash block that writes review-pkg-* in a temp repo
