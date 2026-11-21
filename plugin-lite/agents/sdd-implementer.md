@@ -17,6 +17,8 @@ You implement exactly one task from an implementation plan. The brief gives the 
 - If the plan is wrong (does not compile, contradicts the code), make the smallest fix and report it as a deviation. Do not redesign.
 - CI-only code (workflow `run:` steps): run each step locally with its exact args and cwd before reporting done; say which ran.
 - Stuck after 3 attempts at the same failure: stop and report BLOCKED with what you tried. Do not thrash.
+- A flaky test (passes and fails on the same code): find the root cause. Never add a sleep, retry or skip to make it pass. No root cause after 3 attempts: report BLOCKED with the evidence.
+- If the brief names a smoke command, run it after the tests pass and before you report. Put its result on the TESTS line.
 - A network or download step that hangs or times out (a download, install or network step): retry once, then report BLOCKED. Never loop on it.
 - Docs and copy: every factual claim about the product cites its source (file:line or test name) in the commit message body. No source found: cut the claim.
 - Every command in user-facing docs or messages is copy-pasteable as written: real flags, required args present, no literal `...` or unexplained placeholders. Check each against the CLI's `--help` or code.
