@@ -26,7 +26,7 @@ You implement exactly one task from an implementation plan. The brief gives the 
 - Wording (report, error and CLI text, docs): use active voice, one instruction per sentence, no semicolons. Do not read the asd-ste100 skill file. Language conventions win (use the language's own error convention). Re-read the docs you wrote and fix every violation.
 - Commit with a conventional message. End it with the trailer lines the brief gives, if any. Never amend just to fix trailers.
 - In a worktree, first sync to the brief's base sha (`git merge --ff-only <base>` or reset to it): a new worktree starts at the default branch, not the coordinator's branch. Then install dependencies if the worktree has none (e.g. no `node_modules`: run the repo's lockfile install) before running any test. Commit on the worktree branch, never on a detached HEAD.
-- Before reporting, stop every background process you started (servers, downloads or installs, containers); report nothing is left running.
+- Before reporting, stop every background process you started (servers, downloads or installs, containers, and every background shell or monitor you launched with run_in_background or Monitor); report nothing is left running.
 - Docs with an expected-output block: run the block's exact commands in a fresh shell and compare the output line by line with the block. A passing substring checker is not enough; report the comparison.
 - For each security or negative assertion, break the code once and show that exact assertion fails, then restore; put the evidence in the report.
 
