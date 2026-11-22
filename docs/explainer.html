@@ -1,0 +1,728 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<title>lean-sdd Explained</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Familjen+Grotesk:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  /* Layout idea: a transit line. Stations = workflow steps, amber stop signs = human gates, teal = Claude's work. */
+  --bg: #eef2f5;
+  --surface: #ffffff;
+  --ink: #14202b;
+  --muted: #566775;
+  --line: #d3dce3;
+  --accent: #0f766e;
+  --accent-soft: #d5efec;
+  --gate: #b45309;
+  --gate-soft: #fbe8cf;
+  --good: #15803d;
+  --part: #a16207;
+  --bad: #b91c1c;
+  --display: "Familjen Grotesk", "Helvetica Neue", Arial, sans-serif;
+  --body: "IBM Plex Sans", "Segoe UI", Roboto, sans-serif;
+  --mono: "JetBrains Mono", ui-monospace, Menlo, Consolas, monospace;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0c1319; --surface: #131d25; --ink: #e4ebf0; --muted: #91a3b1; --line: #24333f;
+    --accent: #2dd4bf; --accent-soft: #123a37; --gate: #f59e0b; --gate-soft: #3a2a0e;
+    --good: #4ade80; --part: #facc15; --bad: #f87171;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0c1319; --surface: #131d25; --ink: #e4ebf0; --muted: #91a3b1; --line: #24333f;
+  --accent: #2dd4bf; --accent-soft: #123a37; --gate: #f59e0b; --gate-soft: #3a2a0e;
+  --good: #4ade80; --part: #facc15; --bad: #f87171;
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+body {
+  background: var(--bg); color: var(--ink);
+  font: 16px/1.6 var(--body);
+}
+h1, h2, h3 { font-family: var(--display); line-height: 1.15; text-wrap: balance; margin: 0; }
+h1 { font-size: clamp(2rem, 5vw, 3.2rem); letter-spacing: -0.02em; }
+h2 { font-size: 1.75rem; letter-spacing: -0.01em; }
+h3 { font-size: 1.1rem; }
+p { margin: 0; }
+code, .mono { font-family: var(--mono); font-size: 0.86em; }
+a { color: var(--accent); }
+button { font: inherit; color: inherit; }
+:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; border-radius: 6px; }
+
+.wrap { max-width: 1120px; margin: 0 auto; padding: 0 20px; }
+section { padding: 56px 0; border-top: 1px solid var(--line); }
+.section-head { display: grid; gap: 8px; margin-bottom: 28px; max-width: 70ch; }
+.eyebrow { font: 600 0.75rem/1 var(--mono); text-transform: uppercase; letter-spacing: 0.12em; color: var(--muted); }
+.lede { color: var(--muted); font-size: 1.05rem; }
+
+/* audience toggle */
+.topbar { position: sticky; top: 0; z-index: 10; background: color-mix(in srgb, var(--bg) 88%, transparent); backdrop-filter: blur(8px); border-bottom: 1px solid var(--line); }
+.topbar .wrap { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding-top: 10px; padding-bottom: 10px; flex-wrap: wrap; }
+.brand { font: 700 1rem var(--display); display: flex; align-items: center; gap: 8px; }
+.brand .dot { width: 10px; height: 10px; border-radius: 50%; background: var(--accent); box-shadow: 14px 0 0 var(--gate); margin-right: 14px; }
+.seg { display: inline-flex; background: var(--surface); border: 1px solid var(--line); border-radius: 999px; padding: 3px; gap: 2px; }
+.seg button { border: 0; background: transparent; padding: 6px 14px; border-radius: 999px; cursor: pointer; font-size: 0.9rem; color: var(--muted); }
+.seg button[aria-pressed="true"] { background: var(--ink); color: var(--bg); }
+.seg-label { font-size: 0.85rem; color: var(--muted); margin-right: 8px; }
+
+body[data-aud="plain"] .dev { display: none !important; }
+body[data-aud="dev"] .plain { display: none !important; }
+
+/* hero */
+.hero { padding: 56px 0 48px; display: grid; grid-template-columns: 1.15fr 1fr; gap: 40px; align-items: center; }
+.hero .tag { font: 600 1.25rem var(--display); color: var(--accent); margin-top: 14px; }
+.hero p.lede { margin-top: 16px; max-width: 58ch; }
+.hero-facts { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-top: 24px; }
+.fact { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px; }
+.fact b { display: block; font: 700 1.6rem var(--display); font-variant-numeric: tabular-nums; }
+.fact span { font-size: 0.82rem; color: var(--muted); }
+.analogy { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 22px; display: grid; gap: 12px; }
+.analogy h3 { font-size: 1rem; color: var(--muted); font-family: var(--mono); text-transform: uppercase; letter-spacing: 0.08em; font-weight: 600; }
+.map-row { display: grid; grid-template-columns: 1fr 22px 1fr; align-items: center; gap: 8px; font-size: 0.92rem; }
+.map-row .l { text-align: right; }
+.map-row .arrow { color: var(--muted); text-align: center; }
+.map-row .r { font-family: var(--mono); font-size: 0.82rem; color: var(--accent); }
+.map-row.gate .r { color: var(--gate); }
+
+/* triage fork */
+.fork { display: grid; grid-template-columns: 1fr auto 1fr; gap: 20px; align-items: stretch; }
+.fork-card { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 22px; display: grid; gap: 10px; align-content: start; }
+.fork-card.small { border-left: 5px solid var(--muted); }
+.fork-card.large { border-left: 5px solid var(--accent); }
+.fork-q { align-self: center; text-align: center; font: 600 0.95rem var(--display); background: var(--ink); color: var(--bg); padding: 14px 16px; border-radius: 12px; max-width: 200px; }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.chip { font: 500 0.78rem var(--mono); padding: 3px 9px; border-radius: 999px; background: var(--bg); border: 1px solid var(--line); }
+.chip.on { background: var(--accent-soft); border-color: transparent; color: var(--ink); }
+.chip.gate { background: var(--gate-soft); border-color: transparent; }
+
+/* pipeline */
+.line-scroll { overflow-x: auto; padding-bottom: 6px; }
+.line { position: relative; display: grid; grid-template-columns: repeat(12, minmax(78px, 1fr)); min-width: 940px; padding: 18px 0 8px; }
+.line::before { content: ""; position: absolute; left: 39px; right: 39px; top: 38px; height: 6px; border-radius: 3px; background: var(--accent); }
+.station { position: relative; display: grid; justify-items: center; gap: 8px; background: none; border: 0; cursor: pointer; padding: 0 2px; text-align: center; }
+.station .stop { width: 46px; height: 46px; border-radius: 50%; background: var(--surface); border: 5px solid var(--accent); display: grid; place-items: center; font: 700 0.9rem var(--mono); color: var(--ink); }
+.station.opt .stop { border-style: dashed; border-color: var(--muted); }
+.station.gate .stop { border-radius: 10px; border-color: var(--gate); background: var(--gate-soft); transform: rotate(45deg); width: 40px; height: 40px; margin: 3px 0; }
+.station.gate .stop span { transform: rotate(-45deg); }
+.station .name { font-size: 0.8rem; line-height: 1.25; color: var(--muted); }
+.station[aria-selected="true"] .stop { background: var(--accent); color: var(--bg); transform: scale(1.12); }
+.station.gate[aria-selected="true"] .stop { background: var(--gate); color: var(--bg); transform: rotate(45deg) scale(1.12); }
+.station[aria-selected="true"] .name { color: var(--ink); text-decoration: underline 3px var(--accent); text-underline-offset: 5px; }
+.panels { display: grid; }
+.panels > [role="tabpanel"] { grid-area: 1 / 1; }
+.station:hover .stop { transform: scale(1.08); }
+.station.gate:hover .stop { transform: rotate(45deg) scale(1.08); }
+.legend { display: flex; flex-wrap: wrap; gap: 18px; font-size: 0.82rem; color: var(--muted); margin: 6px 0 18px; }
+.legend i { display: inline-block; width: 12px; height: 12px; margin-right: 6px; vertical-align: -1px; border-radius: 50%; border: 3px solid var(--accent); }
+.legend i.g { border-color: var(--gate); background: var(--gate-soft); border-radius: 3px; transform: rotate(45deg); }
+.legend i.o { border-style: dashed; border-color: var(--muted); }
+
+.detail { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 24px; display: grid; grid-template-columns: 1.4fr 1fr; gap: 28px; min-height: 260px; }
+.detail.is-gate { border-color: var(--gate); box-shadow: inset 6px 0 0 var(--gate); }
+.detail h3 { font-size: 1.5rem; }
+.detail .who { display: flex; flex-wrap: wrap; gap: 6px; margin: 10px 0 14px; }
+.detail .body { display: grid; gap: 10px; max-width: 64ch; }
+.detail aside { border-left: 1px solid var(--line); padding-left: 24px; display: grid; gap: 10px; align-content: start; font-size: 0.92rem; }
+.detail aside h4 { margin: 0; font: 600 0.75rem var(--mono); text-transform: uppercase; letter-spacing: 0.1em; color: var(--muted); }
+.detail aside ul { margin: 0; padding-left: 18px; display: grid; gap: 4px; }
+.detail-nav { display: flex; gap: 8px; margin-top: 14px; }
+.btn { border: 1px solid var(--line); background: var(--surface); border-radius: 8px; padding: 7px 14px; cursor: pointer; font-size: 0.88rem; }
+.btn:hover { border-color: var(--accent); }
+
+/* lifecycle */
+.two { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+.panel { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 22px; display: grid; gap: 14px; align-content: start; }
+.panel svg { width: 100%; height: auto; }
+.svg-text { fill: var(--ink); font: 600 13px var(--body); }
+.svg-muted { fill: var(--muted); font: 500 11px var(--mono); }
+.svg-box { fill: var(--bg); stroke: var(--line); stroke-width: 1.5; }
+.svg-box.ok { fill: var(--accent-soft); stroke: var(--accent); }
+.svg-box.bad { fill: var(--gate-soft); stroke: var(--gate); }
+.svg-edge { stroke: var(--muted); stroke-width: 1.6; fill: none; }
+.svg-edge.fix { stroke: var(--gate); stroke-dasharray: 5 4; }
+
+/* team */
+.tiers { display: grid; gap: 14px; }
+.tier { display: grid; grid-template-columns: 170px 1fr; gap: 16px; align-items: start; background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 18px; }
+.tier-name { display: grid; gap: 4px; }
+.tier-name b { font: 700 1.15rem var(--display); }
+.tier-name span { font-size: 0.8rem; color: var(--muted); }
+.cost { display: flex; gap: 3px; margin-top: 4px; }
+.cost i { width: 18px; height: 8px; border-radius: 2px; background: var(--line); }
+.cost i.f { background: var(--accent); }
+.agents { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 10px; }
+.agent { border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; display: grid; gap: 4px; background: var(--bg); }
+.agent code { color: var(--accent); font-weight: 600; }
+.agent p { font-size: 0.86rem; color: var(--muted); }
+
+/* rights */
+.rights { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+.right { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 20px; display: grid; gap: 10px; align-content: start; }
+.right.you { border-top: 5px solid var(--gate); }
+.right.claude { border-top: 5px solid var(--accent); }
+.right.ask { border-top: 5px solid var(--muted); }
+.right ul { margin: 0; padding-left: 18px; display: grid; gap: 6px; font-size: 0.94rem; }
+
+/* comparison */
+.matrix-wrap { overflow-x: auto; background: var(--surface); border: 1px solid var(--line); border-radius: 14px; }
+table { border-collapse: collapse; width: 100%; min-width: 760px; font-size: 0.9rem; }
+th, td { padding: 11px 14px; text-align: left; border-bottom: 1px solid var(--line); vertical-align: top; }
+thead th { font: 600 0.8rem var(--mono); text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); background: var(--bg); }
+thead th.us { color: var(--accent); }
+tbody tr:last-child td { border-bottom: 0; }
+td.us { background: color-mix(in srgb, var(--accent-soft) 45%, transparent); }
+.mark { display: inline-flex; align-items: center; gap: 6px; font-weight: 600; white-space: nowrap; }
+.mark::before { content: ""; width: 12px; height: 12px; border-radius: 50%; flex: none; }
+.mark.y::before { background: var(--good); }
+.mark.p::before { background: linear-gradient(90deg, var(--part) 50%, transparent 50%); border: 2px solid var(--part); width: 9px; height: 9px; }
+.mark.n::before { border: 2px solid var(--bad); width: 9px; height: 9px; }
+.mark.y { color: var(--good); } .mark.p { color: var(--part); } .mark.n { color: var(--bad); }
+td small { display: block; color: var(--muted); font-size: 0.78rem; margin-top: 2px; line-height: 1.35; }
+.note { font-size: 0.82rem; color: var(--muted); margin-top: 12px; }
+.score { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 18px; }
+.score div { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px; display: grid; gap: 6px; }
+.score b { font: 600 0.9rem var(--display); }
+.bar { display: flex; height: 10px; border-radius: 5px; overflow: hidden; background: var(--line); }
+.bar .y { background: var(--good); } .bar .p { background: var(--part); }
+.score span { font-size: 0.78rem; color: var(--muted); font-variant-numeric: tabular-nums; }
+
+/* proof */
+.runs { display: grid; gap: 8px; }
+.run { display: grid; grid-template-columns: 170px 1fr 70px; gap: 12px; align-items: center; font-size: 0.88rem; }
+.run .track { position: relative; height: 22px; }
+.run .t, .run .f { position: absolute; left: 0; top: 0; height: 22px; border-radius: 4px; }
+.run .t { background: var(--accent-soft); border: 1px solid var(--accent); }
+.run .f { background: var(--gate); opacity: .85; height: 10px; top: 6px; left: 2px; }
+.run .num { font-family: var(--mono); font-size: 0.8rem; color: var(--muted); font-variant-numeric: tabular-nums; }
+.axis { display: grid; grid-template-columns: 170px 1fr 70px; gap: 12px; font: 0.72rem var(--mono); color: var(--muted); }
+.axis .ticks { display: flex; justify-content: space-between; }
+.changelog { display: grid; gap: 10px; }
+.cl { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; padding: 12px 14px; border: 1px solid var(--line); border-radius: 10px; background: var(--bg); font-size: 0.88rem; }
+.cl .why { color: var(--muted); }
+.cl .why::before { content: "because "; font-family: var(--mono); font-size: 0.75rem; color: var(--gate); }
+
+/* tradeoffs + pitch */
+.trade { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 12px; }
+.trade div { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 14px; font-size: 0.9rem; display: grid; gap: 4px; }
+.trade b { font-family: var(--display); }
+.pitches { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+.pitch { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 20px; display: grid; gap: 12px; grid-template-rows: auto 1fr auto; }
+.pitch blockquote { margin: 0; font-size: 0.96rem; }
+.pitch .btn { justify-self: start; }
+
+.vh { position: absolute; inline-size: 1px; block-size: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+.copy { display: inline-flex; align-items: center; gap: 10px; }
+.tip { font-size: 0.82rem; color: var(--good); }
+.tip:empty { opacity: 0; }
+.tip.fail { color: var(--bad); }
+tbody th { position: sticky; inset-inline-start: 0; background: var(--surface); z-index: 1; }
+.btn { min-block-size: 32px; }
+footer { padding: 32px 0 56px; border-top: 1px solid var(--line); color: var(--muted); font-size: 0.85rem; }
+
+@media (max-width: 860px) {
+  .hero, .two, .detail, .rights, .pitches, .fork { grid-template-columns: 1fr; }
+  .fork-q { justify-self: center; }
+  .detail aside { border-left: 0; padding-left: 0; border-top: 1px solid var(--line); padding-top: 16px; }
+  .tier { grid-template-columns: 1fr; }
+  .score { grid-template-columns: repeat(2, 1fr); }
+  .run, .axis { grid-template-columns: 110px 1fr 56px; }
+  .cl { grid-template-columns: 1fr; }
+}
+@media (max-width: 420px) {
+  .hero-facts { grid-template-columns: 1fr; }
+  .score { grid-template-columns: 1fr; }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .station .stop { transition: transform .15s; }
+  .tip { transition: opacity .15s; }
+}
+</style>
+</head>
+<body data-aud="plain">
+
+<header class="topbar">
+  <div class="wrap">
+    <div class="brand"><span class="dot" aria-hidden="true"></span>lean-sdd, explained</div>
+    <div>
+      <span class="seg-label">Explain it for</span>
+      <span class="seg" role="group" aria-label="Audience">
+        <button id="aud-plain" type="button" aria-pressed="true" data-aud="plain">Everyone</button>
+        <button id="aud-dev" type="button" aria-pressed="false" data-aud="dev">Developers</button>
+      </span>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+
+<!-- HERO -->
+<div class="hero">
+  <div>
+    <p class="eyebrow">Claude Code plugin · MIT · v0.1.10</p>
+    <h1>An AI build crew that asks you twice and proves the rest.</h1>
+    <p class="tag">Two gates. Evidence for everything else.</p>
+    <p class="lede plain">lean-sdd turns Claude into a project lead for software work. You sign off on the plan at the start and the result at the end. In between, Claude splits the work, hands pieces to specialist AI helpers, has every piece checked, and shows proof that each promise was kept.</p>
+    <p class="lede dev">lean-sdd is a spec-driven development workflow for Claude Code: spec → plan → parallel build in worktrees → per-task review → multi-seat review panel → per-criterion spec converge → merge. You approve the spec and the merge; everything between is decided on evidence, with ambiguity batched into one question round.</p>
+    <div class="hero-facts">
+      <div class="fact"><b>2</b><span>human sign-offs per project</span></div>
+      <div class="fact"><b>10</b><span>specialist AI agents</span></div>
+      <div class="fact"><b>0</b><span>ceremony for small tasks</span></div>
+    </div>
+  </div>
+  <div class="analogy" aria-label="Analogy">
+    <h3>Think of a building contractor</h3>
+    <div class="map-row"><span class="l">Handyman job, no blueprint</span><span class="arrow">→</span><span class="r">small task: done directly</span></div>
+    <div class="map-row gate"><span class="l">You approve the blueprint</span><span class="arrow">→</span><span class="r">GATE 1: spec</span></div>
+    <div class="map-row"><span class="l">Contractor schedules crews</span><span class="arrow">→</span><span class="r">plan + task split</span></div>
+    <div class="map-row"><span class="l">Crews work rooms in parallel</span><span class="arrow">→</span><span class="r">implementer agents</span></div>
+    <div class="map-row"><span class="l">Inspector checks each room</span><span class="arrow">→</span><span class="r">per-task reviewer</span></div>
+    <div class="map-row"><span class="l">Final inspection board</span><span class="arrow">→</span><span class="r">review panel seats</span></div>
+    <div class="map-row"><span class="l">Checklist ticked line by line</span><span class="arrow">→</span><span class="r">spec converge</span></div>
+    <div class="map-row gate"><span class="l">You do the final walkthrough</span><span class="arrow">→</span><span class="r">GATE 2: merge</span></div>
+    <div class="map-row"><span class="l">Debrief updates the playbook</span><span class="arrow">→</span><span class="r">retro</span></div>
+  </div>
+</div>
+
+<!-- TRIAGE -->
+<section id="triage">
+  <div class="section-head">
+    <p class="eyebrow">Step zero</p>
+    <h2>First question: is this worth a process at all?</h2>
+    <p class="lede plain">Most process tools treat a typo fix like a product launch. lean-sdd sizes the job first and gets out of the way for small work.</p>
+    <p class="lede dev">Size triage runs before anything else and is stated in one line. Unclear size or an unclear trust boundary defaults to Large.</p>
+  </div>
+  <div class="fork">
+    <div class="fork-card small">
+      <p class="eyebrow">Small</p>
+      <h3>Just do it</h3>
+      <p class="plain">A bug fix, a practice exercise, finishing one file. Claude does the work directly, still writing tests first and checking results.</p>
+      <p class="dev">1 to 3 files, under about 150 lines, no new trust boundary. No spec, no plan, no subagents. Project coding rules + TDD/verification only.</p>
+      <div class="chips"><span class="chip">no spec</span><span class="chip">no plan</span><span class="chip">no subagents</span><span class="chip on">tests still run</span></div>
+    </div>
+    <div class="fork-q">How big, and does it touch anything sensitive?</div>
+    <div class="fork-card large">
+      <p class="eyebrow">Large</p>
+      <h3>Full flow</h3>
+      <p class="plain">A feature, a milestone, or anything touching logins, payments, personal data or security. Claude runs the whole pipeline below.</p>
+      <p class="dev">Features, milestones, any trust boundary (auth, tokens, crypto, payments, PII, untrusted input, CI, install scripts, hooks). One-feature builds get a spec of one page or less; conditional seats scale the panel.</p>
+      <div class="chips"><span class="chip gate">2 gates</span><span class="chip on">spec + plan</span><span class="chip on">parallel agents</span><span class="chip on">review panel</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- PIPELINE -->
+<section id="pipeline">
+  <div class="section-head">
+    <p class="eyebrow">The line</p>
+    <h2>Ride the line, stop by stop</h2>
+    <p class="lede">Click a stop to see what happens there, who does it, and what it leaves behind. Amber diamonds are the only places Claude waits for you.</p>
+  </div>
+  <div class="legend">
+    <span><i></i>Claude runs it</span>
+    <span><i class="g"></i>You approve (gate)</span>
+    <span><i class="o"></i>Only when you ask</span>
+  </div>
+  <div class="line-scroll">
+    <div class="line" id="line" role="tablist" aria-label="Workflow steps"></div>
+  </div>
+  <div class="panels" id="panels"></div>
+</section>
+
+<!-- LIFECYCLE + CONTEXT -->
+<section id="safety">
+  <div class="section-head">
+    <p class="eyebrow">Built-in brakes</p>
+    <h2>It can't loop forever, and the lead never drowns in detail</h2>
+  </div>
+  <div class="two">
+    <div class="panel">
+      <h3>One task's life</h3>
+      <p class="plain" style="color:var(--muted)">Each piece of work gets built and checked. If the checker finds problems, it gets at most two retries. After that it is marked stuck and the rest of the project keeps moving.</p>
+      <p class="dev" style="color:var(--muted)">Max 2 fix rounds per task. Re-reviews use the cheap reviewer on the fix diff only. Still failing → <code>blocked</code> in the ledger, independent tasks continue, reported at milestone end.</p>
+      <svg viewBox="0 0 520 250" role="img" aria-label="Task state diagram: planned, building, review, done; review can loop to fix up to two times; then blocked.">
+        <defs><marker id="ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="currentColor" style="color:var(--muted)"/></marker></defs>
+        <rect class="svg-box" x="10" y="30" width="100" height="44" rx="8"/><text class="svg-text" x="60" y="57" text-anchor="middle">Planned</text>
+        <rect class="svg-box" x="140" y="30" width="100" height="44" rx="8"/><text class="svg-text" x="190" y="57" text-anchor="middle">Building</text>
+        <rect class="svg-box" x="270" y="30" width="100" height="44" rx="8"/><text class="svg-text" x="320" y="57" text-anchor="middle">Review</text>
+        <rect class="svg-box ok" x="405" y="30" width="100" height="44" rx="8"/><text class="svg-text" x="455" y="57" text-anchor="middle">Done</text>
+        <rect class="svg-box" x="270" y="140" width="100" height="44" rx="8"/><text class="svg-text" x="320" y="167" text-anchor="middle">Fix</text>
+        <rect class="svg-box bad" x="405" y="140" width="100" height="44" rx="8"/><text class="svg-text" x="455" y="167" text-anchor="middle">Blocked</text>
+        <path class="svg-edge" d="M110 52 H138" marker-end="url(#ar)"/>
+        <path class="svg-edge" d="M240 52 H268" marker-end="url(#ar)"/>
+        <path class="svg-edge" d="M370 52 H403" marker-end="url(#ar)"/>
+        <text class="svg-muted" x="386" y="22" text-anchor="middle">pass</text>
+        <path class="svg-edge fix" d="M305 74 V138" marker-end="url(#ar)"/>
+        <path class="svg-edge fix" d="M335 138 V76" marker-end="url(#ar)"/>
+        <text class="svg-muted" x="222" y="110">fix needed</text>
+        <text class="svg-muted" x="343" y="110">re-review</text>
+        <path class="svg-edge" d="M370 162 H403" marker-end="url(#ar)"/>
+        <text class="svg-muted" x="386" y="210" text-anchor="middle">after 2 rounds</text>
+        <text class="svg-muted" x="455" y="210" text-anchor="middle">build moves on</text>
+        <text class="svg-muted" x="320" y="232" text-anchor="middle">max 2 loops</text>
+      </svg>
+    </div>
+    <div class="panel">
+      <h3>The lead reads reports, not code</h3>
+      <p class="plain" style="color:var(--muted)">The main Claude session acts like a manager with a strict inbox rule: helpers send back a 10-line summary, never the whole pile of changes. That keeps the manager sharp for long projects.</p>
+      <p class="dev" style="color:var(--muted)">The coordinator never reads full diffs during build or review. Agents read a review package from <code>review-pkg.sh</code>; the coordinator reads 10–15-line reports. Fixes of 10 lines or fewer it may make itself, batched for one cheap review. The plan file's ledger is the source of truth for pause and resume.</p>
+      <svg viewBox="0 0 520 250" role="img" aria-label="Coordinator sends short briefs to agents and receives short reports; agents read the full diff package.">
+        <defs><marker id="ar2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="currentColor" style="color:var(--muted)"/></marker></defs>
+        <rect class="svg-box ok" x="10" y="95" width="130" height="60" rx="10"/><text class="svg-text" x="75" y="122" text-anchor="middle">Coordinator</text><text class="svg-muted" x="75" y="140" text-anchor="middle">main session</text>
+        <rect class="svg-box" x="220" y="20" width="130" height="44" rx="8"/><text class="svg-text" x="285" y="47" text-anchor="middle">Implementer</text>
+        <rect class="svg-box" x="220" y="103" width="130" height="44" rx="8"/><text class="svg-text" x="285" y="130" text-anchor="middle">Reviewer</text>
+        <rect class="svg-box" x="220" y="186" width="130" height="44" rx="8"/><text class="svg-text" x="285" y="213" text-anchor="middle">Panel seats</text>
+        <rect class="svg-box bad" x="400" y="80" width="110" height="90" rx="8"/><text class="svg-text" x="455" y="118" text-anchor="middle">Full diff</text><text class="svg-muted" x="455" y="138" text-anchor="middle">review package</text>
+        <path class="svg-edge" d="M140 112 C180 90 190 50 218 44" marker-end="url(#ar2)"/>
+        <path class="svg-edge" d="M140 125 H218" marker-end="url(#ar2)"/>
+        <path class="svg-edge" d="M140 138 C180 160 190 200 218 206" marker-end="url(#ar2)"/>
+        <text class="svg-muted" x="150" y="88">brief</text>
+        <text class="svg-muted" x="150" y="182">10-line report</text>
+        <path class="svg-edge" d="M350 125 H398" marker-end="url(#ar2)"/>
+        <path class="svg-edge" d="M350 206 C380 200 390 170 410 166" marker-end="url(#ar2)"/>
+        <text class="svg-muted" x="374" y="116" text-anchor="middle">reads</text>
+      </svg>
+    </div>
+  </div>
+</section>
+
+<!-- TEAM -->
+<section id="team">
+  <div class="section-head">
+    <p class="eyebrow">The crew</p>
+    <h2>Ten specialists, each on the cheapest model that can do the job</h2>
+    <p class="lede plain">Simple chores go to the fastest, cheapest AI. Judgment calls go to stronger ones. The most expensive model is saved for security review.</p>
+    <p class="lede dev">Model and effort live in each agent's frontmatter. Dispatched as <code>lean-sdd:&lt;name&gt;</code>. <code>panel-correctness</code> escalates to Opus only when a trust boundary exists.</p>
+  </div>
+  <div class="tiers">
+    <div class="tier">
+      <div class="tier-name"><b>Haiku</b><span>fast, cheap: mechanical work</span><div class="cost" aria-label="cost 1 of 3"><i class="f"></i><i></i><i></i></div></div>
+      <div class="agents">
+        <div class="agent"><code>sdd-implementer-lite</code><p>Docs, config, boilerplate, simple files.</p></div>
+        <div class="agent"><code>sdd-reviewer-lite</code><p>Checks lite tasks and re-checks small fix diffs.</p></div>
+      </div>
+    </div>
+    <div class="tier">
+      <div class="tier-name"><b>Sonnet</b><span>the workhorse: logic and judgment</span><div class="cost" aria-label="cost 2 of 3"><i class="f"></i><i class="f"></i><i></i></div></div>
+      <div class="agents">
+        <div class="agent"><code>sdd-implementer</code><p>Builds logic, stores, handlers, integrations with tests first.</p></div>
+        <div class="agent"><code>sdd-reviewer</code><p>Per-task check: does it do what it claims, and is it clean?</p></div>
+        <div class="agent"><code>panel-correctness</code><p>Edge cases, error paths, races, the input that breaks it.</p></div>
+        <div class="agent"><code>panel-design</code><p>What the next maintainer inherits; code to delete. Only on big diffs.</p></div>
+        <div class="agent"><code>panel-cdo</code><p>Design and copy appeal of what users see, plus browser QA.</p></div>
+        <div class="agent"><code>spec-converge</code><p>Ticks every acceptance criterion: verified or not.</p></div>
+        <div class="agent"><code>exec-seat</code><p>CEO, CPO or CMO position paper. Only on request.</p></div>
+      </div>
+    </div>
+    <div class="tier">
+      <div class="tier-name"><b>Opus</b><span>strongest: high-stakes only</span><div class="cost" aria-label="cost 3 of 3"><i class="f"></i><i class="f"></i><i class="f"></i></div></div>
+      <div class="agents">
+        <div class="agent"><code>panel-security</code><p>OWASP and STRIDE review. Runs only when sensitive areas are touched.</p></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- RIGHTS -->
+<section id="rights">
+  <div class="section-head">
+    <p class="eyebrow">Who decides what</p>
+    <h2>Autonomy with a clear line</h2>
+    <p class="lede">Each gate needs an explicit yes. Picking an option in a question is not approval.</p>
+  </div>
+  <div class="rights">
+    <div class="right you"><p class="eyebrow">You approve</p><h3>Two moments</h3><ul><li>The spec: what will be built and how success is measured</li><li>The merge: shipping the result</li></ul></div>
+    <div class="right claude"><p class="eyebrow">Claude decides</p><h3>On evidence</h3><ul><li>The plan and task split</li><li>Which agent builds each task</li><li>Fixes for problems two reviewers both raise</li><li>Merge order of parallel work</li></ul></div>
+    <div class="right ask"><p class="eyebrow">Claude asks you</p><h3>Batched, best option first</h3><ul><li>Dismissing a review finding</li><li>Skipping a review step</li><li>Going past a retry cap</li><li>Starting a task before its dependency</li><li>User-facing wording</li></ul></div>
+  </div>
+</section>
+
+<!-- COMPARE -->
+<section id="compare">
+  <div class="section-head">
+    <p class="eyebrow">Versus the alternatives</p>
+    <h2>How it compares</h2>
+    <p class="lede">Read from each project's own docs on 2026-10-26. Yes, partial or no; every cell has a cited quote in <code>docs/comparison-research.md</code>.</p>
+  </div>
+  <div class="score" id="score"></div>
+  <div class="matrix-wrap" tabindex="0" role="region" aria-labelledby="matrix-cap"><table id="matrix"><caption id="matrix-cap" class="vh">Capability comparison: lean-sdd, superpowers, GitHub spec-kit and plain Claude Code</caption><thead><tr><th scope="col">Capability</th><th scope="col" class="us">lean-sdd</th><th scope="col">superpowers</th><th scope="col">GitHub spec-kit</th><th scope="col">Plain Claude Code</th></tr></thead><tbody></tbody></table></div>
+  <p class="note plain">Plain reading: superpowers is the toolbox lean-sdd stands on (it still uses its test-first and debugging skills). spec-kit is GitHub's spec-first workflow that works with many AI tools. Plain Claude Code gives you the raw parts and leaves the process to you.</p>
+  <p class="note dev">lean-sdd replaces superpowers brainstorming, writing-plans and subagent-driven-development; it still depends on superpowers TDD, systematic-debugging and finishing-a-development-branch. Platform reach: lean-sdd = Claude Code only; superpowers = 16 install entries; spec-kit = 43 integrations.</p>
+</section>
+
+<!-- PROOF -->
+<section id="proof">
+  <div class="section-head">
+    <p class="eyebrow">Track record</p>
+    <h2>Nine real milestones, none blocked</h2>
+    <p class="lede">From two public repos (agentic-warden, and lean-sdd building itself), one maintainer, October to November 2026. Descriptive, not a benchmark.</p>
+  </div>
+  <div class="two">
+    <div class="panel">
+      <h3>Tasks vs. fix rounds per milestone</h3>
+      <div class="runs" id="runs" aria-hidden="true"></div>
+      <table class="vh"><caption>Tasks and fix rounds per milestone</caption><thead><tr><th scope="col">Milestone</th><th scope="col">Tasks</th><th scope="col">Fix rounds</th></tr></thead><tbody id="runs-table"></tbody></table>
+      <div class="axis" aria-hidden="true"><span></span><span class="ticks"><span>0</span><span>3</span><span>6</span><span>9</span></span><span></span></div>
+      <div class="legend" style="margin:0" aria-hidden="true"><span><i style="border-radius:3px"></i>tasks</span><span><i class="g" style="transform:none;background:var(--gate)"></i>fix rounds</span></div>
+    </div>
+    <div class="panel">
+      <h3>Every rule names the failure behind it</h3>
+      <p style="color:var(--muted);font-size:0.92rem">After each project, a retro turns lessons into checks or rule edits, not notes. Four changelog entries:</p>
+      <div class="changelog">
+        <div class="cl"><span>Correctness reviewer moved from Opus to Sonnet</span><span class="why">it used 19% of 24h usage at Opus</span></div>
+        <div class="cl"><span>Doc claims must cite a source</span><span class="why">8 fix rounds and 23 unsupported claims</span></div>
+        <div class="cl"><span>Worktree agents sync to the base commit and install dependencies first</span><span class="why">every worktree started at main, and a reviewer saw a false test failure</span></div>
+        <div class="cl"><span>Ledger logger refuses newlines</span><span class="why">a multi-line note forged a ledger line</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TRADEOFFS -->
+<section id="tradeoffs">
+  <div class="section-head">
+    <p class="eyebrow">Honest limits</p>
+    <h2>What it costs you</h2>
+  </div>
+  <div class="trade">
+    <div><b>Needs superpowers</b><span>Install it first; lean-sdd uses its TDD, debugging and finishing skills.</span></div>
+    <div><b>Claude Code only</b><span>Not Cursor, Copilot or claude.ai chat. Agents need Claude Code.</span></div>
+    <div><b>GitHub for merge</b><span>The merge scripts call <code>gh</code>.</span></div>
+    <div><b>Young, one maintainer</b><span>Started 2026-10-23.</span></div>
+    <div><b>Two fixed stops</b><span>Large work always waits for your spec and merge yes.</span></div>
+  </div>
+</section>
+
+<!-- PITCH -->
+<section id="pitch">
+  <div class="section-head">
+    <p class="eyebrow">Say it in 30 seconds</p>
+    <h2>Ready-made pitches</h2>
+    <p class="lede">Copy the one that fits the room.</p>
+  </div>
+  <div class="pitches">
+    <div class="pitch"><p class="eyebrow">For developers</p><blockquote id="p1">lean-sdd is a Claude Code plugin that runs spec-driven development end to end. Small changes skip it. For features it writes a spec with testable acceptance criteria, plans interfaces and tests, builds tasks in parallel worktrees, reviews each task with capped fix rounds, runs a multi-lens review panel, then verifies every criterion before merge. We only approve the spec and the merge.</blockquote><span class="copy"><button class="btn" type="button" command="--copy" commandfor="p1">Copy<span class="vh"> developer pitch</span></button><span class="tip" role="status"></span></span></div>
+    <div class="pitch"><p class="eyebrow">For product and business</p><blockquote id="p2">It turns Claude into a project lead with a crew. We sign off twice: on what gets built, and on shipping it. In between, AI helpers build and check the work, and before we ship we get a line-by-line report of which promises were proven. Small fixes skip all of that, so we only pay for process when the job is big.</blockquote><span class="copy"><button class="btn" type="button" command="--copy" commandfor="p2">Copy<span class="vh"> product and business pitch</span></button><span class="tip" role="status"></span></span></div>
+    <div class="pitch"><p class="eyebrow">For managers</p><blockquote id="p3">It keeps AI-driven work predictable: two fixed approval points, a hard cap on rework loops, cheaper models for simple tasks, and a pause before usage limits run out. Each project ends with a short retro that turns mistakes into automatic checks, so the process gets tighter with use.</blockquote><span class="copy"><button class="btn" type="button" command="--copy" commandfor="p3">Copy<span class="vh"> manager pitch</span></button><span class="tip" role="status"></span></span></div>
+  </div>
+</section>
+
+</main>
+
+<footer>
+  <div class="wrap">Sources: lean-sdd <code>README.md</code>, <code>skills/lean-sdd/SKILL.md</code>, <code>agents/*.md</code>, <code>docs/comparison-research.md</code>, <code>docs/field-notes.md</code> at v0.1.10. Comparison read 2026-10-26.</div>
+</footer>
+
+<script>
+const STEPS = [
+  { id: "T", name: "Size triage", kind: "claude",
+    who: ["Claude"],
+    plain: ["Claude decides whether the job is small or large and says so in one line.", "Small work is done directly. Everything else rides the full line."],
+    dev: ["Small = 1–3 files, under ~150 lines, no new trust boundary: skip the skill entirely, apply coding rules + TDD.", "Large = feature, milestone, any trust boundary. Unclear → Large."],
+    out: ["One-line size call in chat"] },
+  { id: "0", name: "Setup", kind: "claude",
+    who: ["Claude", "scripts"],
+    plain: ["Claude checks how much of your AI usage budget is left, so a long project doesn't stall halfway.", "At 85% it trims optional reviews; at 95% it pauses cleanly."],
+    dev: ["Reads <code>~/.claude/state/usage.json</code> from the status line. 95% pause threshold; obeys <code>USAGE GUARD</code>.", "Budget mode at ≥85%: drops panel-design, keeps panel-cdo only if an AC needs it, no Opus escalation.", "Installs the commit-trailer git hook only if you asked for trailers."],
+    out: ["Usage reading", "Optional commit-msg hook"] },
+  { id: "1", name: "Scope gate", kind: "claude",
+    who: ["Claude"],
+    plain: ["Before asking you anything, Claude writes six lines: the smallest useful version, what's cut, what's parked for later, what existing work it can reuse, and whether the job touches sensitive areas or customer-facing text."],
+    dev: ["Six lines max: smallest useful version, cut, deferred (→ Backlog), reuse/delete, trust boundary y/n (→ security seat), audience-facing y/n + target reader (→ panel-cdo)."],
+    out: ["6-line scope note", "Backlog seeds"] },
+  { id: "2a", name: "Exec room", kind: "opt",
+    who: ["exec-seat ×3"],
+    plain: ["Only if you ask: three AI 'executives' (CEO, product, marketing) each write a short position paper. They offer options; you decide."],
+    dev: ["Three <code>exec-seat</code> agents in one message write <code>r1-ceo/cpo/cmo.md</code>. Round 2 only on conflicts the spec needs. Claude acts as CTO and cuts what can't ship; survivors become question options."],
+    out: ["Position papers committed with the spec"] },
+  { id: "2", name: "One question round", kind: "claude",
+    who: ["Claude", "you answer"],
+    plain: ["All open questions arrive in one batch (max four), each with a recommended answer first. No drip-feed of interruptions.", "Questions that a quick experiment can answer become the first task instead of a debate."],
+    dev: ["Forks classified: observable fact → prototype as T1, decision marked <code>pending: T1</code>; technical call docs settle → decided; product/taste → asked.", "One-way doors (data shape, wire format, public API) name ≥2 options in Decisions."],
+    out: ["Answers in Decisions"] },
+  { id: "3", name: "Spec", kind: "gate",
+    who: ["Claude", "panel-correctness", "YOU approve"],
+    plain: ["Claude writes a short design doc with numbered success criteria, each with a way to check it, like 'export 10,000 rows in under 2 seconds'.", "A reviewer pre-checks it for surprises. Then Claude stops and waits for your explicit yes."],
+    dev: ["<code>docs/superpowers/specs/&lt;date&gt;-&lt;topic&gt;-design.md</code>: goal, non-goals, decisions, design, numbered ACs, each with a check command or <code>check: seat &lt;name&gt;</code> / <code>check: owner at gate</code>.", "Every AC command dry-runs on base (red OK, usage error not). Pre-mortem: panel-correctness on the spec only, max 8 lines.", "GATE 1: explicit approval required."],
+    out: ["Spec file", "Gate 1 approval"] },
+  { id: "4", name: "Plan", kind: "claude",
+    who: ["Claude"],
+    plain: ["The work is split into tasks. Each task lists what it delivers and how it will be tested, not the code itself.", "Independent tasks are grouped so they can be built at the same time.", "If the work changes how the app runs, the plan names one command that starts the real app and tries the main flow."],
+    dev: ["Per task: files, signatures, acceptance tests, constraints, agent tier, depends-on. Snippets ≤15 lines.", "Rules: removals tested by repo-wide grep; rewrites diff old vs new paths; weak-coverage code gets a characterization task first; round-trip, invariant and idempotency tests are property tests with a pinned seed plus one literal example. Riskiest unknown first. Backlog section.", "Runtime-changing milestones name a smoke command that boots the real thing on a free port and drives one main flow; every affected brief carries it."],
+    out: ["Plan file with parallel groups + Backlog", "Smoke command (runtime changes)"] },
+  { id: "5", name: "Build", kind: "claude",
+    who: ["sdd-implementer", "sdd-implementer-lite"],
+    plain: ["AI builders take the tasks. Independent ones work side by side in separate copies of the project, then their work is merged in order and the full test suite runs.", "Builders fix the real cause of a problem instead of patching around it, and shut down anything they left running before they report."],
+    dev: ["Parallel group dispatched in one message, each with <code>isolation: \"worktree\"</code>; merged in plan order; full suite after merge.", "Ledger line per event via <code>sdd-log.sh</code>, enabling pause/resume and metrics.", "In a worktree the implementer first syncs to the brief's base sha (a new worktree starts at the default branch) and installs dependencies if none exist. Before reporting it stops every server, container, background shell and monitor it started.", "Root-cause fixes only: no sleep, retry or skip for a flaky test, and no comment arguing a workaround is fine."],
+    out: ["Commits per task", "Ledger lines"] },
+  { id: "6", name: "Per-task review", kind: "claude",
+    who: ["sdd-reviewer", "sdd-reviewer-lite"],
+    plain: ["Every task is checked by a separate AI reviewer: does it do what it claims, and is it tidy?", "Two retries max, then the task is flagged and the project moves on.", "When a mistake could be caught automatically, the reviewer names the check (for example a lint rule) so it can be switched on later."],
+    dev: ["<code>review-pkg.sh &lt;base&gt;</code> builds the package; reviewer lenses = evidence + mechanics.", "Max 2 fix rounds; re-review on fix diff only with the lite reviewer; then <code>blocked</code>. <code>PRE-EXISTING</code> issues go to Backlog without a fix round.", "Reviewers run the smoke command (a failure is <code>must</code>) and mark an added sleep or retry <code>must</code>. A <code>CHECK:</code> line names a lint rule, type check or import ban the repo already has that would stop the finding's class; it goes to the Backlog <code>Checks</code> list."],
+    out: ["Verdict per task", "Backlog Checks list"] },
+  { id: "7", name: "Review panel", kind: "claude",
+    who: ["correctness", "design", "security", "cdo"],
+    plain: ["When all tasks are done, a panel of specialists looks at the whole thing at once: does it break, is it maintainable, is it safe, does it look and read well.", "A problem two panelists both raise must be fixed. Claude asks you before dismissing any finding."],
+    dev: ["One package, seats dispatched in one message. correctness always (Opus if trust boundary); design if ≥~300 new non-test lines; security if trust boundary; cdo if audience-facing/UI (browser QA).", "Dismissals proposed with reasons and asked in one batch. 2+ seats = must-fix. One fix wave + one lite re-review. Seat re-run only on fix diff for ACs it owns."],
+    out: ["TRIAGE fixed/dismissed/backlog", "SEAT ledger lines"] },
+  { id: "8", name: "Converge + merge", kind: "gate",
+    who: ["spec-converge", "YOU approve"],
+    plain: ["Every success criterion from the spec gets a verdict: verified, not verified, or inconclusive. Docs and changelog get updated.", "You see the verdicts and any dismissed findings, then say yes to ship."],
+    dev: ["<code>spec-converge</code> writes a status table into the spec: VERIFIED | NOT VERIFIED | INCONCLUSIVE. Non-verified = fix or owner accepts as a cut.", "<code>pr-checks-wait.sh</code> waits on CI; <code>pr-merge.sh &lt;pr&gt; &lt;sha&gt;</code> refuses a moved head and reports lost commits.", "GATE 2: explicit merge approval."],
+    out: ["Verified spec", "Merged PR"] },
+  { id: "9", name: "Retro", kind: "claude",
+    who: ["Claude", "you approve edits"],
+    plain: ["A six-line debrief with numbers. Anything that wasted effort becomes an automatic check or a rule change, not a note that gets forgotten."],
+    dev: ["Pastes <code>sdd-metrics.sh</code> line (tasks, fix rounds, blocked, findings per seat, 5h usage). Lessons → script, hook, test, agent rule or CLAUDE.md line. Workflow edits land with evidence in <code>CHANGELOG.md</code>; post-merge escapes become T1 of the next plan; a Backlog <code>Checks</code> class seen 2+ times becomes a task in the next plan."],
+    out: ["Retro in plan doc", "Changelog entry"] },
+];
+
+const line = document.getElementById("line");
+const panels = document.getElementById("panels");
+const tabs = [], panes = [];
+let current = 0;
+
+STEPS.forEach((s, i) => {
+  const tab = document.createElement("button");
+  tab.type = "button";
+  tab.id = "tab-" + s.id;
+  tab.className = "station" + (s.kind === "gate" ? " gate" : s.kind === "opt" ? " opt" : "");
+  tab.setAttribute("role", "tab");
+  tab.innerHTML = '<span class="stop" aria-hidden="true"><span>' + s.id + '</span></span><span class="name">' + s.name + '</span>';
+  tab.addEventListener("click", () => select(i));
+  line.appendChild(tab);
+  tabs.push(tab);
+
+  // One panel per stop, so find-in-page reaches every stop's text (hidden="until-found").
+  const pane = document.createElement("div");
+  pane.setAttribute("role", "tabpanel");
+  pane.setAttribute("aria-labelledby", tab.id);
+  const label = s.kind === "gate" ? "Gate · you approve" : s.kind === "opt" ? "Optional · only on request" : "Claude runs it";
+  pane.innerHTML =
+    '<div class="detail' + (s.kind === "gate" ? ' is-gate' : '') + '"><div>' +
+    '<p class="eyebrow">Stop ' + s.id + ' · ' + label + '</p><h3>' + s.name + '</h3>' +
+    '<div class="who">' + s.who.map(w => '<span class="chip' + (w.startsWith("YOU") ? ' gate' : ' on') + '">' + w + '</span>').join("") + '</div>' +
+    '<div class="body plain">' + s.plain.map(p => '<p>' + p + '</p>').join("") + '</div>' +
+    '<div class="body dev">' + s.dev.map(p => '<p>' + p + '</p>').join("") + '</div>' +
+    '<div class="detail-nav"><button class="btn" type="button" data-go="-1"' + (i === 0 ? ' disabled' : '') + '>← Previous</button>' +
+    '<button class="btn" type="button" data-go="1"' + (i === STEPS.length - 1 ? ' disabled' : '') + '>Next stop →</button></div></div>' +
+    '<aside><h4>Leaves behind</h4><ul>' + s.out.map(o => '<li>' + o + '</li>').join("") + '</ul>' +
+    '<h4>Progress</h4><p>' + (i + 1) + ' of ' + STEPS.length + '</p></aside></div>';
+  pane.querySelectorAll("[data-go]").forEach(b => b.addEventListener("click", () => select(i + Number(b.dataset.go))));
+  pane.addEventListener("beforematch", () => select(i));
+  panels.appendChild(pane);
+  panes.push(pane);
+});
+
+function select(i, focus = false) {
+  current = i;
+  tabs.forEach((t, j) => {
+    t.setAttribute("aria-selected", j === i ? "true" : "false");
+    t.tabIndex = j === i ? 0 : -1; // roving tabindex: the tablist is one Tab stop
+  });
+  // Unsupported browsers turn "until-found" into plain hidden.
+  panes.forEach((p, j) => { p.hidden = j === i ? false : "until-found"; });
+  if (focus) {
+    tabs[i].focus();
+    tabs[i].scrollIntoView({ block: "nearest", inline: "nearest", container: "nearest" });
+  }
+}
+select(0);
+
+line.addEventListener("keydown", e => {
+  const to = { ArrowRight: current + 1, ArrowLeft: current - 1, Home: 0, End: STEPS.length - 1 }[e.key];
+  if (to === undefined || to < 0 || to >= STEPS.length) return;
+  e.preventDefault();
+  select(to, true);
+});
+
+/* comparison */
+const TOOLS = ["lean-sdd", "superpowers", "spec-kit", "Claude Code"];
+const ROWS = [
+  ["Skips process for small tasks", ["y",""], ["p","small change still gets a design doc"], ["n","no scaling to task size documented"], ["p","guidance only"]],
+  ["Fixed human approval gates", ["y","spec + merge"], ["p","design + plan approval; merge is a menu choice"], ["p","workflow gate step, no named gates"], ["p","plan-mode approval only"]],
+  ["Success criteria with a check command", ["y",""], ["p","plan steps have commands, no AC format"], ["p","criteria named, no command each"], ["p","advice only, no spec format"]],
+  ["Parallel build in isolated copies", ["y","worktrees"], ["p","implementers run one at a time"], ["p","[P] groups, no worktrees"], ["y","worktree subagents"]],
+  ["Review after every task", ["y",""], ["y",""], ["n","only whole-feature check"], ["p","/code-review not tied to tasks"]],
+  ["Multi-specialist review panel", ["y","up to 4 seats"], ["n","one reviewer"], ["n","one code-review skill"], ["p","you build reviewers yourself"]],
+  ["Verdict per success criterion", ["y","VERIFIED / NOT / INCONCLUSIVE"], ["n","no converge step"], ["p","reports gaps only"], ["n","none documented"]],
+  ["Pauses before usage limits", ["y","opt-in, full edition"], ["n","not documented"], ["n","not documented"], ["p","status line shows limits, no pause"]],
+  ["Retro that rewrites the workflow", ["y",""], ["n","no retro step"], ["n","not documented"], ["p","memory notes, doesn't edit skills"]],
+];
+const WORD = { y: "Yes", p: "Partial", n: "No" };
+const tbody = document.querySelector("#matrix tbody");
+ROWS.forEach(r => {
+  const tr = document.createElement("tr");
+  tr.innerHTML = '<th scope="row">' + r[0] + '</th>' + r.slice(1).map((c, j) =>
+    '<td' + (j === 0 ? ' class="us"' : '') + '><span class="mark ' + c[0] + '">' + WORD[c[0]] + '</span>' + (c[1] ? '<small>' + c[1] + '</small>' : '') + '</td>').join("");
+  tbody.appendChild(tr);
+});
+const score = document.getElementById("score");
+TOOLS.forEach((t, j) => {
+  const cells = ROWS.map(r => r[j + 1][0]);
+  const y = cells.filter(c => c === "y").length, p = cells.filter(c => c === "p").length, n = ROWS.length;
+  score.insertAdjacentHTML("beforeend",
+    '<div><b>' + t + '</b><div class="bar" aria-hidden="true"><span class="y" style="width:' + (y / n * 100) + '%"></span><span class="p" style="width:' + (p / n * 100) + '%"></span></div><span>' + y + ' yes · ' + p + ' partial · ' + (n - y - p) + ' no</span></div>');
+});
+
+/* proof */
+const RUNS = [["hosted-cells",6,2],["platform-refresh",5,2],["docs-onboarding",9,6],["readme-appeal",6,3],["releases",8,6],["security-hardening",8,1],["oss-release",6,5],["lite-edition",3,1],["reviewer-convergence",2,0]];
+const runs = document.getElementById("runs");
+const runsTable = document.getElementById("runs-table");
+RUNS.forEach(([n, t, f]) => {
+  runs.insertAdjacentHTML("beforeend",
+    '<div class="run"><span>' + n + '</span><span class="track"><span class="t" style="width:' + (t / 9 * 100) + '%"></span><span class="f" style="width:calc(' + (f / 9 * 100) + '% - 4px)"></span></span><span class="num">' + t + ' / ' + f + '</span></div>');
+});
+RUNS.forEach(([n, t, f]) => runsTable.insertAdjacentHTML("beforeend", '<tr><th scope="row">' + n + '</th><td>' + t + '</td><td>' + f + '</td></tr>'));
+
+/* audience toggle */
+const btns = document.querySelectorAll(".seg button");
+function setAud(a) {
+  document.body.dataset.aud = a;
+  btns.forEach(b => b.setAttribute("aria-pressed", b.dataset.aud === a ? "true" : "false"));
+  try { localStorage.setItem("lean-sdd-aud", a); } catch (e) {}
+}
+btns.forEach(b => b.addEventListener("click", () => setAud(b.dataset.aud)));
+try { const saved = localStorage.getItem("lean-sdd-aud"); if (saved === "dev" || saved === "plain") setAud(saved); } catch (e) {}
+
+/* copy pitches: Invoker Commands (command="--copy"), click fallback for older browsers */
+const timers = new WeakMap();
+let lastMessage = "";
+async function copy(button, target) {
+  const text = target.innerText.trim();
+  if (!text) return;
+  try { await navigator.clipboard.writeText(text); report(button, true); }
+  catch { report(button, false); }
+}
+function report(button, ok) {
+  const tip = button.nextElementSibling; // role="status" bubble: visible text and live region
+  clearTimeout(timers.get(button));
+  let message = ok ? "Copied" : "Copy blocked: select the text and copy it";
+  if (message === lastMessage) message += " "; // VoiceOver skips a repeated identical message
+  lastMessage = message;
+  tip.textContent = "";
+  tip.classList.toggle("fail", !ok);
+  requestAnimationFrame(() => { tip.textContent = message; });
+  timers.set(button, setTimeout(() => { tip.textContent = ""; }, 2500));
+}
+if ("CommandEvent" in window) {
+  document.addEventListener("command", e => { if (e.command === "--copy") copy(e.source, e.target); }, true);
+} else {
+  document.addEventListener("click", e => {
+    const button = e.target.closest('button[command="--copy"]');
+    const target = button && document.getElementById(button.getAttribute("commandfor"));
+    if (target) copy(button, target);
+  });
+}
+</script>
+</body>
+</html>
