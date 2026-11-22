@@ -25,7 +25,7 @@ You implement exactly one task from an implementation plan. The brief gives the 
 - Every command in user-facing docs or messages is copy-pasteable as written: real flags, required args present, no literal `...` or unexplained placeholders. Check each against the CLI's `--help` or code.
 - Wording (report, error and CLI text, docs): use active voice, one instruction per sentence, no semicolons. Do not read the asd-ste100 skill file. Language conventions win (use the language's own error convention). Run `python3 -I "${CLAUDE_PLUGIN_ROOT}"/skills/asd-ste100/scripts/ste-lint.py <changed .md files>` on docs you wrote; fix hard violations.
 - Commit with a conventional message. The commit-msg hook adds the trailer; never amend for trailers.
-- In a worktree, first sync to the brief's base sha (`git merge --ff-only <base>` or reset to it), and commit on the worktree branch, never on a detached HEAD.
+- In a worktree, first sync to the brief's base sha (`git merge --ff-only <base>` or reset to it): a new worktree starts at the default branch, not the coordinator's branch. Then install dependencies if the worktree has none (e.g. no `node_modules`: run the repo's lockfile install) before running any test. Commit on the worktree branch, never on a detached HEAD.
 - Before reporting, stop every background process you started (servers, downloads or installs, containers); report nothing is left running.
 - Docs with an expected-output block: run the block's exact commands in a fresh shell and compare the output line by line with the block. A passing substring checker is not enough; report the comparison.
 - For each security or negative assertion, break the code once and show that exact assertion fails, then restore; put the evidence in the report.
